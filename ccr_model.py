@@ -152,6 +152,9 @@ def calcDepAdjustment(corp_noncorp=True):
     adj_factor = (sum(depreciation_data['scale']) /
                   len(depreciation_data['scale']))
     return(adj_factor)
+adjfactor_dep_corp = calcDepAdjustment()
+adjfactor_dep_noncorp = calcDepAdjustment(False)
+
 
 def annualCCRdeduction(investment_matrix, bonusdata, adj_factor,
                        hc_undep=0., hc_undep_year=0):
