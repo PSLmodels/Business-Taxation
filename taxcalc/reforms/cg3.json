@@ -1,8 +1,0 @@
-{
-  "policy": {
-        "_CG_nodiff":
-            {"2017": [true]},
-        "_ALD_InvInc_ec_rt":
-            {"2017": [0.5]}
-  }
-}
