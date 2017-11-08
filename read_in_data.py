@@ -29,3 +29,7 @@ bonus_data = pd.read_csv(ctax_data_path + 'bonus_data.csv')
 # import debt data
 debt_data_corp = pd.read_csv(ctax_data_path + 'Corp debt data.csv')
 debt_data_noncorp = pd.read_csv(ctax_data_path + 'Noncorp debt data.csv')
+# import pass-through IRS data
+partner_data = pd.read_csv(ctax_data_path + 'partnership data.csv')
+Scorp_data = pd.read_csv(ctax_data_path + 'Scorp data.csv')
+sp_data = pd.read_csv(ctax_data_path + 'sp_nonfarm data.csv')

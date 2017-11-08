@@ -46,3 +46,44 @@ def calc_MTRs_nc(param_dict, startyear):
     tau_base = tau_nc_taxable_base * alpha_nc_ft + tau_td_base * alpha_nc_td
     tau_ref = tau_nc_taxable_ref * alpha_nc_ft + tau_td_ref * alpha_nc_td
     return (tau_base, tau_ref)
+
+def distribute_results():
+    calc_base = make_calculator({}, 2014)
+    calc_ref = make_calculator({}, 2014)
+    indiv_rev_impact = np.zeros(14)
+    for i in range(2014,2028):
+        calc_ref2 = copy.deepcopy(calc_ref)
+        calc_ref2.records.e00900p = np.where(calc_ref2.records.e00900p >= 0, 
+                                             calc_ref2.records.e00900p * indiv_gfactors['SchC_pos'][i-2014], 
+                                             calc_ref2.records.e00900p * indiv_gfactors['SchC_neg'][i-2014])
+        calc_ref2.records.e00900s = np.where(calc_ref2.records.e00900s >= 0, 
+                                             calc_ref2.records.e00900s * indiv_gfactors['SchC_pos'][i-2014], 
+                                             calc_ref2.records.e00900s * indiv_gfactors['SchC_neg'][i-2014])
+        calc_ref2.records.e00900 = np.where(calc_ref2.records.e00900 >= 0, 
+                                            calc_ref2.records.e00900 * indiv_gfactors['SchC_pos'][i-2014], 
+                                            calc_ref2.records.e00900 * indiv_gfactors['SchC_neg'][i-2014])
+        change_e26270 = np.where(calc_ref2.records.e26270 >= 0, 
+                                 calc_ref2.records.e26270 * (indiv_gfactors['e26270_pos'][i-2014] - 1), 
+                                 calc_ref2.records.e26270 * (indiv_gfactors['e26270_neg'][i-2014] - 1))
+        calc_ref2.records.e26270 = calc_ref2.records.e26270 + change_e26270
+        calc_ref2.records.e02000 = calc_ref2.records.e02000 + change_e26270
+        # Change investment income
+        calc_ref2.records.e00600 = calc_ref2.records.e00600 * indiv_gfactors['equity'][i-2014]
+        calc_ref2.records.e00650 = calc_ref2.records.e00650 * indiv_gfactors['equity'][i-2014]
+        calc_ref2.records.p22250 = calc_ref2.records.p22250 * indiv_gfactors['equity'][i-2014]
+        calc_ref2.records.p23250 = calc_ref2.records.p23250 * indiv_gfactors['equity'][i-2014]
+        calc_base.calc_all()
+        calc_ref2.calc_all()
+        indiv_rev_impact[i-2014] = sum((calc_ref2.records.combined -
+                                        calc_base.records.combined) * calc_base.records.s006) / 10**9
+        if i < 2027:
+            calc_base.increment_year()
+            calc_ref.increment_year()
+    return(indiv_rev_impact)
+
+            
+
+
+
+
+    
