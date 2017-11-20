@@ -47,9 +47,9 @@ def calc_MTRs_nc(param_dict, startyear):
     tau_ref = tau_nc_taxable_ref * alpha_nc_ft + tau_td_ref * alpha_nc_td
     return (tau_base, tau_ref)
 
-def distribute_results():
+def distribute_results(reformdict):
     calc_base = make_calculator({}, 2014)
-    calc_ref = make_calculator({}, 2014)
+    calc_ref = make_calculator(reformdict, 2014)
     indiv_rev_impact = np.zeros(14)
     for i in range(2014,2028):
         calc_ref2 = copy.deepcopy(calc_ref)
