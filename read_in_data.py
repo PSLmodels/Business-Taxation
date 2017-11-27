@@ -11,7 +11,7 @@ ftc_other_data = pd.read_csv(ctax_data_path + 'ftc other data.csv')
 # import data for Sec. 199
 sec199_data = pd.read_csv(ctax_data_path + 'sec199.csv')
 # import depreciation data
-econdepr_path = 'btax_mini/data/depreciation_rates/\
+econdepr_path = 'btax/data/depreciation_rates/\
 Economic Depreciation Rates.csv'
 df_econdepr = pd.read_csv(econdepr_path)
 df_econdepr['Asset'][78] = 'Communications equipment manufacturing'
