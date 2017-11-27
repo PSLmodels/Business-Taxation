@@ -29,9 +29,9 @@ def investmentResponse(startyear):
     elast_usercost_c = elast_dict['inv_usercost_c']
     elast_usercost_nc = elast_dict['inv_usercost_nc']
     elast_eatr = elast_dict['inv_eatr']
-    combined_response = copy.deepcopy(ccr_data)
-    combined_response.drop(['GDS Class Life', 'assets_c', 'assets_nc',
-                            'Method', 'bonus', 'L', 'delta'],
+    combined_response = copy.deepcopy(base_data)
+    combined_response.drop(['assets_c', 'assets_nc',
+                            'Method', 'L', 'delta'],
                            axis=1, inplace=True)
     for year in range(2014, 2028):
     	print "***** RUN " + str(year) + " *****"
@@ -164,8 +164,8 @@ def buildNewInvMatrix(response_data, response_type='usercost'):
     inv_mat_base_noncorp = build_inv_matrix(False)
     inv_mat_ref_corp = build_inv_matrix()
     inv_mat_ref_noncorp = build_inv_matrix(False)
-    data_main = copy.deepcopy(ccr_data)
-    data_main.drop(['GDS Class Life', 'Method', 'bonus', 'L'], axis=1, inplace=True)
+    data_main = copy.deepcopy(base_data)
+    data_main.drop(['Method', 'L'], axis=1, inplace=True)
     data_main.rename(columns={'assets_c': 'K_c_2017', 'assets_nc': 'K_nc_2017'}, inplace=True)
     for i in range(57,68):
         data_main['K_c_' + str(1961+i)] = ((data_main['K_c_' + str(1960+i)] * (1 - data_main['delta']) + 
