@@ -7,9 +7,7 @@ def make_calculator(reform_dict, start_year):
     if reform_dict != {}:
         policy1.implement_reform(reform_dict)
     calc1 = Calculator(records = records1, policy = policy1, behavior = behavior1)
-    for i in range(start_year - 2013):
-        calc1.increment_year()
-    assert calc1.current_year == start_year
+    calc1.advance_to_year(start_year)
     calc1.calc_all()
     return(calc1)
 
