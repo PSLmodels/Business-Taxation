@@ -1,20 +1,28 @@
 # construct base dataset
-ModelDiffs = run_btax(False, True, 2017)
-btax_data = ModelDiffs[0]
-btax_data.drop(['ADS Life', 'GDS Life', 'Asset Type', 'System',
-                'asset_category', 'bea_asset_code', 'major_asset_group',
-                'metr_c', 'metr_c_d', 'metr_c_e', 'metr_nc', 'metr_nc_d',
-                'metr_nc_e', 'mettr_c', 'mettr_c_d', 'mettr_c_e',
-                'mettr_nc', 'mettr_nc_d', 'mettr_nc_e', 'rho_c',
-                'rho_c_d', 'rho_c_e', 'rho_nc', 'rho_nc_d', 'rho_nc_e',
-                'z_c', 'z_c_d', 'z_c_e', 'z_nc', 'z_nc_d',
-                'z_nc_e', 'b'], axis=1, inplace=True)
-btax_data['L'] = np.where(btax_data['GDS Class Life'] == 39.0,
-                          39.5, btax_data['GDS Class Life'])
-btax_data.drop([3, 21, 32, 91], axis=0, inplace=True)
-ccr_data = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
-ccr_data.drop([96, 97, 98], axis=0, inplace=True)
-base_data = copy.deepcopy(ccr_data)
+def ccr_data_v1():
+    ModelDiffs = run_btax(False, True, 2017)
+    btax_data = ModelDiffs[0]
+    btax_data.drop(['ADS Life', 'Asset Type', 'GDS Life', 'System', 'asset_category',
+                    'b', 'bea_asset_code', 'bonus', 'major_asset_group', 'metr_c',
+                    'metr_c_d', 'metr_c_e', 'metr_nc', 'metr_nc_d', 'metr_nc_e',
+                    'mettr_c', 'mettr_c_d', 'mettr_c_e', 'mettr_nc', 'mettr_nc_d',
+                    'mettr_nc_e', 'rho_c', 'rho_c_d', 'rho_c_e', 
+                    'rho_nc', 'rho_nc_d', 'rho_nc_e',
+                    'z_c_d', 'z_c_e', 'z_nc_d', 'z_nc_e'], axis=1, inplace=True)
+    btax_data.rename(columns={'GDS Class Life': 'L'}, inplace=True)
+    btax_data.drop([3, 21, 32, 91], axis=0, inplace=True)
+    ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
+    ccrdata.drop([96,97,98], axis=0, inplace=True)
+    return ccrdata
+base_data = ccr_data_v1()
+
+def ccr_data_v2(paramdict={}):
+    execfile('mini_combined.py')
+    btaxparams = update_btax_params(paramdict)
+    
+    
+
+    
 # longer functions to use
 def depreciationDeduction(year_investment, year_deduction, method, L,
                           delta, bonusdata):
