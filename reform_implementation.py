@@ -67,5 +67,12 @@ def update_brc_params(paramdict_other):
         other_params[key] = paramdict_other[key]
     return other_params
 
+def extract_other_param(paramname, paramdict):
+    assert paramname in list(paramdict)
+    year = list(paramdict[paramname])[0]
+    val = paramdict[paramname][year]
+    return (year, val)
+
 btax_params_reform = update_btax_params(btax_dict1)
 other_params_reform = update_brc_params(btax_dict2)
+

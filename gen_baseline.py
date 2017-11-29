@@ -8,7 +8,7 @@ combined_base = combined_base.merge(right=ftc_base, how='outer', on='year')
 combined_base['taxbc'] = (combined_base['taxrev'] + combined_base['pymtc'] +
                      	  combined_base['ftc'] - combined_base['amt'])
 combined_base['gbc_adj'] = 0.025739617
-combined_base['tau'] = btax_defaults['tau_c'] - 0.347
+combined_base['tau'] = btax_defaults['tau_c']
 combined_base['taxinc'] = (combined_base['taxbc'] /
 						   (combined_base['tau'] - combined_base['gbc_adj']))
 # Sec. 199
