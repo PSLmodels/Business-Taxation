@@ -1,43 +1,10 @@
 # construct base dataset
-def ccr_data_v1():
-    ModelDiffs = run_btax(False, True, 2017)
-    btax_data = ModelDiffs[0]
-    btax_data.drop(['ADS Life', 'Asset Type', 'GDS Life', 'System', 'asset_category',
-                    'b', 'bea_asset_code', 'bonus', 'major_asset_group', 'metr_c',
-                    'metr_c_d', 'metr_c_e', 'metr_nc', 'metr_nc_d', 'metr_nc_e',
-                    'mettr_c', 'mettr_c_d', 'mettr_c_e', 'mettr_nc', 'mettr_nc_d',
-                    'mettr_nc_e', 'rho_c', 'rho_c_d', 'rho_c_e', 
-                    'rho_nc', 'rho_nc_d', 'rho_nc_e',
-                    'z_c_d', 'z_c_e', 'z_nc_d', 'z_nc_e'], axis=1, inplace=True)
-    btax_data.rename(columns={'GDS Class Life': 'L'}, inplace=True)
-    btax_data.drop([3, 21, 32, 91], axis=0, inplace=True)
+def ccr_data():
+    btax_data = copy.deepcopy(assets_data)
     ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
     ccrdata.drop([96,97,98], axis=0, inplace=True)
     return ccrdata
-base_data = ccr_data_v1()
-
-
-"""
-CCR data version 2
-"""
-btax_defaults = pd.read_csv('mini_params_btax.csv')
-
-def get_taxdep_info():
-    taxdep = pd.read_csv('btax/data/depreciation_rates/tax_depreciation_rates.csv')
-    taxdep.drop(['System'], axis=1, inplace=True)
-    taxdep.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads', 'Asset Type': 'Asset'}, inplace=True)
-    taxdep['Asset'][81] = 'Motor vehicles and parts manufacturing'
-    taxdep['Method'][taxdep['Asset'] == 'Land'] = 'None'
-    taxdep['Method'][taxdep['Asset'] == 'Inventories'] = 'None'
-    econdep = pd.read_csv('btax/data/depreciation_rates/Economic Depreciation Rates.csv')
-    econdep['Asset'][78] = 'Communications equipment manufacturing'
-    econdep['Asset'][81] = 'Motor vehicles and parts manufacturing'
-    econdep.drop('Code', axis=1, inplace=True)
-    econdep.rename(columns={'Economic Depreciation Rate': 'delta'}, inplace=True)
-    depinfo = taxdep.merge(right=econdep, how='outer', on='Asset')
-    return depinfo
-
-taxdep_info_gross = get_taxdep_info()
+base_data = ccr_data()
 
 def taxdep_final(depr_3yr_method, depr_3yr_bonus,
                  depr_5yr_method, depr_5yr_bonus,
@@ -49,115 +16,91 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
                  depr_275yr_method, depr_275yr_bonus,
                  depr_39yr_method, depr_39yr_bonus):
     taxdep = copy.deepcopy(taxdep_info_gross)
-    taxdep['System'] = ''
+    system = np.empty(len(taxdep), dtype='S10')
+    class_life = np.asarray(taxdep['GDS Class Life'])
     # Determine depreciation systems for each asset type
-    taxdep['System'][taxdep['GDS Class Life'] == 3] = depr_3yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 5] = depr_5yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 7] = depr_7yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 10] = depr_10yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 15] = depr_15yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 20] = depr_20yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 25] = depr_25yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 27.5] = depr_275yr_method
-    taxdep['System'][taxdep['GDS Class Life'] == 39] = depr_39yr_method
+    system[class_life == 3] = depr_3yr_method
+    system[class_life == 5] = depr_5yr_method
+    system[class_life == 7] = depr_7yr_method
+    system[class_life == 10] = depr_10yr_method
+    system[class_life == 15] = depr_15yr_method
+    system[class_life == 20] = depr_20yr_method
+    system[class_life == 25] = depr_25yr_method
+    system[class_life == 27.5] = depr_275yr_method
+    system[class_life == 39] = depr_39yr_method
     # Determine asset lives to use
-    taxdep['L'] = taxdep['L_gds']
-    taxdep['L'][taxdep['System'] == 'ADS'] = taxdep['L_ads']
-    taxdep['L'][taxdep['System'] == 'None'] = 100
+    Llist = np.asarray(taxdep['L_gds'])
+    Llist[system == 'ADS'] = taxdep['L_ads'][system == 'ADS']
+    Llist[system == 'None'] = 100
+    taxdep['L'] = Llist
     # Determine depreciation method
-    taxdep['Method'][taxdep['System'] == 'ADS'] = 'SL'
-    taxdep['Method'][taxdep['System'] == 'Economic'] = 'Economic'
-    taxdep['Method'][taxdep['System'] == 'None'] = 'None'
+    method = np.asarray(taxdep['Method'])
+    method[system == 'ADS'] = 'SL'
+    method[system == 'Economic'] = 'Economic'
+    method[system == 'None'] = 'None'
+    taxdep['Method'] = method
     # Detemine bonus depreciation
-    taxdep['bonus'] = 0
-    taxdep['bonus'][taxdep['GDS Class Life'] == 3] = depr_3yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 5] = depr_5yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 7] = depr_7yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 10] = depr_10yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 15] = depr_15yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 20] = depr_20yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 25] = depr_25yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 27.5] = depr_275yr_bonus
-    taxdep['bonus'][taxdep['GDS Class Life'] == 39] = depr_39yr_bonus
-    taxdep.drop(['System', 'L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
-    return taxdep
-
-def taxdep_pre2017(year):
-    bonusinfo = pd.read_csv('aggregates_data/bonus_data.csv')
-    taxdep = copy.deepcopy(taxdep_info_gross)
-    taxdep['L'] = taxdep['L_gds']
-    taxdep['bonus'] = 0
-    taxdep['bonus'][taxdep['GDS Class Life'] == 3] = bonusinfo['bonus3'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 5] = bonusinfo['bonus5'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 7] = bonusinfo['bonus7'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 10] = bonusinfo['bonus10'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 15] = bonusinfo['bonus15'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 20] = bonusinfo['bonus20'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 25] = bonusinfo['bonus25'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 27.5] = bonusinfo['bonus27'][year-1960]
-    taxdep['bonus'][taxdep['GDS Class Life'] == 39] = bonusinfo['bonus39'][year-1960]
+    bonus = np.zeros(len(taxdep))
+    bonus[class_life == 3] = depr_3yr_bonus
+    bonus[class_life == 5] = depr_5yr_bonus
+    bonus[class_life == 7] = depr_7yr_bonus
+    bonus[class_life == 10] = depr_10yr_bonus
+    bonus[class_life == 15] = depr_15yr_bonus
+    bonus[class_life == 20] = depr_20yr_bonus
+    bonus[class_life == 25] = depr_25yr_bonus
+    bonus[class_life == 27.5] = depr_275yr_bonus
+    bonus[class_life == 39] = depr_39yr_bonus
+    taxdep['bonus'] = bonus
     taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
     return taxdep
 
-def test_btax_reform(paramdict):
-    assert type(paramdict) == dict
-    paramnames = list(btax_defaults)
-    paramnames.remove('year')
-    keylist = []
-    for key in paramdict:
-        key2 = int(key)
-        assert key2 in range(2017, 2027)
-        keylist.append(key2)
-        #for mod in paramdict[key]:
-        for param in paramdict[key]:
-            assert param in paramnames
-
-def update_btax_params(param_dict):
-    """
-    param_dict is a year: mod dictionary. Acceptable years are 2017-2027. Ex:
-        {'2018': {'tau_c': 0.3}}
-    """
-    test_btax_reform(param_dict)
-    params_df = copy.deepcopy(btax_defaults)
-    yearlist = []
-    for key in param_dict:
-        yearlist.append(int(key))
-    yearlist.sort()
-    for year in yearlist:
-        for param in param_dict[str(year)]:
-            params_df[param][params_df['year'] >= year] = param_dict[str(year)][param]
-    return params_df
+def taxdep_preset(year):
+    taxdep = copy.deepcopy(taxdep_info_gross)
+    taxdep['L'] = taxdep['L_gds']
+    class_life = np.asarray(taxdep['GDS Class Life'])
+    bonus = np.zeros(len(class_life))
+    bonus[class_life == 3] = bonus_data['bonus3'][year-1960]
+    bonus[class_life == 5] = bonus_data['bonus5'][year-1960]
+    bonus[class_life == 7] = bonus_data['bonus7'][year-1960]
+    bonus[class_life == 10] = bonus_data['bonus10'][year-1960]
+    bonus[class_life == 15] = bonus_data['bonus15'][year-1960]
+    bonus[class_life == 20] = bonus_data['bonus20'][year-1960]
+    bonus[class_life == 25] = bonus_data['bonus25'][year-1960]
+    bonus[class_life == 27.5] = bonus_data['bonus27'][year-1960]
+    bonus[class_life == 39] = bonus_data['bonus39'][year-1960]
+    taxdep['bonus'] = bonus
+    taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
+    return taxdep
 
 def get_btax_params_oneyear(btax_params, year):
-    if year >= 2017:
+    if year >= 2014:
         year = min(year, 2027)
-        method_3yr = btax_params['depr_3yr_method'][year-2017]
-        method_5yr = btax_params['depr_5yr_method'][year-2017]
-        method_7yr = btax_params['depr_7yr_method'][year-2017]
-        method_10yr = btax_params['depr_10yr_method'][year-2017]
-        method_15yr = btax_params['depr_15yr_method'][year-2017]
-        method_20yr = btax_params['depr_20yr_method'][year-2017]
-        method_25yr = btax_params['depr_25yr_method'][year-2017]
-        method_275yr = btax_params['depr_275yr_method'][year-2017]
-        method_39yr = btax_params['depr_39yr_method'][year-2017]
-        bonus_3yr = btax_params['depr_3yr_bonus'][year-2017]
-        bonus_5yr = btax_params['depr_5yr_bonus'][year-2017]
-        bonus_7yr = btax_params['depr_7yr_bonus'][year-2017]
-        bonus_10yr = btax_params['depr_10yr_bonus'][year-2017]
-        bonus_15yr = btax_params['depr_15yr_bonus'][year-2017]
-        bonus_20yr = btax_params['depr_20yr_bonus'][year-2017]
-        bonus_25yr = btax_params['depr_25yr_bonus'][year-2017]
-        bonus_275yr = btax_params['depr_275yr_bonus'][year-2017]
-        bonus_39yr = btax_params['depr_39yr_bonus'][year-2017]
+        method_3yr = btax_params['depr_3yr_method'][year-2014]
+        method_5yr = btax_params['depr_5yr_method'][year-2014]
+        method_7yr = btax_params['depr_7yr_method'][year-2014]
+        method_10yr = btax_params['depr_10yr_method'][year-2014]
+        method_15yr = btax_params['depr_15yr_method'][year-2014]
+        method_20yr = btax_params['depr_20yr_method'][year-2014]
+        method_25yr = btax_params['depr_25yr_method'][year-2014]
+        method_275yr = btax_params['depr_275yr_method'][year-2014]
+        method_39yr = btax_params['depr_39yr_method'][year-2014]
+        bonus_3yr = btax_params['depr_3yr_bonus'][year-2014]
+        bonus_5yr = btax_params['depr_5yr_bonus'][year-2014]
+        bonus_7yr = btax_params['depr_7yr_bonus'][year-2014]
+        bonus_10yr = btax_params['depr_10yr_bonus'][year-2014]
+        bonus_15yr = btax_params['depr_15yr_bonus'][year-2014]
+        bonus_20yr = btax_params['depr_20yr_bonus'][year-2014]
+        bonus_25yr = btax_params['depr_25yr_bonus'][year-2014]
+        bonus_275yr = btax_params['depr_275yr_bonus'][year-2014]
+        bonus_39yr = btax_params['depr_39yr_bonus'][year-2014]
         taxdep = taxdep_final(method_3yr, bonus_3yr, method_5yr, bonus_5yr,
                               method_7yr, bonus_7yr, method_10yr, bonus_10yr,
                               method_15yr, bonus_15yr, method_20yr, bonus_20yr,
                               method_25yr, bonus_25yr, method_275yr, bonus_275yr,
                               method_39yr, bonus_39yr)
     else:
-        taxdep = taxdep_pre2017(year)
+        taxdep = taxdep_preset(year)
     return taxdep
-
 
 
 # longer functions to use
@@ -272,7 +215,6 @@ def calcDepAdjustment(corp_noncorp=True):
     #deltalist = np.asarray(base_data['delta'])
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_defaults, j+1960)
-        print 'params' + str(j+1960)
         for i in range(96):
             for k in range(75):
                 Dep_arr[i,j,k] = (depreciationDeduction(j, k, 
@@ -313,7 +255,6 @@ def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
     #deltalist = np.asarray(base_data['delta'])
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_params, j+1960)
-        print 'params' + str(j+1960)
         for i in range(96):
             for k in range(75):
                 Dep_arr[i,j,k] = (depreciationDeduction(j, k, 

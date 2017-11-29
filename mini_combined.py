@@ -196,64 +196,8 @@ def calc_usercost(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, leng
 
 
 """
-All code for tax depreciation information
-"""
-def get_taxdep_info():
-    taxdep = pd.read_csv('btax/data/depreciation_rates/tax_depreciation_rates.csv')
-    taxdep.drop(['GDS Class Life', 'System'], axis=1, inplace=True)
-    taxdep.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads', 'Asset Type': 'Asset'}, inplace=True)
-    taxdep['Asset'][81] = 'Motor vehicles and parts manufacturing'
-    taxdep['Method'][taxdep['Asset'] == 'Land'] = 'None'
-    taxdep['Method'][taxdep['Asset'] == 'Inventories'] = 'None'
-    econdep = pd.read_csv('btax/data/depreciation_rates/Economic Depreciation Rates.csv')
-    econdep['Asset'][78] = 'Communications equipment manufacturing'
-    econdep['Asset'][81] = 'Motor vehicles and parts manufacturing'
-    econdep.drop('Code', axis=1, inplace=True)
-    econdep.rename(columns={'Economic Depreciation Rate': 'delta'}, inplace=True)
-    depinfo = taxdep.merge(right=econdep, how='outer', on='Asset')
-    return depinfo
-
-taxdep_info_gross = get_taxdep_info()
-
-def taxdep_final(depr_3yr_method, depr_3yr_bonus,
-                 depr_5yr_method, depr_5yr_bonus,
-                 depr_7yr_method, depr_7yr_bonus,
-                 depr_10yr_method, depr_10yr_bonus,
-                 depr_15yr_method, depr_15yr_bonus,
-                 depr_20yr_method, depr_20yr_bonus,
-                 depr_25yr_method, depr_25yr_bonus,
-                 depr_275yr_method, depr_275yr_bonus,
-                 depr_39yr_method, depr_39yr_bonus):
-    taxdep = copy.deepcopy(taxdep_info_gross)
-    taxdep['System'] = ''
-    # Determine depreciation systems for each asset type
-    taxdep['System'][taxdep['L_gds'] == 3] = depr_3yr_method
-    taxdep['System'][taxdep['L_gds'] == 5] = depr_5yr_method
-    taxdep['System'][taxdep['L_gds'] == 7] = depr_7yr_method
-    taxdep['System'][taxdep['L_gds'] == 10] = depr_10yr_method
-    taxdep['System'][taxdep['L_gds'] == 15] = depr_15yr_method
-    taxdep['System'][taxdep['L_gds'] == 20] = depr_20yr_method
-    taxdep['System'][taxdep['L_gds'] == 25] = depr_25yr_method
-    taxdep['System'][taxdep['L_gds'] == 27.5] = depr_275yr_method
-    taxdep['System'][taxdep['L_gds'] == 39] = depr_39yr_method
-    # Determine asset lives to use
-    taxdep['L'] = taxdep['L_gds']
-    taxdep['L'][taxdep['System'] == 'ADS'] = taxdep['L_ads']
-    taxdep['L'][taxdep['System'] == 'None'] = 100
-    # Determine depreciation method
-    taxdep['Method'][taxdep['System'] == 'ADS'] = 'SL'
-    taxdep['Method'][taxdep['System'] == 'Economic'] = 'Economic'
-    taxdep['Method'][taxdep['System'] == 'None'] = 'None'
-    taxdep.drop(['System', 'L_gds', 'L_ads', ])
-    return taxdep
-
-
-"""
 All code for parameters
 """
-econ_defaults = pd.read_csv('mini_params_econ.csv')
-btax_defaults = pd.read_csv('mini_params_btax.csv')
-
 def test_btax_reform(paramdict):
     assert type(paramdict) == dict
     paramnames = list(btax_defaults)
@@ -300,19 +244,6 @@ def make_tdict_c(btax_params, start_year):
             if btax_params['tau_c'][i] != btax_params['tau_c'][i-1]:
                 tdict[str(i - (start_year-2017))] = btax_params['tau_c'][i]
     return tdict
-
-records_url = 'puf.csv'
-def make_calculator(reform_dict, start_year):
-    policy1 = Policy()
-    behavior1 = Behavior()
-    records1 = Records(records_url)
-    if reform_dict != {}:
-        policy1.implement_reform(reform_dict)
-    calc1 = Calculator(records = records1, policy = policy1, behavior = behavior1)
-    calc1.advance_to_year(start_year)
-    calc1.calc_all()
-    return(calc1)
-    
 
 def get_mtr_nc(calc):
     mtr1 = calc.mtr('e00900p')[2]
@@ -361,33 +292,6 @@ def get_econ_params_oneyear(econ_params, year):
     r_nc = f_nc * r_d + (1 - f_nc) * r_e_nc
     return(r_c, r_nc, r_d, pi, f_c, f_nc)
 
-def get_btax_params_oneyear(btax_params, year):
-    method_3yr = btax_params['depr_3yr_method'][year-2017]
-    method_5yr = btax_params['depr_5yr_method'][year-2017]
-    method_7yr = btax_params['depr_7yr_method'][year-2017]
-    method_10yr = btax_params['depr_10yr_method'][year-2017]
-    method_15yr = btax_params['depr_15yr_method'][year-2017]
-    method_20yr = btax_params['depr_20yr_method'][year-2017]
-    method_25yr = btax_params['depr_25yr_method'][year-2017]
-    method_275yr = btax_params['depr_275yr_method'][year-2017]
-    method_39yr = btax_params['depr_39yr_method'][year-2017]
-    bonus_3yr = btax_params['depr_3yr_bonus'][year-2017]
-    bonus_5yr = btax_params['depr_5yr_bonus'][year-2017]
-    bonus_7yr = btax_params['depr_7yr_bonus'][year-2017]
-    bonus_10yr = btax_params['depr_10yr_bonus'][year-2017]
-    bonus_15yr = btax_params['depr_15yr_bonus'][year-2017]
-    bonus_20yr = btax_params['depr_20yr_bonus'][year-2017]
-    bonus_25yr = btax_params['depr_25yr_bonus'][year-2017]
-    bonus_275yr = btax_params['depr_275yr_bonus'][year-2017]
-    bonus_39yr = btax_params['depr_39yr_bonus'][year-2017]
-    taxdep = taxdep_final(method_3yr, bonus_3yr, method_5yr, bonus_5yr,
-                          method_7yr, bonus_7yr, method_10yr, bonus_10yr,
-                          method_15yr, bonus_15yr, method_20yr, bonus_20yr,
-                          method_25yr, bonus_25yr, method_275yr, bonus_275yr,
-                          method_39yr, bonus_39yr)
-    return taxdep
-
-
 
 """
 Code to run btax-mini
@@ -399,9 +303,8 @@ def build_prelim_oneyear(year, econ_params, btax_params, iitref):
     taxdep = get_btax_params_oneyear(btax_params, year)
     tdict_c = make_tdict_c(btax_params, year)
     tdict_nc = make_tdict_nc(iitref, year)
-    asset_data = pd.read_csv('mini_assets.csv')
+    asset_data = copy.deepcopy(assets_data)
     main_data = asset_data.merge(right=taxdep, how='outer', on='Asset')
-    main_data.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
     main_data['uc_c'] = 0.
     #main_data['eatr_c'] = 0.
     main_data['uc_nc'] = 0.
@@ -411,13 +314,13 @@ def build_prelim_oneyear(year, econ_params, btax_params, iitref):
         main_data['uc_nc'][j] = calc_usercost(r_nc, pi, main_data['delta'][j], main_data['Method'][j], main_data['L'][j], main_data['bonus'][j], f_nc, r_d, 1-int_hc_nc, tdict_nc, 100)
     main_data['u_c'][main_data['Asset'] == 'Inventories'] = calc_rho_inv(r_c, pi, inv_method, 0.5, tdict_c)
     main_data['u_nc'][main_data['Asset'] == 'Inventories'] = calc_rho_inv(r_nc, pi, inv_method, 0.5, tdict_nc)
-    main_data.drop(['L', 'Method', 'bonus'], axis=1, inplace=True)
+    main_data.drop(['assets_c', 'assets_nc', 'L', 'Method', 'bonus'], axis=1, inplace=True)
     return main_data
 
 def run_btax_mini(yearlist, btax_refdict, iit_refdict):
     btax_params_df = update_btax_params(btax_refdict)
     econ_params_df = copy.deepcopy(econ_defaults)
-    basedata = pd.read_csv('mini_assets.csv')
+    basedata = copy.deepcopy(assets_data)
     for year in yearlist:
         results_oneyear = build_prelim_oneyear(year, econ_params_df, btax_params_df, iit_refdict)
         basedata = basedata.merge(right=results_oneyear, how='outer', on='Asset')

@@ -18,8 +18,8 @@ def calcAMTparams():
     return (gamma, nu)
 (gamma, nu) = calcAMTparams()
 
-amt_rates_default = [0.2] * 14
-ctax_rates_default = [0.347] * 14
+amt_rates_default = np.asarray(btax_defaults['tau_amt'])
+ctax_rates_default = np.asarray(btax_defaults['tau_c']) - 0.003
 def AMTmodel(amt_repeal_year=9e99, pymtc_repeal_year=9e99,
              amt_rates=amt_rates_default,
              ctax_rates=ctax_rates_default):
