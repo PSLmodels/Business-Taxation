@@ -1,16 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 23 18:35:34 2017
-
-@author: Cody
-"""
-
-import pandas as pd
-import numpy as np
-import copy
-import taxcalc
-from taxcalc import *
-
 """
 All functions for the calculations.
 """
@@ -236,18 +223,6 @@ def make_tdict_c(btax_params, start_year):
                 tdict[str(i - (start_year-2017))] = btax_params['tau_c'][i]
     return tdict
 
-def get_mtr_nc(calc):
-    mtr1 = calc.mtr('e00900p')[2]
-    mtr2 = calc.mtr('e26270')[2]
-    mtr3 = calc.mtr('e02000')[2]
-    posti = (calc.records.c04800 > 0.)
-    inc1 = np.abs(calc.records.e00900)
-    inc2 = np.abs(calc.records.e26270)
-    inc3 = np.abs(calc.records.e02000 - calc.records.e26270)
-    wgt = calc.records.s006
-    mtr_nc = (sum((mtr1 * inc1 + mtr2 * inc2 + mtr3 * inc3) * posti * wgt) / 
-              sum((inc1 + inc2 + inc3) * posti * wgt))
-    return mtr_nc
     
 def make_tdict_nc(iitreform, start_year):
     """

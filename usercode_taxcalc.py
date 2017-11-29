@@ -45,6 +45,34 @@ def calc_MTRs_nc(param_dict, startyear):
     tau_ref = tau_nc_taxable_ref * alpha_nc_ft + tau_td_ref * alpha_nc_td
     return (tau_base, tau_ref)
 
+def get_mtr_nc(calc):
+    alpha_nc_ft = 0.763 # fully taxable share of noncorporate equity
+    alpha_nc_td = 0.101 # share of noncorporate equity held in tax-deferred accounts
+    mtr1 = calc.mtr('e00900p')[2]
+    mtr2 = calc.mtr('e26270')[2]
+    mtr3 = calc.mtr('e02000')[2]
+    posti = (calc.records.c04800 > 0.)
+    inc1 = np.abs(calc.records.e00900)
+    inc2 = np.abs(calc.records.e26270)
+    inc3 = np.abs(calc.records.e02000 - calc.records.e26270)
+    wgt = calc.records.s006
+    mtr_ft = (sum((mtr1 * inc1 + mtr2 * inc2 + mtr3 * inc3) * posti * wgt) /
+              sum((inc1 + inc2 + inc3) * posti * wgt))
+    mtr4 = calc.mtr('e01700')[2]
+    inc4 = calc.records.e01700
+    mtr_td = sum(mtr4 * inc4 * posti * wgt) / sum(inc4 * posti * wgt)
+    mtr_nc = alpha_nc_ft * mtr_ft + alpha_nc_td * mtr_td
+    return mtr_nc
+
+def calc_mtr_nc_list(iit_refdict={}):
+    calc1 = make_calculator(iit_refdict, 2013)
+    mtrlist = []
+    for year in range(2014, 2028):
+        calc1.increment_year()
+        calc1.calc_all()
+        mtrlist.append(get_mtr_nc(calc1))
+    return mtrlist
+
 def distribute_results(reformdict):
     calc_base = make_calculator({}, 2014)
     calc_ref = make_calculator(reformdict, 2014)
@@ -79,9 +107,6 @@ def distribute_results(reformdict):
             calc_ref.increment_year()
     return(indiv_rev_impact)
 
-            
 
 
 
-
-    

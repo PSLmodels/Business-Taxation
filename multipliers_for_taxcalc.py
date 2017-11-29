@@ -53,8 +53,3 @@ indiv_gfactors['e26270_neg'] = ((partner_results['netinc_neg_ref'] +
                                  Scorp_results['netinc_neg_ref']) / 
                                 (partner_results['netinc_neg_base'] +
                                  Scorp_results['netinc_neg_base']) * -1)
-
-
-
-
-

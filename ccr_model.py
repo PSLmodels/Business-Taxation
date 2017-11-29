@@ -1,3 +1,5 @@
+if track_progress:
+    print "Beginning CCR model"
 # construct base dataset
 def ccr_data():
     btax_data = copy.deepcopy(assets_data)
@@ -250,8 +252,11 @@ def calcDepAdjustment(corp_noncorp=True):
                   len(depreciation_data['scale']))
     return(adj_factor)
 adjfactor_dep_corp = calcDepAdjustment()
+if track_progress:
+    print "Corporate depreciation adjustment calculated"
 adjfactor_dep_noncorp = calcDepAdjustment(False)
-
+if track_progress:
+    print "Noncorporate depreciation adjustment calculated"
 
 def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
                        hc_undep=0., hc_undep_year=0):
