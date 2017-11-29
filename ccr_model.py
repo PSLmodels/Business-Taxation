@@ -114,7 +114,7 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
     assert method in ['DB 200%', 'DB 150%', 'SL', 'Expensing', 'Economic', 'None']
     # No depreciation
     if method == 'None':
-    	deduction = 0
+        deduction = 0
     # Expensing
     elif method == 'Expensing':
         if year_deduction == year_investment:
@@ -128,17 +128,27 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
         if pi_temp == np.exp(delta):
             annual_change = 1.0
         else:
-            annual_change = ((pi_temp * np.exp(delta) - 1) /
-                             (np.log(pi_temp) - delta))
+            if year_deduction == year_investment:
+                annual_change = (((pi_temp * np.exp(delta / 2)) ** 0.5 - 1) /
+                                 (np.log(pi_temp - delta)))
+            else:
+                annual_change = ((pi_temp * np.exp(delta) - 1) /
+                                 (np.log(pi_temp) - delta))
+        if year_deduction < year_investment:
+            sval = 0
+        elif year_deduction == year_investment:
+            sval = 1.0
+        else:
+            sval = (np.exp(-delta * (year_deduction - year_investment)) *
+                    investmentGfactors_data['pce'][year_deduction] / 2.0 /
+                    (investmentGfactors_data['pce'][year_investment] +
+                     investmentGfactors_data['pce'][year_investment + 1]))
         if year_deduction < year_investment:
             deduction = 0
         elif year_deduction == year_investment:
-            deduction = bonus + (1 - bonus) * delta * annual_change
+            deduction = bonus + (1 - bonus) * delta * sval * annual_change
         else:
-            deduction = (investmentGfactors_data['pce'][year_deduction] /
-                         investmentGfactors_data['pce'][year_investment] *
-                         np.exp(-delta * (year_deduction - year_investment)) *
-                         delta * annual_change) * (1 - bonus)
+            deduction = (1 - bonus) * delta * sval * annual_change
     else:
         if method == 'DB 200%':
             N = 2

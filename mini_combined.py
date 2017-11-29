@@ -14,26 +14,26 @@ from taxcalc import *
 """
 All functions for the calculations.
 """
-def calc_I(delta, pi, a, b):
+def calc_I(delta, r, a, b):
     # Calculates amount of nominal gross income (EBITDA) per period
     # a: beginning of time period
     # b: end of time period
-    if delta == pi:
-        I = 1
+    if r + delta == 0:
+        I = b - a
     else:
-        I = (1 / (pi - delta) * np.exp((pi - delta) * a) *
-             (np.exp((pi - delta) * (b - a)) - 1))
+        I = (1 / (r + delta) * np.exp(-(r + delta) * a) *
+             (1 - np.exp(-(r + delta) * (b - a))))
     return I
 
-def calc_Ilist(delta, pi, length=100):
-    I0 = calc_I(delta, pi, 0, 0.5)
+def calc_Ilist(delta, r, length=100):
+    I0 = calc_I(delta, r, 0, 0.5)
     Ilist = [I0]
     for j in range(1, length):
-        Ilist.append(calc_I(delta, pi, j-0.5, j+0.5))
+        Ilist.append(calc_I(delta, r, j-0.5, j+0.5))
     return Ilist
 
 def calc_F(f, i, fracded, a, b):
-    F = f * i * (b - a) * fracded
+    F = f * i * fracded * np.exp(-i * a) * (1 - np.exp(-i * (b - a)))
     return F
 
 def calc_Flist(f, i, fracded, length=100):
@@ -47,58 +47,63 @@ def calc_Dlist_exp(length=100):
     Dlist[0] = 1
     return Dlist
 
-def calc_D_econ(delta, pi, a, b):
-    if delta == pi:
+def calc_D_econ(delta, r, a, b):
+    if r + delta == 0:
         D = delta * (b - a)
     else:
-        D = (delta / (pi - delta) * (np.exp((pi - delta) * b) -
-             np.exp((pi - delta) * a)))
+        D = (delta / (r + delta) * np.exp(-(r + delta) * a) *
+             (1 - np.exp(-(r + delta) * (b - a))))
     return D
 
-def calc_Dlist_econ(delta, pi, bonus, length=100):
-    Dlist = [bonus + (1 - bonus) * calc_D_econ(delta, pi, 0, 0.5)]
+def calc_Dlist_econ(delta, r, bonus, length=100):
+    Dlist = [bonus + (1 - bonus) * calc_D_econ(delta, r, 0, 0.5)]
     for j in range(1, length):
-        Dlist.append((1 - bonus) * calc_D_econ(delta, pi, j-0.5, j+0.5))
+        Dlist.append((1 - bonus) * calc_D_econ(delta, r, j-0.5, j+0.5))
     return Dlist
 
-def calc_D_dbsl(N, L, a, b):
+def calc_D_dbsl(N, L, r, pi, a, b):
     t1 = L * (1 - 1 / N)
     t2 = L
     if b <= t1:
-        D = np.exp(-N / L * a) * (1 - np.exp(-N / L * (b - a)))
+        D = (N / L / (r + pi + N / L) * np.exp(-(r + pi + N / L) * a) *
+             (1 - np.exp(-(r + pi + N / L) * (b - a))))
     elif b <= t2:
         if a < t1:
-            Ddb = np.exp(-N / L * a) * (1 - np.exp(-N / L * (t1 - a)))
-            Dsl = N / L * np.exp(1 - N) * (b - t1)
+            Ddb = (N / L / (r + pi + N / L) * np.exp(-(r + pi + N / L) * a) *
+                   (1 - np.exp(-(r + pi + N / L) * (t1 - a))))
+            Dsl = (N / L / (r + pi) * np.exp(1 - N) * np.exp(-(r + pi) * t1) *
+                   (1 - np.exp(-(r + pi) * (b - t1))))
             D = Ddb + Dsl
         else:
-            D = N / L * np.exp(1 - N) * (b - a)
+            D = (N / L / (r + pi) * np.exp(1 - N) * np.exp(-(r + pi) * a) *
+                 (1 - np.exp(-(r + pi) * (b - a))))
     else:
         if a < t2:
-            D = N / L * np.exp(1 - N) * (t2 - a)
+            D = (N / L / (r + pi) * np.exp(1 - N) * np.exp(-(r + pi) * a) *
+                 (1 - np.exp(-(r + pi) * (t2 - a))))
         else:
             D = 0
     return D
 
-def calc_Dlist_dbsl(N, L, bonus, length=100):
-    Dlist = [bonus + (1 - bonus) * calc_D_dbsl(N, L, 0, 0.5)]
+def calc_Dlist_dbsl(N, L, bonus, r, pi, length=100):
+    Dlist = [bonus + (1 - bonus) * calc_D_dbsl(N, L, r, pi, 0, 0.5)]
     for j in range(1, length):
-        Dlist.append((1 - bonus) * calc_D_dbsl(N, L, j-0.5, j+0.5))
+        Dlist.append((1 - bonus) * calc_D_dbsl(N, L, r, pi, j-0.5, j+0.5))
     return Dlist
 
-def calc_Dlist(method, life, delta, pi, bonus, length=100):
+def calc_Dlist(method, life, delta, r, pi, bonus, length=100):
     assert method in ['DB 200%', 'DB 150%', 'SL', 'Economic', 'Expensing', 'None']
     assert bonus >= 0 and bonus <= 1
     if type(length) != int:
         length = int(length)
     if method == 'DB 200%':
-        Dlist = calc_Dlist_dbsl(2, life, bonus, length)
+        Dlist = calc_Dlist_dbsl(2, life, bonus, r, pi, length)
     elif method == 'DB 150%':
-        Dlist = calc_Dlist_dbsl(1.5, life, bonus, length)
+        Dlist = calc_Dlist_dbsl(1.5, life, bonus, r, pi, length)
     elif method == 'SL':
-        Dlist = calc_Dlist_dbsl(1.0, life, bonus, length)
+        Dlist = calc_Dlist_dbsl(1.0, life, bonus, r, pi, length)
     elif method == 'Economic':
-        Dlist = calc_Dlist_econ(delta, pi, bonus, length)
+        Dlist = calc_Dlist_econ(delta, r, bonus, length)
     elif method == 'Expensing':
         Dlist = calc_Dlist_exp(length)
     else:
@@ -132,26 +137,14 @@ def calc_Tlist(tdict, length):
                 Tlist.append(ratelist[rateind])
     return Tlist
 
-def calc_DiscountFactorList(r, pi, length=100):
-    if r + pi == 0:
-        DFlist = np.ones(length)
-    else:
-        nomintd = np.exp(r + pi) - 1
-        DFlist = []
-        for j in range(length):
-            DFlist.append(1 / (1 + nomintd)**j)
-    return DFlist
-
 def calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length=100):
     Tlist = np.asarray(calc_Tlist(tdict, length))
-    Nlist = np.asarray(calc_Ilist(delta, pi, length))
-    DFlist = np.asarray(calc_DiscountFactorList(r, pi, length))
-    DDFlist = np.asarray(calc_DiscountFactorList(rd, pi, length))
-    Dlist = np.asarray(calc_Dlist(method, life, delta, pi, bonus, length))
+    Nlist = np.asarray(calc_Ilist(delta, r, length))
+    Dlist = np.asarray(calc_Dlist(method, life, delta, r, pi, bonus, length))
     Flist = np.asarray(calc_Flist(f, rd+pi, fracded, length))
-    A = sum(Dlist * Tlist * DFlist)
-    F = sum(Flist * Tlist * DDFlist)
-    N = sum(Nlist * (1 - Tlist) * DFlist)
+    A = sum(Dlist * Tlist)
+    F = sum(Flist * Tlist)
+    N = sum(Nlist * (1 - Tlist))
     rho = (1 - A - F) / N - delta
     return rho
 
@@ -177,14 +170,12 @@ def calc_eatr(p, r, pi, delta, method, life, bonus, f, rd, fracded, tdict, lengt
     Rstar = (p - r) / (r + delta)
     P = p / (r + delta)
     Tlist = np.asarray(calc_Tlist(tdict, length))
-    Nlist = np.asarray(calc_Ilist(delta, pi, length))
-    DFlist = np.asarray(calc_DiscountFactorList(r, pi, length))
-    DDFlist = np.asarray(calc_DiscountFactorList(rd, pi, length))
-    Dlist = np.asarray(calc_Dlist(method, life, delta, pi, bonus, length))
+    Nlist = np.asarray(calc_Ilist(delta, r, length))
+    Dlist = np.asarray(calc_Dlist(method, life, delta, r, pi, bonus, length))
     Flist = np.asarray(calc_Flist(f, rd+pi, fracded, length))
-    A = sum(Dlist * Tlist * DFlist)
-    F = sum(Flist * Tlist * DDFlist)
-    N = sum(Nlist * (1 - Tlist) * DFlist)
+    A = sum(Dlist * Tlist)
+    F = sum(Flist * Tlist)
+    N = sum(Nlist * (1 - Tlist))
     R = -(1 - A - F) + (p + delta) * N
     eatr = (Rstar - R) / P
     return eatr
