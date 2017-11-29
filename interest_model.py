@@ -57,11 +57,9 @@ def calcIDscale_noncorp(capital_path, eta=0.4):
 adjfactor_id_noncorp = calcIDscale_noncorp(capPath_base_noncorp)
 
 
-def netInterestDeduction(capital_path, eta=0.4, id_hc_year=0, nid_hc_year=0, id_hc_old=0, id_hc_new=0, nid_hc_old=0, nid_hc=0):
+def netInterestDeduction(capital_path, eta=0.4):
     # capital_path: growth path of the capital stock
     # eta: retirement rate of existing debt
-    # nid_hc: haircut on the net interest deduction, beginning in nid_hc_year
-    # id_hc_old, id_hc_new: haircuts on the deduction of interest paid on debt originated before id_hc_year and on debt originated beginning in id_hc_year
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_corp['Kfa'][:57].tolist()
     A = debt_data_corp['A'][:57].tolist()
@@ -85,20 +83,12 @@ def netInterestDeduction(capital_path, eta=0.4, id_hc_year=0, nid_hc_year=0, id_
     int_expense = np.zeros(68)
     for i in range(1,68):
         for j in range(i+1):
-            if j + 1960 < id_hc_year and i + 1960 >= id_hc_year:
-                int_expense[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_old)
-            elif j + 1960 >= id_hc_year:
-                int_expense[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_new)
-            else:
-                int_expense[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j]
+            int_expense[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j]
     NID_gross = int_expense - int_income
     NID = np.zeros(len(NID_gross))
     NIP = NID_gross * adjfactor_nid_corp
     for i in range(len(NID)):
-        if i + 1960 < nid_hc_year:
-            NID[i] = NID_gross[i] * adjfactor_nid_corp
-        else:
-            NID[i] = NID_gross[i] * adjfactor_nid_corp * (1 - nid_hc)
+        NID[i] = NID_gross[i] * adjfactor_nid_corp
     NID_results = pd.DataFrame({'year': range(2014,2028), 'nid': NID[54:68]})
     NIP_results = pd.DataFrame({'year': range(2014,2028), 'nip': NIP[54:68]})
     #NID_results = pd.DataFrame({'year': range(1998,2014), 'nid': NID[38:54]}) #for printing historical results

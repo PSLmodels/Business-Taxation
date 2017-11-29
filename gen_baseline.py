@@ -8,7 +8,7 @@ combined_base = combined_base.merge(right=ftc_base, how='outer', on='year')
 combined_base['taxbc'] = (combined_base['taxrev'] + combined_base['pymtc'] +
                      	  combined_base['ftc'] - combined_base['amt'])
 combined_base['gbc_adj'] = 0.025739617
-combined_base['tau'] = 0.347
+combined_base['tau'] = btax_defaults['tau_c'] - 0.347
 combined_base['taxinc'] = (combined_base['taxbc'] /
 						   (combined_base['tau'] - combined_base['gbc_adj']))
 # Sec. 199
@@ -19,11 +19,9 @@ inv_mat_base_corp = build_inv_matrix()
 inv_mat_base_noncorp = build_inv_matrix(False)
 annualDepreciation_base_corp = annualCCRdeduction(inv_mat_base_corp,
                                                   btax_defaults, adjfactor_dep_corp)
-print 'Depreciation step corp'
 annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
                                                      btax_defaults,
                                                      adjfactor_dep_noncorp)
-print 'Depreciation step noncorp'
 (capPath_base_corp, taxDep_base_corp) = capitalPath(inv_mat_base_corp,
                                                     annualDepreciation_base_corp)
 (capPath_base_noncorp, taxDep_base_noncorp) = capitalPath(inv_mat_base_noncorp,
