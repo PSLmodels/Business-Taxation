@@ -43,7 +43,8 @@ def test_other_reform(paramdict):
 
 def update_btax_params(param_dict):
     """
-    param_dict is a year: {param: value} dictionary. Acceptable years are 2017-2027. Ex:
+    param_dict is a year: {param: value} dictionary.
+    Acceptable years are 2017-2027. Ex:
         {'2018': {'tau_c': 0.3}}
     """
     test_btax_reform(param_dict)
@@ -76,3 +77,5 @@ def extract_other_param(paramname, paramdict):
 btax_params_reform = update_btax_params(btax_dict1)
 other_params_reform = update_brc_params(btax_dict2)
 
+btax_params_reform['tau_nc'] = calc_mtr_nc_list(iit_params_ref)
+print "All parameters updated"

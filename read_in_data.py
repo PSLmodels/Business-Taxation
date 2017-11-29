@@ -47,5 +47,9 @@ taxdep1['Asset'] = asset
 taxdep1['Method'] = method
 taxdep_info_gross = taxdep1.merge(right=df_econdepr, how='outer', on='Asset')
 btax_defaults = pd.read_csv('mini_params_btax.csv')
+econ_defaults = pd.read_csv('mini_params_econ.csv')
 assets_data = pd.read_csv('mini_assets.csv')
 assets_data.drop([3, 21, 32, 91], axis=0, inplace=True)
+if track_progress:
+    print "Data imports complete"
+    

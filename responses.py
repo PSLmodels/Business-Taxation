@@ -238,14 +238,24 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99, id_hc
         D.append(D[56] * K_fa[i] / K_fa[56])
         L.append(D[i] + A[i])
     ## Apply debt response
-    taxshield_base = tau_base
-    taxshield_ref = tau_ref * (1 - max(id_hc_new, nid_hc))
+    hclist = np.zeros(14)
+    for i in range(14):
+        if i + 2014 >= nid_hc_year:
+            hc1 = nid_hc
+        if i + 2014 >= id_hc_year:
+            hc2 = id_hc_new
+        hclist[i] = max(hc1, hc2)
+    taxshield_base = btax_defaults['tau_c']
+    taxshield_ref = np.asarray(btax_params_reform['tau_c']) * (1 - hclist)
     pctchg_delta = elast_debt * (taxshield_ref / taxshield_base - 1)
     D_opt = copy.deepcopy(D)
     L_opt = copy.deepcopy(L)
     for i in range(len(D)):
         if i + 1960 >= nid_hc_year or i + 1960 >= id_hc_year:
-            D_opt[i] = D[i] * (1 + pctchg_delta)
+            if i < 54:
+                D_opt[i] = D[i]
+            else:
+                D_opt[i] = D[i] * (1 + pctchg_delta[i-54])
             L_opt[i] = D_opt[i] + A[i]
     R = np.zeros(68)
     O = np.zeros(68)
@@ -290,14 +300,20 @@ def noncorpIntDeduction_response(capital_path, eta=0.4, id_hc_year=9e99, id_hc_o
         K_fa.append(K_fa[56] * capital_path['Kstock'][i-54] / Kstock2016)
         L.append(L[56] * K_fa[i] / K_fa[56])
     ##Apply debt response
-    (tau_nc_base, tau_nc_ref) = calc_MTRs_nc(iit_params_ref, reform_start_year)
-    taxshield_base = tau_nc_base
-    taxshield_ref = tau_nc_ref * (1 - id_hc_new)
+    hclist = np.zeros(14)
+    for i in range(14):
+        if i + 2014 >= id_hc_year:
+            hclist[i] = id_hc_year
+    taxshield_base = btax_defaults['tau_nc']
+    taxshield_ref = btax_params_reform['tau_nc'] * (1 - hclist)
     pctchg_delta = (taxshield_ref / taxshield_base - 1) * elast_debt
     L_opt = copy.deepcopy(L)
     for i in range(len(L)):
         if i + 1960 >= id_hc_year:
-            L_opt[i] = L[i] * (1 + pctchg_delta)
+            if i < 54:
+                L_opt[i] = L[i]
+            else:
+                L_opt[i] = L[i] * (1 - pctchg_delta[i-54])
     R = np.zeros(68)
     O = np.zeros(68)
     L2 = copy.deepcopy(L)

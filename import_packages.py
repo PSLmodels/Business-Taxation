@@ -7,3 +7,5 @@ import pandas as pd
 import numpy as np
 import copy
 import math
+if track_progress:
+	print "All packages successfully imported"
