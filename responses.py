@@ -172,8 +172,8 @@ def buildNewInvMatrix(response_data):
         data_main['Inv_nc_' + str(1960+i)] = inv_mat_base_noncorp[:,i]
         data_main['NetInv_nc_' + str(1960+i)] = data_main['Inv_nc_' + str(1960+i)] - data_main['K_nc_' + str(1960+i)] * data_main['delta']
         # final investment matrixes
-        inv_mat_ref_corp[:,i] = inv_mat_base_corp[:,i] + data_main['Inv_c_' + str(1960+i)] * response_data['deltaIc' + str(1960+i)]
-        inv_mat_ref_noncorp[:,i] = inv_mat_base_noncorp[:,i] + data_main['Inv_nc_' + str(1960+i)] * response_data['deltaInc' + str(1960+i)]
+        inv_mat_ref_corp[:,i] = inv_mat_base_corp[:,i] + data_main['Inv_c_' + str(1960+i)] * np.asarray(response_data['deltaIc' + str(1960+i)])
+        inv_mat_ref_noncorp[:,i] = inv_mat_base_noncorp[:,i] + data_main['Inv_nc_' + str(1960+i)] * np.asarray(response_data['deltaInc' + str(1960+i)])
     return (inv_mat_ref_corp, inv_mat_ref_noncorp)
 
 def earningsResponse(response_data, corp_noncorp=True):
@@ -210,9 +210,9 @@ def earningsResponse(response_data, corp_noncorp=True):
     for i in range(96):
         for j in range(14):
             if corp_noncorp:
-                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_corp * response_data['deltaEc' + str(j + 2014)][i]
+                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_corp * np.asarray(response_data['deltaEc' + str(j + 2014)])[i]
             else:
-                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_noncorp * response_data['deltaEnc' + str(j + 2014)][i]
+                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_noncorp * np.asarray(response_data['deltaEnc' + str(j + 2014)])[i]
     newEarnings_total = np.zeros(14)
     for j in range(14):
         newEarnings_total[j] = changeEarnings[:,j].sum()
