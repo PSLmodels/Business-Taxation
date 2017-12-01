@@ -4,7 +4,6 @@ if track_progress:
 def ccr_data():
     btax_data = copy.deepcopy(assets_data)
     ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
-    ccrdata.drop([96,97,98], axis=0, inplace=True)
     return ccrdata
 base_data = ccr_data()
 
