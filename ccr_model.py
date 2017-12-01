@@ -288,7 +288,7 @@ def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
     return totalAnnualDeduction
 
 def capitalPath(investment_mat, depDeduction_vec, 
-                corp_noncorp=True, economic=False):
+                corp_noncorp=True):
     if corp_noncorp:
         adj_factor = adjfactor_dep_corp
     else:
@@ -334,12 +334,7 @@ def capitalPath(investment_mat, depDeduction_vec,
                                'TrueDep': trueDep_total,
                                'taxDep': Mdep_total,
                                'FixedK': fixedK_total})
-    if economic:
-        taxDep_results = cap_result.drop(['Kstock', 'FixedK', 'Investment',
-                                          'FixedInv', 'taxDep'], axis=1)
-        taxDep_results.rename(columns={'TrueDep': 'taxDep'}, inplace=True)
-    else:
-        taxDep_results = cap_result.drop(['Kstock', 'FixedK', 'Investment',
-                                          'FixedInv', 'TrueDep'], axis=1)
-    return (cap_result, taxDep_results)
+    taxDep_results = cap_result.drop(['Kstock', 'FixedK', 'Investment',
+                                      'FixedInv', 'TrueDep'], axis=1)
+    return (cap_result, taxDep_results, Kstock)
 

@@ -107,6 +107,35 @@ def distribute_results(reformdict):
             calc_ref.increment_year()
     return(indiv_rev_impact)
 
+def calc_tau_e(year, iitref):
+    assert year in range(2014, 2028)
+    m = 0.44 # dividend payout rate
+    omega_scg = 0.034
+    omega_lcg = 0.496
+    omega_xcg = 1 - omega_scg - omega_lcg
+    alpha_ft = 0.572
+    alpha_td = 0.039
+    alpha_nt = 0.389
+    calc = make_calculator(iitref, year)
+    mtr_d = calc.mtr('e00650')[2]
+    mtr_scg = calc.mtr('p22250')[2]
+    mtr_lcg = calc.mtr('p23250')[2]
+    mtr_td = calc.mtr('e01700')[2]
+    inc_d = calc.records.e00650
+    inc_scg = np.abs(calc.records.p22250)
+    inc_lcg = np.abs(calc.records.p23250)
+    inc_td = calc.records.e01700
+    posti = (calc.records.c04800 > 0.)
+    wgt = calc.records.s006
+    tau_d = sum(mtr_d * inc_d * posti * wgt) / sum(inc_d * posti * wgt)
+    tau_scg = sum(mtr_scg * inc_scg * posti * wgt) / sum(inc_scg * posti * wgt)
+    tau_scg = sum(mtr_lcg * inc_lcg * posti * wgt) / sum(inc_lcg * posti * wgt)
+    tau_td = sum(mtr_td * inc_td * posti * wgt) / sum(inc_td * posti * wgt)
+    tau_cg = omega_scg * tau_scg + omega_lcg * tau_lcg
+    tau_e1 = m * tau_d + (1 - m) * tau_cg
+    tau_e = alpha_ft * tau_e1 + alpha_td * tau_td
+    return(tau_e)
+
 
 
 

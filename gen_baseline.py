@@ -7,7 +7,7 @@ combined_base = taxrev_data.merge(right=amt_base, how='outer', on='year')
 combined_base = combined_base.merge(right=ftc_base, how='outer', on='year')
 combined_base['taxbc'] = (combined_base['taxrev'] + combined_base['pymtc'] +
                      	  combined_base['ftc'] - combined_base['amt'])
-combined_base['gbc_adj'] = 0.025739617
+combined_base['gbc_adj'] = 0.021642614
 combined_base['tau'] = btax_defaults['tau_c']
 combined_base['taxinc'] = (combined_base['taxbc'] /
                            (combined_base['tau'] - combined_base['gbc_adj']))
@@ -30,11 +30,8 @@ annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
                                                      adjfactor_dep_noncorp)
 if track_progress:
     print "Noncorporate depreciation calculated"
-(capPath_base_corp, taxDep_base_corp) = capitalPath(inv_mat_base_corp,
-                                                    annualDepreciation_base_corp)
-(capPath_base_noncorp, taxDep_base_noncorp) = capitalPath(inv_mat_base_noncorp,
-                                                          annualDepreciation_base_noncorp,
-                                                          corp_noncorp=False)
+(capPath_base_corp, taxDep_base_corp, Kstock_base_corp) = capitalPath(inv_mat_base_corp, annualDepreciation_base_corp)
+(capPath_base_noncorp, taxDep_base_noncorp, Kstock_base_noncorp) = capitalPath(inv_mat_base_noncorp, annualDepreciation_base_noncorp, corp_noncorp=False)
 if track_progress:
     print "Capital paths calculated"
 combined_base = combined_base.merge(right=taxDep_base_corp, how='outer', on='year')

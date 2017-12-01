@@ -297,14 +297,25 @@ def build_prelim_oneyear(year, econ_params, btax_params, other_params):
     assets = np.asarray(main_data['Asset'])
     uc_c = np.zeros(len(assets))
     uc_nc = np.zeros(len(assets))
-    # Add in EATRs?
+    eatr_c = np.zeros(len(assets))
+    eatr_nc = np.zeros(len(assets))
     for j in range(len(main_data)):
         uc_c[j] = calc_usercost(r_c, pi, main_data['delta'][j], main_data['Method'][j], main_data['L'][j], main_data['bonus'][j], f_c, r_d, fracded_c, tdict_c, 100)
         uc_nc[j] = calc_usercost(r_nc, pi, main_data['delta'][j], main_data['Method'][j], main_data['L'][j], main_data['bonus'][j], f_nc, r_d, fracded_nc, tdict_nc, 100)
+        eatr_c[j] = calc_eatr(0.2, r_c, pi, main_data['delta'][j], main_data['Method'][j], main_data['L'][j], main_data['bonus'][j], f_c, r_d, fracded_c, tdict_c, length=100)
+        eatr_nc[j] = calc_eatr(0.2, r_nc, pi, main_data['delta'][j], main_data['Method'][j], main_data['L'][j], main_data['bonus'][j], f_nc, r_d, fracded_nc, tdict_nc, length=100)
+    # Special cost of capital calculations for inventories
     uc_c[assets == 'Inventories'] = calc_rho_inv(r_c, pi, inv_method, 0.5, tdict_c)
     uc_nc[assets == 'Inventories'] = calc_rho_inv(r_nc, pi, inv_method, 0.5, tdict_nc)
+    # Constrain inventories and land to no supernormal returns
+    eatr_c[assets == 'Inventories'] = (uc_c[assets == 'Inventories'] - r_c) / uc_c[assets == 'Inventories']
+    eatr_nc[assets == 'Inventories'] = (uc_nc[assets == 'Inventories'] - r_nc) / uc_nc[assets == 'Inventories']
+    eatr_c[assets == 'Land'] = (uc_c[assets == 'Land'] - r_c) / uc_c[assets == 'Land']
+    eatr_nc[assets == 'Land'] = (uc_nc[assets == 'Land'] - r_nc) / uc_nc[assets == 'Land']
     main_data['uc_c'] = uc_c
     main_data['uc_nc'] = uc_nc
+    main_data['eatr_c'] = eatr_c
+    main_data['eatr_nc'] = eatr_nc
     main_data.drop(['assets_c', 'assets_nc', 'L', 'Method', 'bonus', 'delta'], axis=1, inplace=True)
     return main_data
 
@@ -313,7 +324,10 @@ def run_btax_mini(yearlist, btax_params, other_params):
     basedata = copy.deepcopy(assets_data)
     for year in yearlist:
         results_oneyear = build_prelim_oneyear(year, econ_params_df, btax_params, other_params)
-        results_oneyear.rename(columns={'uc_c': 'u_c' + str(year), 'uc_nc': 'u_nc' + str(year)}, inplace=True)
+        results_oneyear.rename(columns={'uc_c': 'u_c' + str(year),
+                                        'uc_nc': 'u_nc' + str(year),
+                                        'eatr_c': 'eatr_c' + str(year),
+                                        'eatr_nc': 'eatr_nc' + str(year)}, inplace=True)
         basedata = basedata.merge(right=results_oneyear, how='outer', on='Asset')
     basedata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
     return basedata
@@ -330,6 +344,10 @@ def inv_response(firstyear):
     maindata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
     elast_c = elast_dict['inv_usercost_c']
     elast_nc = elast_dict['inv_usercost_nc']
+    selast_c = elast_dict['inv_eatr_c']
+    selast_nc = elast_dict['inv_eatr_nc']
+    mne_share_c = elast_dict['mne_share_c']
+    mne_share_nc = elast_dict['mne_share_nc']
     for year in range(2014, firstyear):
         maindata['deltaIc' + str(year)] = 0.
         maindata['deltaInc' + str(year)] = 0.
@@ -338,9 +356,12 @@ def inv_response(firstyear):
     results_base = run_btax_mini(range(firstyear, 2028), btax_defaults, brc_defaults_other)
     results_ref = run_btax_mini(range(firstyear, 2028), btax_params_reform, other_params_reform)
     for year in range(firstyear, 2028):
-        maindata['deltaIc' + str(year)] = (results_ref['u_c' + str(year)] / results_base['u_c' + str(year)] - 1) * elast_c
-        maindata['deltaInc' + str(year)] = (results_ref['u_nc' + str(year)] / results_base['u_nc' + str(year)] - 1) * elast_nc
-        maindata['deltaEc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0
-        maindata['deltaEnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0
+        infl = econ_defaults['pi'][firstyear-2017]
+        maindata['deltaIc' + str(year)] = ((results_ref['u_c' + str(year)] / results_base['u_c' + str(year)] - 1) * elast_c +
+                                           (results_ref['eatr_c' + str(year)] - results_base['eatr_c' + str(year)]) * selast_c * mne_share_c)
+        maindata['deltaInc' + str(year)] = ((results_ref['u_nc' + str(year)] / results_base['u_nc' + str(year)] - 1) * elast_nc +
+                                            (results_ref['eatr_nc' + str(year)] - results_base['eatr_nc' + str(year)]) * selast_nc * mne_share_nc)
+        maindata['deltaEc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0 + infl
+        maindata['deltaEnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0 + infl
     return maindata
 
