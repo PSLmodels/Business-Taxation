@@ -8,13 +8,19 @@ def test_elast_dict():
     except NameError:
         print "Elasticity dictionary undefined"
     else:
-        for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr',
+        for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr_c',
+                    'inv_eatr_nc', 'mne_share_c', 'mne_share_nc',
                     'debt_taxshield_c', 'debt_taxshield_nc', 'legalform_ratediff']:
             assert key in elast_dict
     # test that values are correct
     assert elast_dict['inv_usercost_c'] <= 0.0
     assert elast_dict['inv_usercost_nc'] <= 0.0
-    assert elast_dict['inv_eatr'] <= 0.0
+    assert elast_dict['inv_eatr_c'] <= 0.0
+    assert elast_dict['inv_eatr_nc'] <= 0.0
+    assert elast_dict['mne_share_c'] >= 0.0
+    assert elast_dict['mne_share_c'] <= 1.0
+    assert elast_dict['mne_share_nc'] >= 0.0
+    assert elast_dict['mne_share_nc'] <= 1.0
     assert elast_dict['debt_taxshield_c'] >= 0.0
     assert elast_dict['debt_taxshield_nc'] >= 0.0
     assert elast_dict['legalform_ratediff'] <= 0.0
@@ -158,61 +164,26 @@ def buildNewInvMatrix(response_data):
     inv_mat_base_noncorp = build_inv_matrix(False)
     inv_mat_ref_corp = build_inv_matrix()
     inv_mat_ref_noncorp = build_inv_matrix(False)
-    data_main = copy.deepcopy(base_data)
-    data_main.rename(columns={'assets_c': 'K_c_2017', 'assets_nc': 'K_nc_2017'}, inplace=True)
-    for i in range(57,68):
-        data_main['K_c_' + str(1961+i)] = ((data_main['K_c_' + str(1960+i)] * (1 - data_main['delta']) + 
-                                            inv_mat_base_corp[:,i]) * investmentGfactors_data['pce'][i+1] / 
-                                           investmentGfactors_data['pce'][i])
-        data_main['Inv_c_' + str(1960+i)] = inv_mat_base_corp[:,i]
-        data_main['NetInv_c_' + str(1960+i)] = data_main['Inv_c_' + str(1960+i)] - data_main['K_c_' + str(1960+i)] * data_main['delta']
-        data_main['K_nc_' + str(1961+i)] = ((data_main['K_nc_' + str(1960+i)] * (1 - data_main['delta']) + 
-                                             inv_mat_base_noncorp[:,i]) * investmentGfactors_data['pce'][i+1] / 
-                                            investmentGfactors_data['pce'][i])
-        data_main['Inv_nc_' + str(1960+i)] = inv_mat_base_noncorp[:,i]
-        data_main['NetInv_nc_' + str(1960+i)] = data_main['Inv_nc_' + str(1960+i)] - data_main['K_nc_' + str(1960+i)] * data_main['delta']
-        # final investment matrixes
-        inv_mat_ref_corp[:,i] = inv_mat_base_corp[:,i] + data_main['Inv_c_' + str(1960+i)] * np.asarray(response_data['deltaIc' + str(1960+i)])
-        inv_mat_ref_noncorp[:,i] = inv_mat_base_noncorp[:,i] + data_main['Inv_nc_' + str(1960+i)] * np.asarray(response_data['deltaInc' + str(1960+i)])
+    for i in range(96):
+        for j in range(57, 68):
+            inv_mat_ref_corp[i,j] = inv_mat_base_corp[i,j] * (1 + response_results['deltaIc' + str(j + 1960)].tolist()[i])
+            inv_mat_ref_noncorp[i,j] = inv_mat_base_noncorp[i,j] * (1 + response_results['deltaInc' + str(j + 1960)].tolist()[i])
     return (inv_mat_ref_corp, inv_mat_ref_noncorp)
 
 def earningsResponse(response_data, corp_noncorp=True):
-    # Create new investment matrix
-    inv_base = build_inv_matrix(corp_noncorp)
-    inv_ref = build_inv_matrix(corp_noncorp)
-    for i in range(96):
-        for j in range(57,68):
-            if corp_noncorp:
-                inv_ref[i,j] = inv_ref[i,j] * (1 + response_results['deltaIc' + str(j + 1960)].tolist()[i])
-            else:
-                inv_ref[i,j] = inv_ref[i,j] * (1 + response_results['deltaInc' + str(j + 1960)].tolist()[i])
-    
-    Kstock_base = np.zeros((96,15))
-    Kstock_ref = np.zeros((96,15))
-    for i in range(96):
-        if corp_noncorp:
-            Kstock_base[i,3] = np.asarray(base_data['assets_c'])[i]
-            Kstock_ref[i,3] = np.asarray(base_data['assets_c'])[i]
-        else:
-            Kstock_base[i,3] = np.asarray(base_data['assets_nc'])[i]
-            Kstock_ref[i,3] = np.asarray(base_data['assets_nc'])[i]
-        for j in [56,55,54]:
-            Kstock_base[i,j-54] = (Kstock_base[i,j-53] * investmentGfactors_data['pce'][j] / 
-                                   investmentGfactors_data['pce'][j+1] - inv_base[i,j]) / (1 - np.asarray(base_data['delta'])[i])
-            Kstock_ref[i,j-54] = (Kstock_ref[i,j-53] * investmentGfactors_data['pce'][j] / 
-                                  investmentGfactors_data['pce'][j+1] - inv_ref[i,j]) / (1 - np.asarray(base_data['delta'])[i])
-        for j in range(57,68):
-            Kstock_base[i,j-53] = ((Kstock_base[i,j-54] * (1 - np.asarray(base_data['delta'])[i]) + inv_base[i,j]) * 
-                                   investmentGfactors_data['pce'][j+1] / investmentGfactors_data['pce'][j])
-            Kstock_ref[i,j-53] = ((Kstock_ref[i,j-54] * (1 - np.asarray(base_data['delta'])[i]) + inv_ref[i,j]) * 
-                                  investmentGfactors_data['pce'][j+1] / investmentGfactors_data['pce'][j])
+    if corp_noncorp:
+        Kstock_base = copy.deepcopy(Kstock_base_corp)
+        Kstock_ref = copy.deepcopy(Kstock_ref_corp)
+    else:
+        Kstock_base = copy.deepcopy(Kstock_base_noncorp)
+        Kstock_ref = copy.deepcopy(Kstock_ref_noncorp)
     changeEarnings = np.zeros((96,14))
     for i in range(96):
         for j in range(14):
             if corp_noncorp:
-                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_corp * np.asarray(response_data['deltaEc' + str(j + 2014)])[i]
+                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * np.asarray(response_data['deltaEc' + str(j + 2014)])[i] * adjfactor_dep_corp
             else:
-                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * adjfactor_dep_noncorp * np.asarray(response_data['deltaEnc' + str(j + 2014)])[i]
+                changeEarnings[i,j] = (Kstock_ref[i,j] - Kstock_base[i,j]) * np.asarray(response_data['deltaEnc' + str(j + 2014)])[i] * adjfactor_dep_noncorp
     newEarnings_total = np.zeros(14)
     for j in range(14):
         newEarnings_total[j] = changeEarnings[:,j].sum()
@@ -337,4 +308,23 @@ def noncorpIntDeduction_response(capital_path, eta=0.4, id_hc_year=9e99, id_hc_o
     ID_results = pd.DataFrame({'year': range(2014,2028), 'intDed': int_deducted[54:68]})
     IP_results = pd.DataFrame({'year': range(2014,2028), 'intpaid': int_paid[54:68]})
     return (ID_results, IP_results)
+
+def legal_response(year):
+    """
+    Reallocation of business activity between corporate and non-corporate sectors. 
+    Note that this may only occur once.
+    For now, assume identical tax bases
+    """
+    assert year in range(2017, 2028)
+    elast = elast_dict['legalfirm_ratediff']
+    tau_nc_base = btax_defaults['tau_nc'][year-2014]
+    tau_nc_ref = btax_params_reform['tau_nc'][year-2014]
+    tau_c_base = btax_defaults['tau_c'][year-2014]
+    tau_c_ref = btax_params_reform['tau_c'][year-2014]
+    tau_e_base = calc_tau_e(year, {})
+    tau_e_ref = calc_tau_e(year, iit_refdict)
+    taxterm_base = tau_c_base + tau_e_base - tau_c_base * tau_e_base - tau_nc_base
+    taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
+    legalshift = elast * (taxterm_ref - taxterm_base)
+    
 

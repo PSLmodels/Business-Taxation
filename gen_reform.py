@@ -6,14 +6,16 @@ It should be run after the reform parameters have been specified and the investm
 (inv_mat_ref_corp, inv_mat_ref_noncorp) = buildNewInvMatrix(response_results)
 if track_progress:
     print "New investment matrices constructed"
-annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp, btax_params_reform, adjfactor_dep_corp)
+(hc_dep_year_c, hc_dep_c) = extract_other_param('undepBasis_corp_hc', other_params_reform)
+(hc_dep_year_nc, hc_dep_nc) = extract_other_param('undepBasis_noncorp_hc', other_params_reform)
+annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp, btax_params_reform, adjfactor_dep_corp, hc_dep_c, hc_dep_year_c)
 if track_progress:
     print "New corporate depreciation calculated"
-annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp, btax_params_reform, adjfactor_dep_noncorp)
+annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp, btax_params_reform, adjfactor_dep_noncorp, hc_dep_nc, hc_dep_year_nc)
 if track_progress:
     print "New noncorporate depreciation calculated"
-(capPath_ref_corp, taxDep_ref_corp) = capitalPath(inv_mat_ref_corp, annualDepreciation_ref_corp)
-(capPath_ref_noncorp, taxDep_ref_noncorp) = capitalPath(inv_mat_ref_noncorp, annualDepreciation_ref_noncorp, corp_noncorp=False)
+(capPath_ref_corp, taxDep_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp, annualDepreciation_ref_corp)
+(capPath_ref_noncorp, taxDep_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp, annualDepreciation_ref_noncorp, corp_noncorp=False)
 if track_progress:
     print "New capital paths calculated"
 
@@ -62,7 +64,7 @@ combined_ref = combined_ref.merge(right=sec199_reform, how='outer', on='year')
 # Compute taxinc and taxbc
 combined_ref['taxinc'] = (combined_ref['ebitda'] - combined_ref['taxDep'] -
                           combined_ref['nid'] - combined_ref['sec199'])
-combined_ref['gbc_adj'] = 0.025739617
+combined_ref['gbc_adj'] = 0.021642614
 combined_ref['tau'] = btax_params_reform['tau_c']
 combined_ref['taxbc'] = (combined_ref['taxinc'] *
                          (combined_ref['tau'] - combined_ref['gbc_adj']))
