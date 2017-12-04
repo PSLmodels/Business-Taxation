@@ -97,4 +97,6 @@ amt_ref = AMTmodel(amt_repeal_year=amtrepealyear,
 combined_ref = combined_ref.merge(right=amt_ref, how='outer', on='year')
 combined_ref['taxrev'] = (combined_ref['taxbc'] + combined_ref['amt'] -
                           combined_ref['ftc'] - combined_ref['pymtc'])
+# Pass-through model
+execfile('passthru_reform.py')
 print "Reform corporate tax revenue complete"

@@ -109,31 +109,45 @@ def distribute_results(reformdict):
 
 def calc_tau_e(year, iitref):
     assert year in range(2014, 2028)
-    m = 0.44 # dividend payout rate
+    m = 0.44 # retained earnings rate
+    E = econ_defaults['r_e_c'][year-2017] + econ_defaults['pi'][year-2017]
+    # shares of cg in short-term, long-term, and held until death
     omega_scg = 0.034
     omega_lcg = 0.496
     omega_xcg = 1 - omega_scg - omega_lcg
+    # shares of corp equity in taxable, deferred and nontaxable form
     alpha_ft = 0.572
     alpha_td = 0.039
     alpha_nt = 0.389
+    # holding period for gains
+    h_scg = 0.5
+    h_lcg = 8.0
+    h_td = 8.0
     calc = make_calculator(iitref, year)
     mtr_d = calc.mtr('e00650')[2]
     mtr_scg = calc.mtr('p22250')[2]
     mtr_lcg = calc.mtr('p23250')[2]
     mtr_td = calc.mtr('e01700')[2]
     inc_d = calc.records.e00650
-    inc_scg = np.abs(calc.records.p22250)
-    inc_lcg = np.abs(calc.records.p23250)
+    inc_scg = np.where(calc.records.p22250 >= 0, calc.records.p22250, 0)
+    inc_lcg = np.where(calc.records.p23250 >= 0, calc.records.p23250, 0)
     inc_td = calc.records.e01700
     posti = (calc.records.c04800 > 0.)
     wgt = calc.records.s006
     tau_d = sum(mtr_d * inc_d * posti * wgt) / sum(inc_d * posti * wgt)
-    tau_scg = sum(mtr_scg * inc_scg * posti * wgt) / sum(inc_scg * posti * wgt)
-    tau_scg = sum(mtr_lcg * inc_lcg * posti * wgt) / sum(inc_lcg * posti * wgt)
-    tau_td = sum(mtr_td * inc_td * posti * wgt) / sum(inc_td * posti * wgt)
-    tau_cg = omega_scg * tau_scg + omega_lcg * tau_lcg
-    tau_e1 = m * tau_d + (1 - m) * tau_cg
-    tau_e = alpha_ft * tau_e1 + alpha_td * tau_td
+    # accrual effective mtr on stcg
+    tau_scg1 = sum(mtr_scg * inc_scg * posti * wgt) / sum(inc_scg * posti * wgt)
+    tau_scg = 1 - np.log(np.exp(m * E * h_scg) * (1 - tau_scg1) + tau_scg1) / (m * E * h_scg)
+    # accrual effective mtr on ltcg
+    tau_lcg1 = sum(mtr_lcg * inc_lcg * posti * wgt) / sum(inc_lcg * posti * wgt)
+    tau_lcg = 1 - np.log(np.exp(m * E * h_lcg) * (1 - tau_lcg1) + tau_lcg1) / (m * E * h_lcg)
+    # mtr on capital gains held until death
+    tau_xcg = 0.0
+    tau_cg = omega_scg * tau_scg + omega_lcg * tau_lcg + omega_xcg * tau_xcg
+    tau_ft = (1 - m) * tau_d + m * tau_cg
+    tau_td1 = sum(mtr_td * inc_td * posti * wgt) / sum(inc_td * posti * wgt)
+    tau_td = 1 - np.log(np.exp(E * h_td) * (1 - tau_td1) + tau_td1) / (E * h_td)
+    tau_e = alpha_ft * tau_ft + alpha_td * tau_td + alpha_nt * 0.0
     return(tau_e)
 
 

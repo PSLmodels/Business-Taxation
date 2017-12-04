@@ -316,15 +316,21 @@ def legal_response(year):
     For now, assume identical tax bases
     """
     assert year in range(2017, 2028)
-    elast = elast_dict['legalfirm_ratediff']
+    elast = elast_dict['legalform_ratediff']
     tau_nc_base = btax_defaults['tau_nc'][year-2014]
     tau_nc_ref = btax_params_reform['tau_nc'][year-2014]
     tau_c_base = btax_defaults['tau_c'][year-2014]
     tau_c_ref = btax_params_reform['tau_c'][year-2014]
     tau_e_base = calc_tau_e(year, {})
-    tau_e_ref = calc_tau_e(year, iit_refdict)
+    tau_e_ref = calc_tau_e(year, iit_params_ref)
     taxterm_base = tau_c_base + tau_e_base - tau_c_base * tau_e_base - tau_nc_base
     taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
     legalshift = elast * (taxterm_ref - taxterm_base)
-    
+    print "tau_nc", str(tau_nc_base)
+    print "tau_e", str(tau_e_base)
+    print "tax term", str(taxterm_base)
+    earnings_c = combined_base['ebitda'][year-2014]
+    earnings_nc = earnings_base['ebitda'][year-2014]
+    assets_c = capPath_base_corp['Kstock'][year-2014]
+    assets_nc = capPath_base_noncorp['Kstock'][year-2014]
 
