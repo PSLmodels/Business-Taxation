@@ -51,4 +51,6 @@ mtr_nclist = calc_mtr_nc_list()
 btax_defaults['tau_nc'] = mtr_nclist
 if track_progress:
     print "Noncorporate tax rates calculated"
+# Build pass-through model
+execfile('passthru_baseline.py')
 print "Baseline complete"

@@ -40,7 +40,6 @@ indiv_gfactors['debt'] = (1 + (corpInc_ref['nip'] / corpInc_base['nip'] - 1) *
                           corpshare_totalint)
 
 # Multipliers for pass-through net income or loss, for e00900 and e26270
-execfile('passthru_model.py')
 indiv_gfactors['SchC_pos'] = (SchC_results['netinc_pos_ref'] /
                               SchC_results['netinc_pos_base'])
 indiv_gfactors['SchC_neg'] = (SchC_results['netinc_neg_ref'] /
