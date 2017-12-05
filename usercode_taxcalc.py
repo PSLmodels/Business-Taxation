@@ -98,6 +98,10 @@ def distribute_results(reformdict):
         calc_ref2.records.e00650 = calc_ref2.records.e00650 * indiv_gfactors['equity'][i-2014]
         calc_ref2.records.p22250 = calc_ref2.records.p22250 * indiv_gfactors['equity'][i-2014]
         calc_ref2.records.p23250 = calc_ref2.records.p23250 * indiv_gfactors['equity'][i-2014]
+        # Change business components
+        calc_ref2.records.e07300 = calc_ref2.records.e07300 * rescale_noncorp[i-2014]
+        calc_ref2.records.e07400 = calc_ref2.records.e07400 * rescale_noncorp[i-2014]
+        calc_ref2.records.e07600 = calc_ref2.records.e07600 * rescale_noncorp[i-2014]
         calc_base.calc_all()
         calc_ref2.calc_all()
         indiv_rev_impact[i-2014] = sum((calc_ref2.records.combined -

@@ -195,6 +195,7 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99, id_hc
     # eta: retirement rate of existing debt
     # nid_hc: haircut on the net interest deduction, beginning in nid_hc_year
     # id_hc_old, id_hc_new: haircuts on the deduction of interest paid on debt originated before id_hc_year and on debt originated beginning in id_hc_year
+    # Note: Since capital_path already includes the legal shifting effect, it is not required here
     elast_debt = elast_dict['debt_taxshield_c']
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_corp['Kfa'][:57].tolist()
@@ -235,7 +236,6 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99, id_hc
         R[i] = L2[i-1] * eta
         O[i] = max(L_opt[i] - L2[i-1] * (1 - eta), 0)
         L2[i] = L2[i-1] - R[i] + O[i]
-        
     i_a = [x / 100. for x in i_t]
     i_l = [(i_t[i] + i_pr[i]) / 100. for i in range(len(i_t))]
     int_income = [A[i] * i_a[i] for i in range(len(A))]
@@ -250,17 +250,18 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99, id_hc
                 int_expense[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j]
     NID_gross = int_expense - int_income
     NID = np.zeros(len(NID_gross))
-    NIP = NID_gross * adjfactor_nid_corp
+    NIP = NID_gross * adjfactor_int_corp
     for i in range(len(NID)):
         if i + 1960 < nid_hc_year:
-            NID[i] = NID_gross[i] * adjfactor_nid_corp
+            NID[i] = NID_gross[i] * adjfactor_int_corp
         else:
-            NID[i] = NID_gross[i] * adjfactor_nid_corp * (1 - nid_hc)
-    NID_results = pd.DataFrame({'year': range(2014,2028), 'nid': NID[54:68]})
-    NIP_results = pd.DataFrame({'year': range(2014,2028), 'nip': NIP[54:68]})
-    return (NID_results, NIP_results)
+            NID[i] = NID_gross[i] * adjfactor_int_corp * (1 - nid_hc)
+    debt = np.asarray(L2) * adjfactor_int_corp
+    NID_results = pd.DataFrame({'year': range(2014,2028), 'nid': NID[54:68], 'nip': NIP[54:68], 'debt': debt[54:68]})
+    return NID_results
 
 def noncorpIntDeduction_response(capital_path, eta=0.4, id_hc_year=9e99, id_hc_old=0, id_hc_new=0):
+    # Note: Since capital_path already includes the legal shifting, it is not required here
     elast_debt = elast_dict['debt_taxshield_nc']
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_noncorp['Kfa'][:57].tolist()
@@ -292,24 +293,23 @@ def noncorpIntDeduction_response(capital_path, eta=0.4, id_hc_year=9e99, id_hc_o
         R[i] = L2[i-1] * eta
         O[i] = max(L_opt[i] - L2[i-1] * (1 - eta), 0)
         L2[i] = L2[i-1] - R[i] + O[i]
-
     i_l = [(i_t[i] + i_pr[i]) / 100. for i in range(len(i_t))]
     int_paid = np.zeros(68)
     int_deducted = np.zeros(68)
     for i in range(1,68):
         for j in range(i+1):
-            int_paid[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * adjfactor_id_noncorp
+            int_paid[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * adjfactor_int_noncorp
             if j + 1960 < id_hc_year and i + 1960 >= id_hc_year:
-                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_old) * adjfactor_id_noncorp
+                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_old) * adjfactor_int_noncorp
             elif j + 1960 >= id_hc_year:
-                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_new) * adjfactor_id_noncorp
+                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * (1 - id_hc_new) * adjfactor_int_noncorp
             else:
-                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * adjfactor_id_noncorp
-    ID_results = pd.DataFrame({'year': range(2014,2028), 'intDed': int_deducted[54:68]})
-    IP_results = pd.DataFrame({'year': range(2014,2028), 'intpaid': int_paid[54:68]})
-    return (ID_results, IP_results)
+                int_deducted[i] += O[j] * (1 - eta)**(i - j - 1) * i_l[j] * adjfactor_int_noncorp
+    debt = np.asarray(L2) * adjfactor_int_noncorp
+    ID_results = pd.DataFrame({'year': range(2014,2028), 'intDed': int_deducted[54:68], 'intpaid': int_paid[54:68], 'debt': debt[54:68]})
+    return ID_results
 
-def legal_response(year):
+def legal_response_oneyear(year):
     """
     Reallocation of business activity between corporate and non-corporate sectors. 
     Note that this may only occur once.
@@ -326,11 +326,30 @@ def legal_response(year):
     taxterm_base = tau_c_base + tau_e_base - tau_c_base * tau_e_base - tau_nc_base
     taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
     legalshift = elast * (taxterm_ref - taxterm_base)
-    print "tau_nc", str(tau_nc_base)
-    print "tau_e", str(tau_e_base)
-    print "tax term", str(taxterm_base)
+    # business activity shares
     earnings_c = combined_base['ebitda'][year-2014]
     earnings_nc = earnings_base['ebitda'][year-2014]
     assets_c = capPath_base_corp['Kstock'][year-2014]
     assets_nc = capPath_base_noncorp['Kstock'][year-2014]
+    debt_c = NID_base['debt'][year-2014]
+    debt_nc = IntPaid_base_noncorp['debt'][year-2014]
+    cshare_earnings = earnings_c / (earnings_c + earnings_nc)
+    cshare_assets = assets_c / (assets_c + assets_nc)
+    cshare_debt = debt_c / (debt_c + debt_nc)
+    cshare_base = (cshare_earnings + cshare_assets + cshare_debt) / 3.0
+    cshare_ref = cshare_base + legalshift
+    scale_c = cshare_ref / cshare_base
+    scale_nc = (1 - cshare_ref) / (1 - cshare_base)
+    return (scale_c, scale_nc)
+
+def legal_response(firstyear):
+    # firstyear is the initial year when this begins
+    assert firstyear in range(2017, 2028)
+    for year in range(firstyear, 2028):
+        (scale_c, scale_nc) = legal_response_oneyear(year)
+        rescale_corp[i-2014] = scale_c
+        rescale_noncorp[i-2014] = scale_nc
+
+
+
 

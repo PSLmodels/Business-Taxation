@@ -20,8 +20,7 @@ def calcFTCAdjustment():
     ftc_gross = profits_f * tax_f / 100.
     adjfactor = sum(ftc_actual / ftc_gross) / 19.
     return adjfactor
-
-adjfactor_ftc = calcFTCAdjustment()
+adjfactor_ftc_corp = calcFTCAdjustment()
 
 def FTC_model(haircut=0.0, haircut_year = 9e99):
     profits = np.asarray(ftc_other_data['C_total'][19:])
@@ -32,7 +31,8 @@ def FTC_model(haircut=0.0, haircut_year = 9e99):
         tax_f[i] = calcWAvgTaxRate(i + 2014)
         if i + 2014 >= haircut_year:
             hc_applied = haircut
-    ftc_final = ((profits - profits_d) * tax_f / 100. * adjfactor_ftc *
+    ftc_semif = ((profits - profits_d) * tax_f / 100. * adjfactor_ftc_corp *
                  (1 - hc_applied))
+    ftc_final = ftc_semif * rescale_corp
     ftc_results = pd.DataFrame({'year': range(2014,2028), 'ftc': ftc_final})
     return ftc_results

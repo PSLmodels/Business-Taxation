@@ -14,8 +14,8 @@ if track_progress:
 annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp, btax_params_reform, adjfactor_dep_noncorp, hc_dep_nc, hc_dep_year_nc)
 if track_progress:
     print "New noncorporate depreciation calculated"
-(capPath_ref_corp, taxDep_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp, annualDepreciation_ref_corp)
-(capPath_ref_noncorp, taxDep_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp, annualDepreciation_ref_noncorp, corp_noncorp=False)
+(capPath_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp, annualDepreciation_ref_corp)
+(capPath_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp, annualDepreciation_ref_noncorp, corp_noncorp=False)
 if track_progress:
     print "New capital paths calculated"
 
@@ -24,9 +24,9 @@ earnings_ref_data = earningsResponse(response_results)
 earnings_ref_data['earnings_base'] = combined_base['ebitda'].tolist()
 earnings_ref_data['ebitda'] = (earnings_ref_data['earnings_base'] +
                                earnings_ref_data['deltaE'])
-earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1, inplace=True)
-combined_ref = earnings_ref_data.merge(right=taxDep_ref_corp,
-                                       how='outer', on='year')
+combined_ref = earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1, inplace=False)
+combined_ref['ebitda'] = np.asarray(combined_ref['ebitda']) * rescale_corp
+combined_ref['taxDep'] = capPath_ref_corp['taxDep']
 if track_progress:
     print "New earnings calculated"
     
@@ -43,23 +43,23 @@ assert hc_id_old_year_c == hc_id_new_year_c
 (hc_id_new_year_nc, hc_id_new_nc) = extract_other_param('newIntPaid_noncorp_hc',
                                                         other_params_reform)
 assert hc_id_old_year_nc == hc_id_new_year_nc
-(NID_ref, NIP_ref) = NID_response(capPath_ref_corp, id_hc_year=hc_id_old_year_c,
-                                  nid_hc_year=hc_nid_year_c,
-                                  id_hc_old=hc_id_old_c, id_hc_new=hc_id_new_c,
-                                  nid_hc=hc_nid_c)
+NID_ref = NID_response(capPath_ref_corp, id_hc_year=hc_id_old_year_c,
+                       nid_hc_year=hc_nid_year_c,
+                       id_hc_old=hc_id_old_c, id_hc_new=hc_id_new_c,
+                       nid_hc=hc_nid_c)
 if track_progress:
     print "New corporate net interest deduction calculated"
-(IntDed_ref_noncorp, IntPaid_ref_noncorp) = noncorpIntDeduction_response(capPath_base_noncorp,
-                                                                         id_hc_year=hc_id_old_year_nc,
-                                                                         id_hc_old=hc_id_old_nc, id_hc_new=hc_id_new_nc)
+IntDed_ref_noncorp = noncorpIntDeduction_response(capPath_ref_noncorp,
+                                                  id_hc_year=hc_id_old_year_nc,
+                                                  id_hc_old=hc_id_old_nc, id_hc_new=hc_id_new_nc)
 if track_progress:
     print "New noncorporate interest deduction calculated"
-combined_ref = combined_ref.merge(right=NID_ref, how='outer', on='year')
+combined_ref['nid'] = NID_ref['nid']
 
 # Sec 199
 (s199hc_yr, s199hc) = extract_other_param('sec199_hc', other_params_reform)
 sec199_reform = sec199(s199_hc=s199hc, s199_hc_year=s199hc_yr)
-combined_ref = combined_ref.merge(right=sec199_reform, how='outer', on='year')
+combined_ref['sec199'] = sec199_reform['sec199']
 
 # Compute taxinc and taxbc
 combined_ref['taxinc'] = (combined_ref['ebitda'] - combined_ref['taxDep'] -
@@ -73,7 +73,7 @@ if track_progress:
 # FTC
 (ftchc_year, ftchc) = extract_other_param('ftc_hc', other_params_reform)
 ftc_ref = FTC_model(haircut=ftchc, haircut_year=ftchc_year)
-combined_ref = combined_ref.merge(right=ftc_base, how='outer', on='year')
+combined_ref['ftc'] = ftc_ref['ftc']
 
 # AMT and PYMTC
 (amtrepeal_yr, amtrepeal_truth) = extract_other_param('amt_repeal',

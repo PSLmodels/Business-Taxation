@@ -291,8 +291,10 @@ def capitalPath(investment_mat, depDeduction_vec,
                 corp_noncorp=True):
     if corp_noncorp:
         adj_factor = adjfactor_dep_corp
+        rescalar = rescale_corp
     else:
         adj_factor = adjfactor_dep_noncorp
+        rescalar = rescale_noncorp
     Kstock = np.zeros((96,15))
     trueDep = np.zeros((96,14))
     pcelist = np.asarray(investmentGfactors_data['pce'])
@@ -319,14 +321,14 @@ def capitalPath(investment_mat, depDeduction_vec,
     fixedInv_total = np.zeros(14)
     Mdep_total = np.zeros(14)
     for j in range(14):
-        Kstock_total[j] = sum(Kstock[:,j]) * adj_factor
+        Kstock_total[j] = sum(Kstock[:,j]) * adj_factor * rescalar[j]
         fixedK_total[j] = ((sum(Kstock[:,j]) - Kstock[31,j] - Kstock[32,j]) *
-                           adj_factor)
-        trueDep_total[j] = sum(trueDep[:,j]) * adj_factor
-        inv_total[j] = sum(investment_mat[:,j+54]) * adj_factor
+                           adj_factor * rescalar[j])
+        trueDep_total[j] = sum(trueDep[:,j]) * adj_factor * rescalar[j]
+        inv_total[j] = sum(investment_mat[:,j+54]) * adj_factor * rescalar[j]
         fixedInv_total[j] = (sum(investment_mat[:,j+54]) -
-                             investment_mat[31,j+54]) * adj_factor
-        Mdep_total[j] = depDeduction_vec[j+54]
+                             investment_mat[31,j+54]) * adj_factor * rescalar[j]
+        Mdep_total[j] = depDeduction_vec[j+54] * rescalar[j]
     cap_result = pd.DataFrame({'year': range(2014,2028),
                                'Kstock': Kstock_total,
                                'Investment': inv_total,
@@ -334,7 +336,5 @@ def capitalPath(investment_mat, depDeduction_vec,
                                'TrueDep': trueDep_total,
                                'taxDep': Mdep_total,
                                'FixedK': fixedK_total})
-    taxDep_results = cap_result.drop(['Kstock', 'FixedK', 'Investment',
-                                      'FixedInv', 'TrueDep'], axis=1)
-    return (cap_result, taxDep_results, Kstock)
+    return (cap_result, Kstock)
 

@@ -2,7 +2,7 @@
 corpInc_base = capPath_base_corp.drop(['FixedInv', 'FixedK',
                                        'Kstock', 'taxDep'],
                                       axis=1, inplace=False)
-corpInc_base = corpInc_base.merge(right=NIP_base, how='outer', on='year')
+corpInc_base['nip'] = NID_base['nip']
 corpInc_base['earnings'] = combined_base['ebitda']
 corpInc_base['tax'] = combined_base['taxrev']
 corpInc_base['inc_aftertax'] = (corpInc_base['earnings'] -
@@ -16,7 +16,7 @@ corpInc_base['cashflow'] = (corpInc_base['earnings'] -
 corpInc_ref = capPath_ref_corp.drop(['FixedInv', 'FixedK',
                                      'Kstock', 'taxDep'],
                                     axis=1, inplace=False)
-corpInc_ref = corpInc_ref.merge(right=NIP_ref, how='outer', on='year')
+corpInc_ref['nip'] = NID_ref['nip']
 corpInc_ref['earnings'] = combined_ref['ebitda']
 corpInc_ref['tax'] = combined_ref['taxrev']
 corpInc_ref['inc_aftertax'] = (corpInc_ref['earnings'] -
