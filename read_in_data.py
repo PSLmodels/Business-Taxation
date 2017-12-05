@@ -55,6 +55,9 @@ econ_defaults = pd.read_csv('mini_params_econ.csv')
 assets_data = pd.read_csv('mini_assets.csv')
 assets_data.drop([3, 21, 32, 91], axis=0, inplace=True)
 assets_data.reset_index(drop=True, inplace=True)
+# Rescaling factors for later
+rescale_corp = np.ones(14)
+rescale_noncorp = np.ones(14)
 if track_progress:
     print "Data imports complete"
     

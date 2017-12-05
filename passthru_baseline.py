@@ -48,8 +48,8 @@ SchC_results['intpaid_pos_base'] = (IntPaid_base_noncorp['intpaid'] *
                                     intshare_sp_posinc)
 SchC_results['intpaid_neg_base'] = (IntPaid_base_noncorp['intpaid'] *
                                     intshare_sp_neginc)
-SchC_results['dep_pos_base'] = taxDep_base_noncorp['taxDep'] * depshare_sp_posinc
-SchC_results['dep_neg_base'] = taxDep_base_noncorp['taxDep'] * depshare_sp_neginc
+SchC_results['dep_pos_base'] = capPath_base_noncorp['taxDep'] * depshare_sp_posinc
+SchC_results['dep_neg_base'] = capPath_base_noncorp['taxDep'] * depshare_sp_neginc
 SchC_results['ebitda_pos_base'] = (SchC_results['netinc_pos_base'] +
                                    SchC_results['intpaid_pos_base'] +
                                    SchC_results['dep_pos_base'])
@@ -74,9 +74,9 @@ partner_results['intpaid_pos_base'] = (IntPaid_base_noncorp['intpaid'] *
                                        intshare_partner_posinc)
 partner_results['intpaid_neg_base'] = (IntPaid_base_noncorp['intpaid'] *
                                        intshare_partner_neginc)
-partner_results['dep_pos_base'] = (taxDep_base_noncorp['taxDep'] *
+partner_results['dep_pos_base'] = (capPath_base_noncorp['taxDep'] *
                                    depshare_partner_posinc)
-partner_results['dep_neg_base'] = (taxDep_base_noncorp['taxDep'] *
+partner_results['dep_neg_base'] = (capPath_base_noncorp['taxDep'] *
                                    depshare_partner_neginc)
 partner_results['ebitda_pos_base'] = (partner_results['netinc_pos_base'] +
                                       partner_results['intpaid_pos_base'] +
@@ -106,9 +106,9 @@ Scorp_results['intpaid_pos_base'] = (IntPaid_base_noncorp['intpaid'] *
                                      intshare_scorp_posinc)
 Scorp_results['intpaid_neg_base'] = (IntPaid_base_noncorp['intpaid'] *
                                      intshare_scorp_neginc)
-Scorp_results['dep_pos_base'] = (taxDep_base_noncorp['taxDep'] *
+Scorp_results['dep_pos_base'] = (capPath_base_noncorp['taxDep'] *
                                  depshare_scorp_posinc)
-Scorp_results['dep_neg_base'] = (taxDep_base_noncorp['taxDep'] *
+Scorp_results['dep_neg_base'] = (capPath_base_noncorp['taxDep'] *
                                  depshare_scorp_neginc)
 Scorp_results['ebitda_pos_base'] = (Scorp_results['netinc_pos_base'] +
                                     Scorp_results['intpaid_pos_base'] +
@@ -121,4 +121,4 @@ earnings1 = (SchC_results['ebitda_pos_base'] + SchC_results['ebitda_neg_base'] +
              partner_results['ebitda_pos_base'] + partner_results['ebitda_neg_base'] +
              Scorp_results['ebitda_pos_base'] + Scorp_results['ebitda_neg_base'])
 earnings_base = pd.DataFrame({'ebitda': earnings1, 'year': range(2014, 2028)})
-
+adjfactor_earnings_noncorp = 1.0

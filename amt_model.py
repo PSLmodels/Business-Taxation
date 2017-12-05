@@ -16,7 +16,7 @@ def calcAMTparams():
     nu = (sum([Alist[i] / Clist[i] for i in range(7,20)]) / 13. *
           Ctax_rate / AMT_rate)
     return (gamma, nu)
-(gamma, nu) = calcAMTparams()
+(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
 
 amt_rates_default = np.asarray(btax_defaults['tau_amt'])
 ctax_rates_default = np.asarray(btax_defaults['tau_c'])
@@ -40,19 +40,21 @@ def AMTmodel(amt_repeal_year=9e99, pymtc_repeal_year=9e99,
         if i + 2013 >= amt_repeal_year:
             Alist.append(0)
         else:
-            Alist.append(Clist[i] * nu *
+            Alist.append(Clist[i] * adjfactor_amt_corp *
                          min(amt_rates[i-1] / ctax_rates[i-1], 1))
         ## Determine PYMTC
         if i + 2013 >= pymtc_repeal_year:
             Plist.append(0)
         elif i + 2013 < amt_repeal_year:
-            Plist.append(Slist[i] * gamma * theta_set[0])
+            Plist.append(Slist[i] * adjfactor_pymtc_corp * theta_set[0])
         elif i + 2013 == amt_repeal_year:
-            Plist.append(Slist[i] * gamma * theta_set[1])
+            Plist.append(Slist[i] * adjfactor_pymtc_corp * theta_set[1])
         else:
-            Plist.append(Slist[i] * gamma * theta_set[2])
+            Plist.append(Slist[i] * adjfactor_pymtc_corp * theta_set[2])
         Slist.append(Slist[i] + Alist[i] - Plist[i])
-    AMT_results = pd.DataFrame({'year': range(2014,2028),
-                                'amt': Alist[1:], 'pymtc': Plist[1:]})
+    amt_final = np.asarray(Alist[1:]) * rescale_corp
+    pymtc_final = np.asarray(Plist[1:]) * rescale_corp
+    AMT_results = pd.DataFrame({'year': range(2014, 2028),
+                                'amt': amt_final, 'pymtc': pymtc_final})
     return AMT_results
 
