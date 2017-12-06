@@ -66,8 +66,3 @@ Scorp_results['netinc_pos_ref'] = (Scorp_results['ebitda_pos_ref'] -
 Scorp_results['netinc_neg_ref'] = (Scorp_results['ebitda_neg_ref'] -
                                    Scorp_results['dep_neg_ref'] -
                                    Scorp_results['intpaid_neg_ref'])
-
-
-
-
-

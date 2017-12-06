@@ -1,21 +1,33 @@
 """
-This file runs and implements the reform. 
-It should be run after the reform parameters have been specified and the investment responses calculated.
+This file runs and implements the reform.
+It should be run after the reform parameters have been specified
+and the investment responses calculated.
 """
 # Investment, depreciation and capital
 (inv_mat_ref_corp, inv_mat_ref_noncorp) = buildNewInvMatrix(response_results)
 if track_progress:
     print "New investment matrices constructed"
-(hc_dep_year_c, hc_dep_c) = extract_other_param('undepBasis_corp_hc', other_params_reform)
-(hc_dep_year_nc, hc_dep_nc) = extract_other_param('undepBasis_noncorp_hc', other_params_reform)
-annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp, btax_params_reform, adjfactor_dep_corp, hc_dep_c, hc_dep_year_c)
+(hc_dep_year_c, hc_dep_c) = extract_other_param('undepBasis_corp_hc',
+                                                other_params_reform)
+(hc_dep_year_nc, hc_dep_nc) = extract_other_param('undepBasis_noncorp_hc',
+                                                  other_params_reform)
+annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp,
+                                                 btax_params_reform,
+                                                 adjfactor_dep_corp,
+                                                 hc_dep_c, hc_dep_year_c)
 if track_progress:
     print "New corporate depreciation calculated"
-annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp, btax_params_reform, adjfactor_dep_noncorp, hc_dep_nc, hc_dep_year_nc)
+annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp,
+                                                    btax_params_reform,
+                                                    adjfactor_dep_noncorp,
+                                                    hc_dep_nc, hc_dep_year_nc)
 if track_progress:
     print "New noncorporate depreciation calculated"
-(capPath_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp, annualDepreciation_ref_corp)
-(capPath_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp, annualDepreciation_ref_noncorp, corp_noncorp=False)
+(capPath_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp,
+                                                  annualDepreciation_ref_corp)
+(capPath_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp,
+                                                        annualDepreciation_ref_noncorp,
+                                                        corp_noncorp=False)
 if track_progress:
     print "New capital paths calculated"
 
@@ -24,12 +36,13 @@ earnings_ref_data = earningsResponse(response_results)
 earnings_ref_data['earnings_base'] = combined_base['ebitda'].tolist()
 earnings_ref_data['ebitda'] = (earnings_ref_data['earnings_base'] +
                                earnings_ref_data['deltaE'])
-combined_ref = earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1, inplace=False)
+combined_ref = earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1,
+                                      inplace=False)
 combined_ref['ebitda'] = np.asarray(combined_ref['ebitda']) * rescale_corp
 combined_ref['taxDep'] = capPath_ref_corp['taxDep']
 if track_progress:
     print "New earnings calculated"
-    
+
 # Net interest deduction and interest paid deduction
 (hc_nid_year_c, hc_nid_c) = extract_other_param('netIntPaid_corp_hc',
                                                 other_params_reform)
@@ -51,7 +64,8 @@ if track_progress:
     print "New corporate net interest deduction calculated"
 IntDed_ref_noncorp = noncorpIntDeduction_response(capPath_ref_noncorp,
                                                   id_hc_year=hc_id_old_year_nc,
-                                                  id_hc_old=hc_id_old_nc, id_hc_new=hc_id_new_nc)
+                                                  id_hc_old=hc_id_old_nc,
+                                                  id_hc_new=hc_id_new_nc)
 if track_progress:
     print "New noncorporate interest deduction calculated"
 combined_ref['nid'] = NID_ref['nid']

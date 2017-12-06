@@ -1,5 +1,9 @@
 def calcWAvgTaxRate(year):
-    assert year in range(1995,2028)
+    """
+    Calculates the weighted average statutory corporate tax rate
+    in all OECD countries in a given year.
+    """
+    assert year in range(1995, 2028)
     year = min(year, 2016)
     gdp_list = np.asarray(ftc_gdp_data[str(year)])
     taxrate_list = np.asarray(ftc_taxrates_data[str(year)])
@@ -10,19 +14,25 @@ def calcWAvgTaxRate(year):
     return avgrate
 
 def calcFTCAdjustment():
+    """
+    Calculates the adjustment factor for the FTC.
+    """
     ftc_actual = np.asarray(ftc_other_data['F'][:19])
     profits = np.asarray(ftc_other_data['C_total'][:19])
     profits_d = np.asarray(ftc_other_data['C_domestic'][:19])
     profits_f = profits - profits_d
     tax_f = []
-    for i in range(1995,2014):
+    for i in range(1995, 2014):
         tax_f.append(calcWAvgTaxRate(i))
     ftc_gross = profits_f * tax_f / 100.
     adjfactor = sum(ftc_actual / ftc_gross) / 19.
     return adjfactor
 adjfactor_ftc_corp = calcFTCAdjustment()
 
-def FTC_model(haircut=0.0, haircut_year = 9e99):
+def FTC_model(haircut=0.0, haircut_year=9e99):
+    """
+    Calculates the Foreign Tax Credit amount for each year 2014-2027.
+    """
     profits = np.asarray(ftc_other_data['C_total'][19:])
     profits_d = np.asarray(ftc_other_data['C_domestic'][19:])
     tax_f = np.zeros(14)
@@ -34,5 +44,5 @@ def FTC_model(haircut=0.0, haircut_year = 9e99):
     ftc_semif = ((profits - profits_d) * tax_f / 100. * adjfactor_ftc_corp *
                  (1 - hc_applied))
     ftc_final = ftc_semif * rescale_corp
-    ftc_results = pd.DataFrame({'year': range(2014,2028), 'ftc': ftc_final})
+    ftc_results = pd.DataFrame({'year': range(2014, 2028), 'ftc': ftc_final})
     return ftc_results

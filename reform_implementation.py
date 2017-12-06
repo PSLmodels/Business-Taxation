@@ -37,8 +37,6 @@ def test_other_reform(paramdict):
     paramnames = brc_defaults_other.keys()
     for key in paramdict:
         assert key in brc_defaults_other.keys()
-        #year = int(paramdict[key].keys()[0])
-        #assert year in range(2014, 2027)
 
 
 def update_btax_params(param_dict):

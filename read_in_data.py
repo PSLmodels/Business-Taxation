@@ -37,9 +37,11 @@ partner_data = pd.read_csv(ctax_data_path + 'partnership data.csv')
 Scorp_data = pd.read_csv(ctax_data_path + 'Scorp data.csv')
 sp_data = pd.read_csv(ctax_data_path + 'sp_nonfarm data.csv')
 # tax depreciation information
-taxdep1 = pd.read_csv('btax/data/depreciation_rates/tax_depreciation_rates.csv')
+taxdep_path = 'btax/data/depreciation_rates/tax_depreciation_rates.csv'
+taxdep1 = pd.read_csv(taxdep_path)
 taxdep1.drop(['System'], axis=1, inplace=True)
-taxdep1.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads', 'Asset Type': 'Asset'}, inplace=True)
+taxdep1.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads',
+                        'Asset Type': 'Asset'}, inplace=True)
 asset = np.asarray(taxdep1['Asset'])
 asset[81] = 'Motor vehicles and parts manufacturing'
 method = np.asarray(taxdep1['Method'])
@@ -60,4 +62,3 @@ rescale_corp = np.ones(14)
 rescale_noncorp = np.ones(14)
 if track_progress:
     print "Data imports complete"
-    
