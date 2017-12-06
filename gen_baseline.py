@@ -1,3 +1,7 @@
+"""
+The code in this file generates the baseline.
+"""
+
 # AMT and PYMTC
 amt_base = AMTmodel()
 # FTC
@@ -22,7 +26,8 @@ inv_mat_base_noncorp = build_inv_matrix(False)
 if track_progress:
     print "Investment matrices constructed"
 annualDepreciation_base_corp = annualCCRdeduction(inv_mat_base_corp,
-                                                  btax_defaults, adjfactor_dep_corp)
+                                                  btax_defaults,
+                                                  adjfactor_dep_corp)
 if track_progress:
     print "Corporate depreciation calculated"
 annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
@@ -30,8 +35,11 @@ annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
                                                      adjfactor_dep_noncorp)
 if track_progress:
     print "Noncorporate depreciation calculated"
-(capPath_base_corp, Kstock_base_corp) = capitalPath(inv_mat_base_corp, annualDepreciation_base_corp)
-(capPath_base_noncorp, Kstock_base_noncorp) = capitalPath(inv_mat_base_noncorp, annualDepreciation_base_noncorp, corp_noncorp=False)
+(capPath_base_corp, Kstock_base_corp) = capitalPath(inv_mat_base_corp,
+                                                    annualDepreciation_base_corp)
+(capPath_base_noncorp, Kstock_base_noncorp) = capitalPath(inv_mat_base_noncorp,
+                                                          annualDepreciation_base_noncorp,
+                                                          corp_noncorp=False)
 if track_progress:
     print "Capital paths calculated"
 combined_base['taxDep'] = capPath_base_corp['taxDep']
@@ -53,4 +61,5 @@ if track_progress:
     print "Noncorporate tax rates calculated"
 # Build pass-through model
 execfile('passthru_baseline.py')
-print "Baseline complete"
+if track_progress:
+    print "Baseline complete"

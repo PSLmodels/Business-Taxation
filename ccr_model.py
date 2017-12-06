@@ -2,6 +2,14 @@ if track_progress:
     print "Beginning CCR model"
 # construct base dataset
 def ccr_data():
+    """
+    Constructs the main CCR dataset used.
+    Returns a DataFrame with:
+        each asset type,
+        corporate stock of each asset type,
+        noncorporate stock of each asset type,
+        true depreciation rate.
+    """
     btax_data = copy.deepcopy(assets_data)
     ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
     return ccrdata
@@ -16,6 +24,15 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
                  depr_25yr_method, depr_25yr_bonus,
                  depr_275yr_method, depr_275yr_bonus,
                  depr_39yr_method, depr_39yr_bonus):
+    """
+    Constructs the DataFrame of information for tax depreciation.
+    Only relevant for years beginning with 2014.
+    Returns a DataFrame with:
+        depreciation method,
+        tax depreciation life,
+        true depreciation rate,
+        bonus depreciation rate.
+    """
     taxdep = copy.deepcopy(taxdep_info_gross)
     system = np.empty(len(taxdep), dtype='S10')
     class_life = np.asarray(taxdep['GDS Class Life'])
@@ -56,6 +73,15 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
     return taxdep
 
 def taxdep_preset(year):
+    """
+    Constructs the DataFrame of information for tax depreciation.
+    Only relevant for years before 2014.
+    Returns a DataFrame with:
+        depreciation method,
+        tax depreciation life,
+        true depreciation rate,
+        bonus depreciation rate.
+    """
     taxdep = copy.deepcopy(taxdep_info_gross)
     taxdep['L'] = taxdep['L_gds']
     class_life = np.asarray(taxdep['GDS Class Life'])
@@ -74,6 +100,11 @@ def taxdep_preset(year):
     return taxdep
 
 def get_btax_params_oneyear(btax_params, year):
+    """
+    Extracts tax depreciation parameters and
+    calls the functions to build the tax depreciation
+    DataFrames.
+    """
     if year >= 2014:
         year = min(year, 2027)
         method_3yr = btax_params['depr_3yr_method'][year-2014]
@@ -107,11 +138,17 @@ def get_btax_params_oneyear(btax_params, year):
 # longer functions to use
 def depreciationDeduction(year_investment, year_deduction, method, L,
                           delta, bonus):
-    # year_investment: year the investment is made
-    # year_deduction: year the CCR deduction is taken
-    # Method: Method of CCR (DB 200%, DB 150%, SL, Expensing)
-    # L: class life for DB or SL depreciation (MACRS)
-    # bonus: bonus depreciation rate
+    """
+    Computes the nominal depreciation deduction taken on any
+    unit investment in any year with any depreciation method and life.
+    Parameters:
+        year_investment: year the investment is made
+        year_deduction: year the CCR deduction is taken
+        method: method of CCR (DB 200%, DB 150%, SL, Expensing, None)
+        L: class life for DB or SL depreciation (MACRS)
+        delta: economic depreciation rate
+        bonus: bonus depreciation rate
+    """
     assert method in ['DB 200%', 'DB 150%', 'SL', 'Expensing', 'Economic', 'None']
     # No depreciation
     if method == 'None':
@@ -182,9 +219,11 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
     return(deduction)
 
 def build_inv_matrix(corp_noncorp=True):
-    # Function builds a matrix of investment by asset type by year
-    # corp_noncorp: indicator for corporate or noncorporate investment
-    # Returns 96x75 invesment matrix (96 assets, years 1960-2034)
+    """
+    Builds a matrix of investment by asset type by year
+    corp_noncorp: indicator for corporate or noncorporate investment
+    Returns 96x75 invesment matrix (96 assets, years 1960-2034)
+    """
     inv_mat1 = np.zeros((96,75))
     # build historical portion
     for j in range(57):
@@ -218,12 +257,12 @@ def build_inv_matrix(corp_noncorp=True):
     return(inv_mat2)
 
 def calcDepAdjustment(corp_noncorp=True):
-    # corp_noncorp: indicator for whether corporate or noncorporate data
+    """
+    Calculates the adjustment factor for assets, depreciation and investment
+    corp_noncorp: indicator for whether corporate or noncorporate data
+    """
     investment_matrix = build_inv_matrix(corp_noncorp)
     Dep_arr = np.zeros((96,75,75))
-    #methodlist = np.asarray(base_data['Method'])
-    #Llist = np.asarray(base_data['L'])
-    #deltalist = np.asarray(base_data['delta'])
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_defaults, j+1960)
         for i in range(96):
@@ -259,14 +298,14 @@ if track_progress:
 
 def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
                        hc_undep=0., hc_undep_year=0):
-    # investment_matrix: the matrix of investment (by asset and year)
-    # bonusdata: bonus depreciation data (by asset and year)
-    # hc_undep: haircut on depreciation deductions taken
-    #           after hc_under_year on investments made before hc_undep_year
+    """
+    Calculates the annual depreciation deduction for each year 1960-2034
+    investment_matrix: the matrix of investment (by asset and year)
+    btax_params: DataFrame of business tax policies for each year
+    hc_undep: haircut on depreciation deductions taken
+              after hc_undep_year on investments made before hc_undep_year
+    """
     Dep_arr = np.zeros((96,75,75))
-    #methodlist =np.asarray(base_data['Method'])
-    #Llist = np.asarray(base_data['L'])
-    #deltalist = np.asarray(base_data['delta'])
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_params, j+1960)
         for i in range(96):
@@ -287,8 +326,21 @@ def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
                                    adjfactor_dep_corp)
     return totalAnnualDeduction
 
-def capitalPath(investment_mat, depDeduction_vec, 
+def capitalPath(investment_mat, depDeduction_vec,
                 corp_noncorp=True):
+    """
+    Computes the all information on the capital stock for 2014-2027
+    Returns two DataFrames:
+        cap_result: DataFrame of certain measures by year, including
+            stock of assets
+            stock of fixed assets (excluding land and inventories)
+            amount of fixed assets
+            amount of net investment
+            amount of net fixed investment
+            amount of tax depreciation deductions taken
+            amount of true depreciation occurring
+        Kstock: DataFrame of amount of each asset type in each year
+    """
     if corp_noncorp:
         adj_factor = adjfactor_dep_corp
         rescalar = rescale_corp

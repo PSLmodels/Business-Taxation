@@ -1,6 +1,9 @@
 # set and calculate parameters
 theta_set = [0.269045, 0.920237, 1]
 def calcAMTparams():
+    """
+    Calculates the adjustment factors for the AMT and PYMTC
+    """
     amt_data2 = copy.deepcopy(amtdata2)
     Clist = amt_data2['C'].tolist()
     Alist = amt_data2['A'].tolist()[:20]
@@ -23,10 +26,14 @@ ctax_rates_default = np.asarray(btax_defaults['tau_c'])
 def AMTmodel(amt_repeal_year=9e99, pymtc_repeal_year=9e99,
              amt_rates=amt_rates_default,
              ctax_rates=ctax_rates_default):
-    # amt_repeal_year:year corporate AMT repealed
-    # pymtc_repeal_year: year PYMTC repealed
-    # amt_rates: AMT rate for each year 2014-2027
-    # corporate income tax rate for each year 2014-2027
+    """
+    Calculates the AMT revenue and PYMTC for 2014-2027
+    Parameters:
+    amt_repeal_year: year corporate AMT repealed
+    pymtc_repeal_year: year PYMTC repealed
+    amt_rates: AMT rate for each year 2014-2027
+    corporate income tax rate for each year 2014-2027
+    """
     assert len(amt_rates) == 14
     assert len(ctax_rates) == 14
     amt_data2 = copy.deepcopy(amtdata2)

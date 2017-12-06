@@ -1,10 +1,8 @@
 """
-All functions for the calculations.
+All underlying functions for the calculations.
 """
 def calc_I(delta, r, a, b):
-    # Calculates amount of nominal gross income (EBITDA) per period
-    # a: beginning of time period
-    # b: end of time period
+    # Calculates present value of income accuring during the period [a,b]
     if r + delta == 0:
         I = b - a
     else:
@@ -13,6 +11,7 @@ def calc_I(delta, r, a, b):
     return I
 
 def calc_Ilist(delta, r, length=100):
+    # Calculates PV of income over lifetime
     I0 = calc_I(delta, r, 0, 0.5)
     Ilist = [I0]
     for j in range(1, length):
@@ -20,23 +19,28 @@ def calc_Ilist(delta, r, length=100):
     return Ilist
 
 def calc_F(f, r, i, delta, fracded, a, b):
+    # Calculates PV of interest deduction during [a,b]
     F = f * fracded * np.exp(-i * a) * (1 - np.exp(-i * (b - a)))
     F = (f * i / (r + delta) * fracded * np.exp(-(r + delta) * a) *
          (1 - np.exp(-(r + delta) * (b - a))))
     return F
 
 def calc_Flist(f, r, i, delta, fracded, length=100):
+    # Calcuates PV of interest deduction over lifetime
     Flist = [calc_F(f, r, i, delta, fracded, 0, 0.5)]
     for j in range(1, length):
         Flist.append(calc_F(f, r, i, delta, fracded, j-0.5, j+0.5))
     return Flist
 
 def calc_Dlist_exp(length=100):
+    # Calculates depreciation deduction vector for expensing
     Dlist = [0] * length
     Dlist[0] = 1
     return Dlist
 
 def calc_D_econ(delta, r, a, b):
+    # Calculates PV of depreciation deduction during [a,b]
+    # for economic depreciation method
     if r + delta == 0:
         D = delta * (b - a)
     else:
@@ -45,12 +49,16 @@ def calc_D_econ(delta, r, a, b):
     return D
 
 def calc_Dlist_econ(delta, r, bonus, length=100):
+    # Calculates PV of depreciation deductions over lifetime
+    # for economic depreciation
     Dlist = [bonus + (1 - bonus) * calc_D_econ(delta, r, 0, 0.5)]
     for j in range(1, length):
         Dlist.append((1 - bonus) * calc_D_econ(delta, r, j-0.5, j+0.5))
     return Dlist
 
 def calc_D_dbsl(N, L, r, pi, a, b):
+    # Calculates PV of depreciation deductions during [a,b]
+    # for declining balance and straight-line depreciation
     N = N * 1.0
     t1 = L * (1 - 1 / N)
     t2 = L
@@ -76,13 +84,17 @@ def calc_D_dbsl(N, L, r, pi, a, b):
     return D
 
 def calc_Dlist_dbsl(N, L, bonus, r, pi, length=100):
+    # Calculates PV of depreciation deductions over lifetime
+    # for declining balance and straight-line depreciation
     Dlist = [bonus + (1 - bonus) * calc_D_dbsl(N, L, r, pi, 0, 0.5)]
     for j in range(1, length):
         Dlist.append((1 - bonus) * calc_D_dbsl(N, L, r, pi, j-0.5, j+0.5))
     return Dlist
 
 def calc_Dlist(method, life, delta, r, pi, bonus, length=100):
-    assert method in ['DB 200%', 'DB 150%', 'SL', 'Economic', 'Expensing', 'None']
+    # Calculates PV of depreciation deductions over lifetime for each method
+    assert method in ['DB 200%', 'DB 150%', 'SL',
+                      'Economic', 'Expensing', 'None']
     assert bonus >= 0 and bonus <= 1
     if type(length) != int:
         length = int(length)
@@ -100,8 +112,9 @@ def calc_Dlist(method, life, delta, r, pi, bonus, length=100):
         Dlist = [0] * length
     return Dlist
 
-def calc_Tlist(tdict, length):
-    # tdict is a dictionary of tax rates and when they become effective
+def calc_Tlist(tdict, length=100):
+    # Build list of statutory tax rates for each period in lifetime
+    # tdict: dictionary of tax rates and when they become effective
     # tdict may not be empty
     # tdict must contain at least one key of '0'
     # tdict keys must be as nonnegative integers
@@ -127,7 +140,9 @@ def calc_Tlist(tdict, length):
                 Tlist.append(ratelist[rateind])
     return Tlist
 
-def calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length=100):
+def calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded,
+             tdict, length=100):
+    # Calculates the cost of capital
     Tlist = np.asarray(calc_Tlist(tdict, length))
     Nlist = np.asarray(calc_Ilist(delta, r, length))
     Dlist = np.asarray(calc_Dlist(method, life, delta, r, pi, bonus, length))
@@ -139,10 +154,12 @@ def calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length=10
     return rho
 
 def calc_rho_inv(r, pi, inv_method, hold, tdict):
+    # Calculates the cost of capital for inventories
     assert inv_method in ['FIFO', 'LIFO', 'Expensing', 'Mix']
     tau = tdict['0']
     rho_exp = r
-    rho_lifo = 1 / hold * np.log((np.exp((r + pi) * hold) - tau) / (1 - tau)) - pi
+    rho_lifo = (1 / hold * np.log((np.exp((r + pi) * hold) - tau) /
+                (1 - tau)) - pi)
     rho_fifo = 1 / hold * np.log((np.exp(r * hold) - tau) / (1 - tau))
     if inv_method == 'FIFO':
         rho_inv = rho_fifo
@@ -154,8 +171,11 @@ def calc_rho_inv(r, pi, inv_method, hold, tdict):
         rho_inv = 0.5 * (rho_fifo + rho_lifo)
     return rho_inv
 
-def calc_eatr(p, r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length=100):
-    coc = calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length)
+def calc_eatr(p, r, pi, delta, method, life, bonus, f, rd, fracded,
+              tdict, length=100):
+    # Calculates the effective average tax rate
+    coc = calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded,
+                   tdict, length)
     assert p >= coc
     Rstar = (p - r) / (r + delta)
     P = p / (r + delta)
@@ -170,16 +190,20 @@ def calc_eatr(p, r, pi, delta, method, life, bonus, f, rd, fracded, tdict, lengt
     eatr = (Rstar - R) / P
     return eatr
 
-def calc_usercost(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length=100):
-    coc = calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded, tdict, length)
+def calc_usercost(r, pi, delta, method, life, bonus, f, rd, fracded,
+                  tdict, length=100):
+    # Calculate the user cost of capital
+    coc = calc_rho(r, pi, delta, method, life, bonus, f, rd, fracded,
+                   tdict, length)
     ucoc = coc + delta
     return ucoc
 
 
 """
-All code for parameters
+Code for extracting the relevant parameters
 """
 def test_btax_reform(paramdict):
+    # Check the validity of the main reform dictionary
     assert type(paramdict) == dict
     paramnames = list(btax_defaults)
     paramnames.remove('year')
@@ -194,6 +218,7 @@ def test_btax_reform(paramdict):
 
 def update_btax_params(param_dict):
     """
+    Creates a new DataFrame of business tax parameters with reforms.
     param_dict is a year: mod dictionary. Acceptable years are 2017-2027. Ex:
         {'2018': {'tau_c': 0.3}}
     """
@@ -210,10 +235,10 @@ def update_btax_params(param_dict):
 
 def make_tdict_c(btax_params, start_year):
     """
-    btax_params is a DataFrame of the btax parameters
-    Produces a dictionary of tax rates and changes to those rates.
-    For use when calculating rho and EATR
-    Assumes no changes after 2027
+    btax_params is a DataFrame of the btax parameters.
+    Produces a dictionary of tax rates and changes to those rates,
+    for use when calculating rho and EATR, for corporations.
+    Assumes no changes after 2027.
     """
     assert start_year >= 2017
     assert type(start_year) == int
@@ -228,10 +253,10 @@ def make_tdict_c(btax_params, start_year):
 
 def make_tdict_nc(btax_params, start_year):
     """
-    btax_params is a DataFrame of the btax parameters
-    Produces a dictionary of tax rates and changes to those rates.
-    For use when calculating rho and EATR
-    Assumes no changes after 2027
+    btax_params is a DataFrame of the btax parameters.
+    Produces a dictionary of tax rates and changes to those rates,
+    for use when calculating rho and EATR, for noncorporate businesses.
+    Assumes no changes after 2027.
     """
     assert start_year >= 2017
     assert type(start_year) == int
@@ -260,7 +285,8 @@ Code to run btax-mini
 """
 def calc_frac_ded(other_params, year):
     """
-    fracded is the fraction of interest deductible for all future years
+    Calculates the fraction of interest deductible for all future years,
+    for corporate and noncorporate.
     other_params is the dictionary of parameters not in btax_params
     """
     (hc_nid_year_c, hc_nid_c) = extract_other_param('netIntPaid_corp_hc',
@@ -285,6 +311,10 @@ def calc_frac_ded(other_params, year):
     return (fracdedc, fracdedn)
 
 def build_prelim_oneyear(year, econ_params, btax_params, other_params):
+    """
+    Calculates the user cost and EATR for an investment
+    in each asset type, for corporate and noncorporate, in the given year.
+    """
     assert year in range(2017, 2028)
     [r_c, r_nc, r_d, pi, f_c, f_nc] = get_econ_params_oneyear(econ_params, year)
     taxdep = get_btax_params_oneyear(btax_params, year)
@@ -320,6 +350,10 @@ def build_prelim_oneyear(year, econ_params, btax_params, other_params):
     return main_data
 
 def run_btax_mini(yearlist, btax_params, other_params):
+    """
+    Runs the code to compute the user cost and EATR
+    for each asset type for each year in yearlist.
+    """
     econ_params_df = copy.deepcopy(econ_defaults)
     basedata = copy.deepcopy(assets_data)
     for year in yearlist:
@@ -334,8 +368,8 @@ def run_btax_mini(yearlist, btax_params, other_params):
 
 def inv_response(firstyear):
     """
-    This function calculates the cost of capital under the baseline and reform.
-    It returns the percent change in investment and the MPK.
+    Calculates the percent change in investment & marginal product of capital,
+    for each asset type, for each year, corporate and noncorporate.
     firstyear: when the firm behavioral response takes effect
     """
     assert type(firstyear) is int
@@ -351,8 +385,8 @@ def inv_response(firstyear):
     for year in range(2014, firstyear):
         maindata['deltaIc' + str(year)] = 0.
         maindata['deltaInc' + str(year)] = 0.
-        maindata['deltaEc' + str(year)] = 0.
-        maindata['deltaEnc' + str(year)] = 0.
+        maindata['MPKc' + str(year)] = 0.
+        maindata['MPKnc' + str(year)] = 0.
     results_base = run_btax_mini(range(firstyear, 2028), btax_defaults, brc_defaults_other)
     results_ref = run_btax_mini(range(firstyear, 2028), btax_params_reform, other_params_reform)
     for year in range(firstyear, 2028):
@@ -361,7 +395,7 @@ def inv_response(firstyear):
                                            (results_ref['eatr_c' + str(year)] - results_base['eatr_c' + str(year)]) * selast_c * mne_share_c)
         maindata['deltaInc' + str(year)] = ((results_ref['u_nc' + str(year)] / results_base['u_nc' + str(year)] - 1) * elast_nc +
                                             (results_ref['eatr_nc' + str(year)] - results_base['eatr_nc' + str(year)]) * selast_nc * mne_share_nc)
-        maindata['deltaEc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0 + infl
-        maindata['deltaEnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0 + infl
+        maindata['MPKc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0 + infl
+        maindata['MPKnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0 + infl
     return maindata
 

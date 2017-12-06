@@ -1,3 +1,6 @@
+"""
+Compute the income multipliers to adjust income in taxcalc.
+"""
 # Baseline earnings and cash flow
 corpInc_base = capPath_base_corp.drop(['FixedInv', 'FixedK',
                                        'Kstock', 'taxDep'],
@@ -34,8 +37,9 @@ indiv_gfactors.rename(columns={'inc_aftertax': 'inc_aftertax_base'},
 indiv_gfactors['inc_aftertax_ref'] = corpInc_ref['inc_aftertax']
 indiv_gfactors['equity'] = (indiv_gfactors['inc_aftertax_ref'] /
                             indiv_gfactors['inc_aftertax_base'])
-corpshare_totalint = 1.0  ##Corporate interest share of all interest
+# Corporate interest share of all interest
 # Note: interest income not distributed to debtholders (yet)
+corpshare_totalint = 1.0
 indiv_gfactors['debt'] = (1 + (corpInc_ref['nip'] / corpInc_base['nip'] - 1) *
                           corpshare_totalint)
 
@@ -49,6 +53,6 @@ indiv_gfactors['e26270_pos'] = ((partner_results['netinc_pos_ref'] +
                                 (partner_results['netinc_pos_base'] +
                                  Scorp_results['netinc_pos_base']))
 indiv_gfactors['e26270_neg'] = ((partner_results['netinc_neg_ref'] +
-                                 Scorp_results['netinc_neg_ref']) / 
+                                 Scorp_results['netinc_neg_ref']) /
                                 (partner_results['netinc_neg_base'] +
                                  Scorp_results['netinc_neg_base']) * -1)

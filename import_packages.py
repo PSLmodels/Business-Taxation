@@ -1,4 +1,4 @@
-#This file imports all necessary packages
+# This file imports all necessary packages
 import taxcalc
 from taxcalc import *
 import btax
@@ -8,4 +8,4 @@ import numpy as np
 import copy
 import math
 if track_progress:
-	print "All packages successfully imported"
+    print "All packages successfully imported"
