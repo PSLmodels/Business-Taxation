@@ -29,10 +29,10 @@ def calc_tau_nc(calc):
     # Shares of noncorporate equity in fully taxable and tax-deferred form.
     alpha_nc_ft = 0.763
     alpha_nc_td = 0.101
-    mtr1 = calc.mtr('e00900p')[2]
-    mtr2 = calc.mtr('e26270')[2]
-    mtr3 = calc.mtr('e02000')[2]
-    mtr4 = calc.mtr('e01700')[2]
+    mtr1 = calc.mtr('e00900p', calc_all_already_called=True)[2]
+    mtr2 = calc.mtr('e26270', calc_all_already_called=True)[2]
+    mtr3 = calc.mtr('e02000', calc_all_already_called=True)[2]
+    mtr4 = calc.mtr('e01700', calc_all_already_called=True)[2]
     posti = (calc.records.c04800 > 0.)
     inc1 = np.abs(calc.records.e00900)
     inc2 = np.abs(calc.records.e26270)
@@ -122,10 +122,10 @@ def calc_tau_e(calc):
     h_scg = 0.5
     h_lcg = 8.0
     h_td = 8.0
-    mtr_d = calc.mtr('e00650')[2]
-    mtr_scg = calc.mtr('p22250')[2]
-    mtr_lcg = calc.mtr('p23250')[2]
-    mtr_td = calc.mtr('e01700')[2]
+    mtr_d = calc.mtr('e00650', calc_all_already_called=True)[2]
+    mtr_scg = calc.mtr('p22250', calc_all_already_called=True)[2]
+    mtr_lcg = calc.mtr('p23250', calc_all_already_called=True)[2]
+    mtr_td = calc.mtr('e01700', calc_all_already_called=True)[2]
     inc_d = calc.records.e00650
     inc_scg = np.where(calc.records.p22250 >= 0, calc.records.p22250, 0)
     inc_lcg = np.where(calc.records.p23250 >= 0, calc.records.p23250, 0)
