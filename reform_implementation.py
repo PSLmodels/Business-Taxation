@@ -75,5 +75,5 @@ def extract_other_param(paramname, paramdict):
 btax_params_reform = update_btax_params(btax_dict1)
 other_params_reform = update_brc_params(btax_dict2)
 
-btax_params_reform['tau_nc'] = calc_mtr_nc_list(iit_params_ref)
+btax_params_reform['tau_nc'] = get_mtr_nc_list(iit_params_ref)
 print "All parameters updated"
