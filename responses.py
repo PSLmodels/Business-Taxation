@@ -25,139 +25,6 @@ def test_elast_dict():
     assert elast_dict['debt_taxshield_nc'] >= 0.0
     assert elast_dict['legalform_ratediff'] <= 0.0
 test_elast_dict()
-"""
-def investmentResponse(startyear):
-    # Calculates investment response by asset type by year
-    # Returns dataset of:
-    #        percent change in investment by asset type, year and legal status
-    #        change in earnings from a change in the capital stock, by asset, year and legal status
-    assert startyear >= 2017
-    elast_usercost_c = elast_dict['inv_usercost_c']
-    elast_usercost_nc = elast_dict['inv_usercost_nc']
-    elast_eatr = elast_dict['inv_eatr']
-    combined_response = copy.deepcopy(base_data)
-    combined_response.drop(['assets_c', 'assets_nc', 'delta'],
-                           axis=1, inplace=True)
-    for year in range(2014, 2028):
-    	print "***** RUN " + str(year) + " *****"
-        if year < startyear:
-            combined_response['deltaIc' + str(year)] = 0
-            combined_response['deltaEc' + str(year)] = 0
-            combined_response['deltaInc' + str(year)] = 0
-            combined_response['deltaEnc' + str(year)] = 0
-        elif (elast_usercost_c == 0) and (elast_usercost_nc == 0) and (elast_eatr == 0):
-            combined_response['deltaIc' + str(year)] = 0
-            combined_response['deltaEc' + str(year)] = 0
-            combined_response['deltaInc' + str(year)] = 0
-            combined_response['deltaEnc' + str(year)] = 0
-        else:
-            ## Get results for the year
-            BtaxBase = run_btax(False, False, min(year,2020), {}, btax_betr_corp=tau_base, btax_betr_entity_Switch=False, btax_betr_pass=0,
-                                btax_depr_3yr_exp=bonus_data['bonus3'][year-1960] * 100.,
-                                btax_depr_5yr_exp=bonus_data['bonus5'][year-1960] * 100.,
-                                btax_depr_7yr_exp=bonus_data['bonus7'][year-1960] * 100.,
-                                btax_depr_10yr_exp=bonus_data['bonus10'][year-1960] * 100.,
-                                btax_depr_15yr_exp=bonus_data['bonus15'][year-1960] * 100.,
-                                btax_depr_20yr_exp=bonus_data['bonus20'][year-1960] * 100.,
-                                btax_depr_25yr_exp=bonus_data['bonus25'][year-1960] * 100.,
-                                btax_depr_27_5yr_exp=bonus_data['bonus27'][year-1960] * 100.,
-                                btax_depr_39yr_exp=bonus_data['bonus39'][year-1960] * 100.,
-                                inventory_method=inventory_accounting, btax_depr_land_exp=bonusrate_land,
-                                btax_other_hair=0, btax_other_corpeq=0, btax_other_invest=0, btax_other_proptx=0,
-                                btax_depr_allyr_ads_Switch=False, btax_depr_allyr_exp=0, btax_depr_allyr_gds_Switch=True, btax_depr_allyr_tax_Switch=False,
-                                btax_depr_hover_ads_Switch=False, btax_depr_hover_exp=0, btax_depr_hover_gds_Switch=True, btax_depr_hover_tax_Switch=False,
-                                btax_depr_3yr_ads_Switch=False, btax_depr_3yr_gds_Switch=True, btax_depr_3yr_tax_Switch=False,
-                                btax_depr_5yr_ads_Switch=False, btax_depr_5yr_gds_Switch=True, btax_depr_5yr_tax_Switch=False,
-                                btax_depr_7yr_ads_Switch=False, btax_depr_7yr_gds_Switch=True, btax_depr_7yr_tax_Switch=False,
-                                btax_depr_10yr_ads_Switch=False, btax_depr_10yr_gds_Switch=True, btax_depr_10yr_tax_Switch=False,
-                                btax_depr_15yr_ads_Switch=False, btax_depr_15yr_gds_Switch=True, btax_depr_15yr_tax_Switch=False,
-                                btax_depr_20yr_ads_Switch=False, btax_depr_20yr_gds_Switch=True, btax_depr_20yr_tax_Switch=False,
-                                btax_depr_25yr_ads_Switch=False, btax_depr_25yr_gds_Switch=True, btax_depr_25yr_tax_Switch=False,
-                                btax_depr_27_5yr_ads_Switch=False, btax_depr_27_5yr_gds_Switch=True, btax_depr_27_5yr_tax_Switch=False,
-                                btax_depr_39yr_ads_Switch=False, btax_depr_39yr_gds_Switch=True, btax_depr_39yr_tax_Switch=False)
-            BtaxRefm = run_btax(False, False, min(year,2020), {}, btax_betr_corp=tau_ref, btax_betr_entity_Switch=False, btax_betr_pass=0,
-                                btax_depr_3yr_exp=bonus_data_ref['bonus3'][year-1960] * 100.,
-                                btax_depr_5yr_exp=bonus_data_ref['bonus5'][year-1960] * 100.,
-                                btax_depr_7yr_exp=bonus_data_ref['bonus7'][year-1960] * 100.,
-                                btax_depr_10yr_exp=bonus_data_ref['bonus10'][year-1960] * 100.,
-                                btax_depr_15yr_exp=bonus_data_ref['bonus15'][year-1960] * 100.,
-                                btax_depr_20yr_exp=bonus_data_ref['bonus20'][year-1960] * 100.,
-                                btax_depr_25yr_exp=bonus_data_ref['bonus25'][year-1960] * 100.,
-                                btax_depr_27_5yr_exp=bonus_data_ref['bonus27'][year-1960] * 100.,
-                                btax_depr_39yr_exp=bonus_data_ref['bonus39'][year-1960] * 100.,
-                                inventory_method=inventory_accounting, btax_depr_land_exp=bonusrate_land,
-                                btax_other_hair=int_hc, btax_other_corpeq=0, btax_other_invest=0, btax_other_proptx=0,
-                                btax_depr_allyr_ads_Switch=False, btax_depr_allyr_exp=0, btax_depr_allyr_gds_Switch=True, btax_depr_allyr_tax_Switch=False,
-                                btax_depr_hover_ads_Switch=False, btax_depr_hover_exp=0, btax_depr_hover_gds_Switch=True, btax_depr_hover_tax_Switch=False,
-                                btax_depr_3yr_ads_Switch=False, btax_depr_3yr_gds_Switch=True, btax_depr_3yr_tax_Switch=False,
-                                btax_depr_5yr_ads_Switch=False, btax_depr_5yr_gds_Switch=True, btax_depr_5yr_tax_Switch=False,
-                                btax_depr_7yr_ads_Switch=False, btax_depr_7yr_gds_Switch=True, btax_depr_7yr_tax_Switch=False,
-                                btax_depr_10yr_ads_Switch=False, btax_depr_10yr_gds_Switch=True, btax_depr_10yr_tax_Switch=False,
-                                btax_depr_15yr_ads_Switch=False, btax_depr_15yr_gds_Switch=True, btax_depr_15yr_tax_Switch=False,
-                                btax_depr_20yr_ads_Switch=False, btax_depr_20yr_gds_Switch=True, btax_depr_20yr_tax_Switch=False,
-                                btax_depr_25yr_ads_Switch=False, btax_depr_25yr_gds_Switch=True, btax_depr_25yr_tax_Switch=False,
-                                btax_depr_27_5yr_ads_Switch=False, btax_depr_27_5yr_gds_Switch=True, btax_depr_27_5yr_tax_Switch=False,
-                                btax_depr_39yr_ads_Switch=False, btax_depr_39yr_gds_Switch=True, btax_depr_39yr_tax_Switch=False)
-            df_base = BtaxBase[0]
-            df_ref = BtaxRefm[0]
-            ## Build main dataset
-            df_base.drop(['ADS Life', 'Asset Type', 'GDS Class Life', 'GDS Life', 'Method', 'System', 'asset_category',
-                          'b', 'bea_asset_code', 'bonus', 'major_asset_group', 'metr_c', 'metr_c_d', 'metr_c_e',
-                          'metr_nc', 'metr_nc_d', 'metr_nc_e', 'mettr_c', 'mettr_c_d', 'mettr_c_e', 'mettr_nc', 'mettr_nc_d',
-                          'mettr_nc_e', 'rho_c_d', 'rho_c_e', 'rho_nc_d', 'rho_nc_e', 'z_c_d', 'z_c_e',
-                          'z_nc_d', 'z_nc_e'], axis=1, inplace=True)
-            df_ref.drop(['ADS Life', 'Asset Type', 'GDS Class Life', 'GDS Life', 'Method', 'System', 'asset_category', 
-                         'b', 'bea_asset_code', 'bonus', 'major_asset_group', 'metr_c', 'metr_c_d', 'metr_c_e',
-                         'metr_nc', 'metr_nc_d', 'metr_nc_e', 'mettr_c', 'mettr_c_d', 'mettr_c_e', 'mettr_nc', 'mettr_nc_d',
-                         'mettr_nc_e', 'rho_c_d', 'rho_c_e', 'rho_nc_d', 'rho_nc_e', 'z_c_d', 'z_c_e', 
-                         'z_nc_d', 'z_nc_e', 'assets_c', 'assets_nc'], axis=1, inplace=True)
-            df_base.rename(columns={'assets_c': 'K_c_base', 'rho_c': 'rho_c_base', 'z_c': 'z_c_base', 
-                                    'assets_nc': 'K_nc_base', 'rho_nc': 'rho_nc_base', 'z_nc': 'z_nc_base'}, inplace=True)
-            df_ref.rename(columns={'rho_c': 'rho_c_ref', 'z_c': 'z_c_ref', 'rho_nc': 'rho_nc_ref', 'z_nc': 'z_nc_ref'}, inplace=True)
-            df_comb = df_base.merge(right=df_ref, how='outer', on='Asset')
-            df_total = df_comb.merge(right=df_econdepr, how='outer', on='Asset')
-            df_nocat = df_total.drop([3, 21, 32, 91, 100, 101, 102], axis=0)
-            
-            ## Apply marginal response using user cost of capital, to corporate and noncorporate
-            df_nocat['usercost_c_base'] = df_nocat['rho_c_base'] + df_nocat['delta']
-            df_nocat['usercost_c_ref'] = df_nocat['rho_c_ref'] + df_nocat['delta']
-            df_nocat['deltaInv_c_m'] = ((df_nocat['usercost_c_ref'] / df_nocat['usercost_c_base']) - 1) * elast_usercost_c
-            df_nocat['deltaE_c'] = (df_nocat['usercost_c_base'] + df_nocat['usercost_c_ref']) / 2.0
-            df_nocat['usercost_nc_base'] = df_nocat['rho_nc_base'] + df_nocat['delta']
-            df_nocat['usercost_nc_ref'] = df_nocat['rho_nc_ref'] + df_nocat['delta']
-            df_nocat['deltaInv_nc'] = ((df_nocat['usercost_nc_ref'] / df_nocat['usercost_nc_base']) - 1) * elast_usercost_nc
-            df_nocat['deltaE_nc'] = (df_nocat['usercost_nc_base'] + df_nocat['usercost_nc_ref']) / 2.0
-            
-            ## Apply nonmarginal response using EATR, to corporate only
-            r = (1 - f) * E + f * (i_d - pi)
-            F_base = f * tau_base
-            F_ref = f * tau_ref * (1 - int_hc)
-
-            df_nocat['Rstar'] = (p - r) / (r + df_nocat['delta'])
-            df_nocat['P'] = p / (r + df_nocat['delta'])
-            df_nocat['R_base'] = (-(1 - df_nocat['z_c_base'] * tau_base - F_base) +
-                                  (p + df_nocat['delta']) * (1 - tau_base) / (r + df_nocat['delta']))
-            df_nocat['R_ref'] = (-(1 - df_nocat['z_c_ref'] * tau_ref - F_ref) +
-                                 (p + df_nocat['delta']) * (1 - tau_ref) / (r + df_nocat['delta']))
-            df_nocat['EATR_base'] = (df_nocat['Rstar'] - df_nocat['R_base']) / df_nocat['P']
-            df_nocat['EATR_ref'] = (df_nocat['Rstar'] - df_nocat['R_ref']) / df_nocat['P']
-            df_nocat['deltaInv_c_nm'] = (df_nocat['EATR_ref'] - df_nocat['EATR_base']) * elast_eatr
-            df_nocat['deltaInv_c'] = df_nocat['deltaInv_c_m'] + df_nocat['deltaInv_c_nm']
-            df_deltaI = df_nocat.drop(['K_c_base', 'rho_c_base', 'z_c_base', 'rho_c_ref', 'z_c_ref', 
-                                       'K_nc_base', 'rho_nc_base', 'z_nc_base', 'rho_nc_ref', 'z_nc_ref',
-                                       'delta', 'usercost_c_base', 'usercost_c_ref', 'usercost_nc_base', 'usercost_nc_ref',
-                                       'deltaInv_c_m', 'Rstar', 'P', 'R_base', 'R_ref', 'EATR_base', 'EATR_ref', 'deltaInv_c_nm'],
-                                      axis=1)
-            df_deltaI.rename(columns={'deltaInv_c': 'deltaIc' + str(year), 'deltaE_c': 'deltaEc' + str(year),
-                                      'deltaInv_nc': 'deltaInc' + str(year), 'deltaE_nc': 'deltaEnc' + str(year)}, inplace=True)
-            combined_response = combined_response.merge(right=df_deltaI, how='outer', on='Asset')
-    for year in range(2021,2028):
-        combined_response['deltaIc' + str(year)] = combined_response['deltaIc2020']
-        combined_response['deltaEc' + str(year)] = combined_response['deltaEc2020']
-        combined_response['deltaInc' + str(year)] = combined_response['deltaInc2020']
-        combined_response['deltaEnc' + str(year)] = combined_response['deltaEnc2020']
-    return combined_response
-"""
 
 def buildNewInvMatrix(response_data):
     # Create new investment matrices for corporate and noncorporate
@@ -287,7 +154,8 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
         id_hc_old, id_hc_new: haircuts on the deduction of interest paid
                               on debt originated before id_hc_year (old) and
                               on debt originated beginning in id_hc_year (new)
-    """    elast_debt = elast_dict['debt_taxshield_nc']
+    """
+    elast_debt = elast_dict['debt_taxshield_nc']
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_noncorp['Kfa'][:57].tolist()
     L = debt_data_noncorp['L'][:57].tolist()
@@ -341,31 +209,32 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
                                'debt': debt[54:68]})
     return ID_results
 
-def legal_response_oneyear(year):
+def legal_response(firstyear):
     """
     Reallocation of business activity between corporate and noncorporate
-    sectors, calculated for one year only. For now, assume identical tax bases.
-    Returns rescaling factors for corporate and noncorporate activity for year.
+    sections, achieved by modifying the rescaling factors. For now,
+    assuming identical tax bases.
+    firstyear: first year when this takes effect
     """
-    assert year in range(2017, 2028)
+    assert firstyear in range(2017, 2028)
     elast = elast_dict['legalform_ratediff']
-    tau_nc_base = btax_defaults['tau_nc'][year-2014]
-    tau_nc_ref = btax_params_reform['tau_nc'][year-2014]
-    tau_c_base = btax_defaults['tau_c'][year-2014]
-    tau_c_ref = btax_params_reform['tau_c'][year-2014]
-    tau_e_base = calc_tau_e(year, {})
-    tau_e_ref = calc_tau_e(year, iit_params_ref)
+    tau_nc_base = btax_defaults['tau_nc'][firstyear-2014:]
+    tau_c_base = btax_defaults['tau_c'][firstyear-2014:]
+    tau_nc_ref = btax_params_reform['tau_nc'][firstyear-2014:]
+    tau_c_ref = btax_params_reform['tau_c'][firstyear-2014:]
+    tau_e_base = get_mtr_e_list({})[firstyear-2017:]
+    tau_e_ref = get_mtr_e_list(iit_params_ref)[firstyear-2017:]
     taxterm_base = (tau_c_base + tau_e_base - tau_c_base * tau_e_base -
                     tau_nc_base)
     taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
     legalshift = elast * (taxterm_ref - taxterm_base)
     # business activity shares
-    earnings_c = combined_base['ebitda'][year-2014]
-    earnings_nc = earnings_base['ebitda'][year-2014]
-    assets_c = capPath_base_corp['Kstock'][year-2014]
-    assets_nc = capPath_base_noncorp['Kstock'][year-2014]
-    debt_c = NID_base['debt'][year-2014]
-    debt_nc = IntPaid_base_noncorp['debt'][year-2014]
+    earnings_c = combined_base['ebitda'][firstyear-2014:]
+    earnings_nc = earnings_base['ebitda'][firstyear-2014:]
+    assets_c = capPath_base_corp['Kstock'][firstyear-2014:]
+    assets_nc = capPath_base_noncorp['Kstock'][firstyear-2014:]
+    debt_c = NID_base['debt'][firstyear-2014:]
+    debt_nc = IntPaid_base_noncorp['debt'][firstyear-2014:]
     cshare_earnings = earnings_c / (earnings_c + earnings_nc)
     cshare_assets = assets_c / (assets_c + assets_nc)
     cshare_debt = debt_c / (debt_c + debt_nc)
@@ -373,16 +242,5 @@ def legal_response_oneyear(year):
     cshare_ref = cshare_base + legalshift
     scale_c = cshare_ref / cshare_base
     scale_nc = (1 - cshare_ref) / (1 - cshare_base)
-    return (scale_c, scale_nc)
-
-def legal_response(firstyear):
-    """
-    Reallocation of business activity between corporate and noncorporate
-    sections, achieved by modifying the rescaling factors.
-    firstyear: first year when this takes effect
-    """
-    assert firstyear in range(2017, 2028)
-    for year in range(firstyear, 2028):
-        (scale_c, scale_nc) = legal_response_oneyear(year)
-        rescale_corp[i-2014] = scale_c
-        rescale_noncorp[i-2014] = scale_nc
+    rescale_corp[firstyear-2014:] = scale_c
+    rescale_noncorp[firstyear-2014:] = scale_nc

@@ -266,9 +266,9 @@ def calcDepAdjustment(corp_noncorp=True):
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_defaults, j+1960)
         for i in range(96):
-            for k in range(75):
-                Dep_arr[i,j,k] = (depreciationDeduction(j, k, 
-                										taxdepinfo['Method'][i],
+            for k in range(j, 75):
+                Dep_arr[i,j,k] = (depreciationDeduction(j, k,
+                                                        taxdepinfo['Method'][i],
                                                         taxdepinfo['L'][i],
                                                         taxdepinfo['delta'][i],
                                                         taxdepinfo['bonus'][i]) *
@@ -309,10 +309,10 @@ def annualCCRdeduction(investment_matrix, btax_params, adj_factor,
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_params, j+1960)
         for i in range(96):
-            for k in range(75):
-                Dep_arr[i,j,k] = (depreciationDeduction(j, k, 
+            for k in range(j, 75):
+                Dep_arr[i,j,k] = (depreciationDeduction(j, k,
                                                         taxdepinfo['Method'][i],
-                                                        taxdepinfo['L'][i], 
+                                                        taxdepinfo['L'][i],
                                                         taxdepinfo['delta'][i],
                                                         taxdepinfo['bonus'][i]) *
                                   investment_matrix[i,j])

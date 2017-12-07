@@ -55,7 +55,7 @@ combined_base['nid'] = NID_base['nid']
 # Complete the combining of baseline results
 combined_base['ebitda'] = (combined_base['taxinc'] + combined_base['sec199'] +
                            combined_base['taxDep'] + combined_base['nid'])
-mtr_nclist = calc_mtr_nc_list()
+mtr_nclist = get_mtr_nc_list()
 btax_defaults['tau_nc'] = mtr_nclist
 if track_progress:
     print "Noncorporate tax rates calculated"

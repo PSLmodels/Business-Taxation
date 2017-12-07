@@ -18,7 +18,7 @@ def make_calculator(reform_dict, start_year):
     calc1.calc_all()
     return(calc1)
 
-def get_mtr_nc(calc):
+def calc_tau_nc(calc):
     """
     Calculate the effective marginal tax rate on noncorporate business income.
     Noncorporate equity income can be in several forms:
@@ -45,14 +45,14 @@ def get_mtr_nc(calc):
     mtr_nc = alpha_nc_ft * mtr_ft + alpha_nc_td * mtr_td
     return mtr_nc
 
-def calc_mtr_nc_list(iit_refdict={}):
+def get_mtr_nc_list(iit_refdict={}):
     # Calculates the EMTR on noncorporate business income for 2014-2027
     calc1 = make_calculator(iit_refdict, 2013)
     mtrlist = []
     for year in range(2014, 2028):
         calc1.increment_year()
         calc1.calc_all()
-        mtrlist.append(get_mtr_nc(calc1))
+        mtrlist.append(calc_tau_nc(calc1))
     return mtrlist
 
 def distribute_results(reformdict):
@@ -101,14 +101,14 @@ def distribute_results(reformdict):
             calc_ref.increment_year()
     return(indiv_rev_impact)
 
-def calc_tau_e(year, iitref):
+def calc_tau_e(calc):
     """
     Calculate the effective marginal tax rate on equity income in year.
     """
-    assert year in range(2014, 2028)
     # Retained earnings rate
     m = 0.44
     # Nominal expected return to equity
+    year = calc.current_year
     E = econ_defaults['r_e_c'][year-2017] + econ_defaults['pi'][year-2017]
     # shares of cg in short-term, long-term, and held until death
     omega_scg = 0.034
@@ -122,7 +122,6 @@ def calc_tau_e(year, iitref):
     h_scg = 0.5
     h_lcg = 8.0
     h_td = 8.0
-    calc = make_calculator(iitref, year)
     mtr_d = calc.mtr('e00650')[2]
     mtr_scg = calc.mtr('p22250')[2]
     mtr_lcg = calc.mtr('p23250')[2]
@@ -153,3 +152,13 @@ def calc_tau_e(year, iitref):
                   (E * h_td))
     tau_e = alpha_ft * tau_ft + alpha_td * tau_td + alpha_nt * 0.0
     return(tau_e)
+
+def get_mtr_e_list(iit_refdict={}):
+    # Calculates the EMTR on income from corporate equity for 2017-2027
+    calc1 = make_calculator(iit_refdict, 2016)
+    mtrlist = []
+    for year in range(2017, 2028):
+        calc1.increment_year()
+        calc1.calc_all()
+        mtrlist.append(calc_tau_e(calc1))
+    return mtrlist
