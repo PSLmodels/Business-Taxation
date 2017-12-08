@@ -1,5 +1,6 @@
 # This file reads in all of the datasets and saves them accordingly.
-ctax_data_path = 'aggregates_data/'
+ctax_data_path = 'brc_data/'
+btax_data_path = 'btax_data/'
 # import tax revenue data
 taxrev_data = pd.read_csv(ctax_data_path + 'taxrev.csv')
 # import data for AMT model
@@ -11,8 +12,7 @@ ftc_other_data = pd.read_csv(ctax_data_path + 'ftc other data.csv')
 # import data for Sec. 199
 sec199_data = pd.read_csv(ctax_data_path + 'sec199.csv')
 # import depreciation data
-econdepr_path = 'btax/data/depreciation_rates/Economic Depreciation Rates.csv'
-df_econdepr = pd.read_csv(econdepr_path)
+df_econdepr = pd.read_csv(btax_data_path + 'Economic Depreciation Rates.csv')
 asset = np.asarray(df_econdepr['Asset'])
 asset[78] = 'Communications equipment manufacturing'
 asset[81] = 'Motor vehicles and parts manufacturing'
@@ -37,8 +37,7 @@ partner_data = pd.read_csv(ctax_data_path + 'partnership data.csv')
 Scorp_data = pd.read_csv(ctax_data_path + 'Scorp data.csv')
 sp_data = pd.read_csv(ctax_data_path + 'sp_nonfarm data.csv')
 # tax depreciation information
-taxdep_path = 'btax/data/depreciation_rates/tax_depreciation_rates.csv'
-taxdep1 = pd.read_csv(taxdep_path)
+taxdep1 = pd.read_csv(btax_data_path + 'tax_depreciation_rates.csv')
 taxdep1.drop(['System'], axis=1, inplace=True)
 taxdep1.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads',
                         'Asset Type': 'Asset'}, inplace=True)
