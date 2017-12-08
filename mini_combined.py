@@ -14,8 +14,9 @@ def calc_Ilist(delta, r, length=100):
     # Calculates PV of income over lifetime
     I0 = calc_I(delta, r, 0, 0.5)
     Ilist = [I0]
-    for j in range(1, length):
+    for j in range(1, length-1):
         Ilist.append(calc_I(delta, r, j-0.5, j+0.5))
+    Ilist.append(calc_I(delta, r, length-0.5, 9e99))
     return Ilist
 
 def calc_F(f, r, i, delta, fracded, a, b):
@@ -28,8 +29,9 @@ def calc_F(f, r, i, delta, fracded, a, b):
 def calc_Flist(f, r, i, delta, fracded, length=100):
     # Calcuates PV of interest deduction over lifetime
     Flist = [calc_F(f, r, i, delta, fracded, 0, 0.5)]
-    for j in range(1, length):
+    for j in range(1, length-1):
         Flist.append(calc_F(f, r, i, delta, fracded, j-0.5, j+0.5))
+    Flist.append(calc_F(f, r, i, delta, fracded, length-0.5, 9e99))
     return Flist
 
 def calc_Dlist_exp(length=100):
@@ -52,8 +54,9 @@ def calc_Dlist_econ(delta, r, bonus, length=100):
     # Calculates PV of depreciation deductions over lifetime
     # for economic depreciation
     Dlist = [bonus + (1 - bonus) * calc_D_econ(delta, r, 0, 0.5)]
-    for j in range(1, length):
+    for j in range(1, length-1):
         Dlist.append((1 - bonus) * calc_D_econ(delta, r, j-0.5, j+0.5))
+    Dlist.append((1 - bonus) * calc_D_econ(delta, r, length-0.5, 9e99))
     return Dlist
 
 def calc_D_dbsl(N, L, r, pi, a, b):
