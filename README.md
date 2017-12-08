@@ -9,11 +9,14 @@ This model is in a preliminary state and currently under development. The model 
 External dependencies:
  - taxcalc (Tax-Calculator)
  - Public use file
-Note that although this model uses data produced by B-Tax, BTax is not a dependency. 
+
+Note that although this model uses data produced by B-Tax, btax is not a dependency. 
+
+Instructions:
 
  - First, set up Python and GitHub. See the [instructions](http://taxcalc.readthedocs.io/en/latest/contributor_guide.html) for setting up Tax-Calculator. 
  - Clone this repo (or the one forked to your account). Navigate to the cloned repo, and enter the following commands:
-   - `git remote add upstream https://github.com/open-source-economics/btc.git`
+   - `git remote add upstream https://github.com/open-source-economics/brc.git`
    - `conda env create`
  - In the `BRC` folder, add `taxcalc` and `puf.csv`. 
  - To run BRC, see the example code in `combined_corporate_model.ipynb`. 
