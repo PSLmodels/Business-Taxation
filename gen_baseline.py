@@ -55,10 +55,11 @@ combined_base['nid'] = NID_base['nid']
 # Complete the combining of baseline results
 combined_base['ebitda'] = (combined_base['taxinc'] + combined_base['sec199'] +
                            combined_base['taxDep'] + combined_base['nid'])
-mtr_nclist = get_mtr_nc_list()
-btax_defaults['tau_nc'] = mtr_nclist
+(mtr_nclist_base, mtr_elist_base) = gen_mtr_lists({})
+btax_defaults['tau_nc'] = mtr_nclist_base
+btax_defaults['tau_e'] = mtr_elist_base
 if track_progress:
-    print "Noncorporate tax rates calculated"
+    print "Marginal tax rates calculated"
 # Build pass-through model
 execfile('passthru_baseline.py')
 if track_progress:

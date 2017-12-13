@@ -222,8 +222,8 @@ def legal_response(firstyear):
     tau_c_base = btax_defaults['tau_c'][firstyear-2014:]
     tau_nc_ref = btax_params_reform['tau_nc'][firstyear-2014:]
     tau_c_ref = btax_params_reform['tau_c'][firstyear-2014:]
-    tau_e_base = get_mtr_e_list({})[firstyear-2017:]
-    tau_e_ref = get_mtr_e_list(iit_params_ref)[firstyear-2017:]
+    tau_e_base = btax_defaults['tau_e'][firstyear-2014:]
+    tau_e_ref = btax_params_reform['tau_c'][firstyear-2014:]
     taxterm_base = (tau_c_base + tau_e_base - tau_c_base * tau_e_base -
                     tau_nc_base)
     taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
