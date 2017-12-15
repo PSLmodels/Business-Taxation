@@ -27,11 +27,13 @@ if track_progress:
     print "Investment matrices constructed"
 annualDepreciation_base_corp = annualCCRdeduction(inv_mat_base_corp,
                                                   btax_defaults,
+                                                  brc_defaults_other,
                                                   adjfactor_dep_corp)
 if track_progress:
     print "Corporate depreciation calculated"
 annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
                                                      btax_defaults,
+                                                     brc_defaults_other,
                                                      adjfactor_dep_noncorp)
 if track_progress:
     print "Noncorporate depreciation calculated"
