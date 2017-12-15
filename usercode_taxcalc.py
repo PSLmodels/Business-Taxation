@@ -3,6 +3,8 @@ This file provides the code to interface with taxcalc.
 """
 # Set this path as needed.
 records_url = 'puf.csv'
+
+
 def make_calculator(reform_dict, start_year):
     """
     Build Calculator object with the given reform dictionary,
@@ -17,6 +19,7 @@ def make_calculator(reform_dict, start_year):
     calc1.advance_to_year(start_year)
     calc1.calc_all()
     return(calc1)
+
 
 def distribute_results(reformdict):
     """
@@ -67,6 +70,7 @@ def distribute_results(reformdict):
 needed_mtr_list = ['e00900p', 'e26270', 'e02000', 'e01700',
                    'e00650', 'p22250', 'p23250']
 
+
 def calc_tauNC(mtrdict, incdict):
     """
     Calculate the effective marginal tax rate on noncorporate business income.
@@ -89,6 +93,7 @@ def calc_tauNC(mtrdict, incdict):
     mtr_td = sum(mtr4 * inc4 * posti * wgt) / sum(inc4 * posti * wgt)
     mtr_nc = alpha_nc_ft * mtr_ft + alpha_nc_td * mtr_td
     return mtr_nc
+
 
 def calc_tauE(mtrdict, incdict, year):
     """
@@ -140,6 +145,7 @@ def calc_tauE(mtrdict, incdict, year):
                   (E * h_td))
     tau_e = alpha_ft * tau_ft + alpha_td * tau_td + alpha_nt * 0.0
     return(tau_e)
+
 
 def gen_mtr_lists(iit_refdict={}):
     # Calculate the EMTR on income from corporate equity

@@ -355,7 +355,7 @@ def annualCCRdeduction(investment_matrix, btax_params, other_params,
     totalAnnualDeduction = np.zeros(75)
     for k in range(75):
         totalAnnualDeduction[k] = (Dep_arr[:, :, k].sum().sum() *
-                                   adjfactor_dep_corp)
+                                   adj_factor)
     return totalAnnualDeduction
 
 

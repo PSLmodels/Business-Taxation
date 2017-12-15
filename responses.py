@@ -1,6 +1,3 @@
-# behavioral_responses
-######################################################################
-
 def test_elast_dict():
     # check that all necessary terms included or defined
     try:
@@ -10,7 +7,8 @@ def test_elast_dict():
     else:
         for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr_c',
                     'inv_eatr_nc', 'mne_share_c', 'mne_share_nc',
-                    'debt_taxshield_c', 'debt_taxshield_nc', 'legalform_ratediff']:
+                    'debt_taxshield_c', 'debt_taxshield_nc',
+                    'legalform_ratediff']:
             assert key in elast_dict
     # test that values are correct
     assert elast_dict['inv_usercost_c'] <= 0.0
@@ -26,6 +24,7 @@ def test_elast_dict():
     assert elast_dict['legalform_ratediff'] <= 0.0
 test_elast_dict()
 
+
 def buildNewInvMatrix(response_data):
     # Create new investment matrices for corporate and noncorporate
     inv_mat_base_corp = build_inv_matrix()
@@ -37,6 +36,7 @@ def buildNewInvMatrix(response_data):
             inv_mat_ref_corp[i, j] = inv_mat_base_corp[i, j] * (1 + response_results['deltaIc' + str(j + 1960)].tolist()[i])
             inv_mat_ref_noncorp[i, j] = inv_mat_base_noncorp[i, j] * (1 + response_results['deltaInc' + str(j + 1960)].tolist()[i])
     return (inv_mat_ref_corp, inv_mat_ref_noncorp)
+
 
 def earningsResponse(response_data, corp_noncorp=True):
     if corp_noncorp:
@@ -58,6 +58,7 @@ def earningsResponse(response_data, corp_noncorp=True):
     earnings_results = pd.DataFrame({'year': range(2014, 2028),
                                      'deltaE': newEarnings_total})
     return earnings_results
+
 
 def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99,
                  id_hc_old=0, id_hc_new=0, nid_hc=0):
@@ -141,6 +142,7 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99,
                                 'nip': NIP[54:68], 'debt': debt[54:68]})
     return NID_results
 
+
 def noncorpIntDeduction_response(capital_path, eta=0.4,
                                  id_hc_year=9e99, id_hc_old=0, id_hc_new=0):
     """
@@ -208,6 +210,7 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
                                'intpaid': int_paid[54:68],
                                'debt': debt[54:68]})
     return ID_results
+
 
 def legal_response(firstyear):
     """
