@@ -2,24 +2,6 @@
 This file provides the implementation of business tax reforms
 """
 
-"""
-Set defauls for various, repeals and other provisions
-Note that these must be constant after implementation.
-"""
-brc_defaults_other = {
-    'undepBasis_corp_hc': {0: 0.0},
-    'undepBasis_noncorp_hc': {0: 0.0},
-    'amt_repeal': {9e99: False},
-    'pymtc_repeal': {9e99: False},
-    'ftc_hc': {9e99: 0.0},
-    'sec199_hc': {9e99: 0.0},
-    'oldIntPaid_corp_hc': {0: 0.0},
-    'newIntPaid_corp_hc': {0: 0.0},
-    'netIntPaid_corp_hc': {0: 0.0},
-    'oldIntPaid_noncorp_hc': {0: 0.0},
-    'newIntPaid_noncorp_hc': {0: 0.0}
-}
-
 
 def test_btax_reform(paramdict):
     assert type(paramdict) == dict
@@ -32,11 +14,20 @@ def test_btax_reform(paramdict):
         for param in paramdict[key]:
             assert param in paramnames
 
+
 def test_other_reform(paramdict):
     assert type(paramdict) == dict
-    paramnames = brc_defaults_other.keys()
     for key in paramdict:
         assert key in brc_defaults_other.keys()
+    if 'reclassify_taxdep_gdslife' in paramdict:
+        year = paramdict['reclassify_taxdep_gdslife'].keys()[0]
+        for life in paramdict['reclassify_taxdep_gdslife'][year]:
+            assert life in [3, 5, 7, 10, 15, 20, 25, 27.5, 39]
+    if 'reclassify_taxdep_adslife' in paramdict:
+        year = paramdict['reclassify_taxdep_adslife'].keys()[0]
+        for life in paramdict['reclassify_taxdep_adslife'][year]:
+            assert life in [3, 4, 5, 6, 7, 9, 9.5, 10, 12, 14, 15,
+                            18, 19, 20, 25, 28, 30, 40, 50, 100]
 
 
 def update_btax_params(param_dict):
@@ -59,12 +50,14 @@ def update_btax_params(param_dict):
             params_df[param] = paramlist1
     return params_df
 
+
 def update_brc_params(paramdict_other):
     test_other_reform(paramdict_other)
     other_params = copy.deepcopy(brc_defaults_other)
     for key in paramdict_other:
         other_params[key] = paramdict_other[key]
     return other_params
+
 
 def extract_other_param(paramname, paramdict):
     assert paramname in list(paramdict)

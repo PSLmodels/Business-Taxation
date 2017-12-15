@@ -13,12 +13,14 @@ if track_progress:
                                                   other_params_reform)
 annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp,
                                                  btax_params_reform,
+                                                 other_params_reform,
                                                  adjfactor_dep_corp,
                                                  hc_dep_c, hc_dep_year_c)
 if track_progress:
     print "New corporate depreciation calculated"
 annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp,
                                                     btax_params_reform,
+                                                    other_params_reform,
                                                     adjfactor_dep_noncorp,
                                                     hc_dep_nc, hc_dep_year_nc)
 if track_progress:
