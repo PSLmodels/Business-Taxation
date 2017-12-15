@@ -13,6 +13,7 @@ def calcWAvgTaxRate(year):
     avgrate = sum(taxrate_list2 * gdp_list2) / sum(gdp_list2)
     return avgrate
 
+
 def calcFTCAdjustment():
     """
     Calculates the adjustment factor for the FTC.
@@ -28,6 +29,7 @@ def calcFTCAdjustment():
     adjfactor = sum(ftc_actual / ftc_gross) / 19.
     return adjfactor
 adjfactor_ftc_corp = calcFTCAdjustment()
+
 
 def FTC_model(haircut=0.0, haircut_year=9e99):
     """

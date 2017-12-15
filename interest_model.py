@@ -33,6 +33,7 @@ def calcNIDscale(capital_path, eta=0.4):
     return NID_scale
 adjfactor_int_corp = calcNIDscale(capPath_base_corp)
 
+
 def calcIDscale_noncorp(capital_path, eta=0.4):
     """
     Calculates the adjustment factor for noncorporate debt and interest
@@ -108,6 +109,7 @@ def netInterestDeduction(capital_path, eta=0.4):
     # NID_results = pd.DataFrame({'year': range(1998,2014), 'nid': NID[38:54]})
     return (NID_results)
 
+
 def noncorpIntDeduction(capital_path, eta=0.4):
     """
     Calculates the debt and interest paid/deducted,
@@ -138,5 +140,6 @@ def noncorpIntDeduction(capital_path, eta=0.4):
     ID_results = pd.DataFrame({'year': range(2014, 2028),
                                'intpaid': int_total[54:68],
                                'debt': debt[54:68]})
-    # ID_results = pd.DataFrame({'year': range(1998,2014), 'intpaid': int_total[38:54]})
+    # ID_results = pd.DataFrame({'year': range(1998,2014),
+    #                            'intpaid': int_total[38:54]})
     return ID_results
