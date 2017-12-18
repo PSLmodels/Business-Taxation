@@ -1,28 +1,78 @@
-def test_elast_dict():
+"""
+Behavioral elasticities:
+    inv_usercost_c: elasticity of corporate investment w.r.t. the
+                    user cost of capital
+    inv_usercost_nc: elasticity of noncorporate investment w.r.t. the
+                     user cost of capital
+    inv_eatr_c: semi-elasticity of multinational corporate investment w.r.t.
+                the effective average tax rate
+    inv_eatr_c: semi-elasticity of multinational noncorporate investment w.r.t.
+                the effective average tax rate
+    mne_share_c: multinational share of corporate investment base
+    mne_share_nc: multinational share of noncorporate investment base
+    debt_taxshield_c: semi-elasticity of the corporate debt/asset ratio w.r.t.
+                      the marginal tax shield, tau * (1 - hc)
+    debt_taxshield_nc: semi-elasticity of the noncorporate debt/asset ratio
+                       w.r.t. the marginal tax shield, tau * (1 - hc)
+    legalform_ratediff: semi-elasticity of the corporate share of business
+                        activity w.r.t. the (Tc - Tnc) tax rate differential
+    first_year_response: the first year when firms may respond to tax changes
+"""
+elast_params = {
+    'inv_usercost_c': 0.0,
+    'inv_usercost_nc': 0.0,
+    'inv_eatr_c': 0.0,
+    'inv_eatr_nc': 0.0,
+    'mne_share_c': 0.0,
+    'mne_share_nc': 0.0,
+    'debt_taxshield_c': 0.0,
+    'debt_taxshield_nc': 0.0,
+    'legalform_ratediff': 0.0,
+    'first_year_response': 2017
+}
+
+
+def check_elast_params(dict2):
     # check that all necessary terms included or defined
     try:
-        elast_dict
+        elast_params
     except NameError:
         print "Elasticity dictionary undefined"
     else:
         for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr_c',
                     'inv_eatr_nc', 'mne_share_c', 'mne_share_nc',
                     'debt_taxshield_c', 'debt_taxshield_nc',
-                    'legalform_ratediff']:
-            assert key in elast_dict
+                    'legalform_ratediff', 'first_year_response']:
+            assert key in elast_params
     # test that values are correct
-    assert elast_dict['inv_usercost_c'] <= 0.0
-    assert elast_dict['inv_usercost_nc'] <= 0.0
-    assert elast_dict['inv_eatr_c'] <= 0.0
-    assert elast_dict['inv_eatr_nc'] <= 0.0
-    assert elast_dict['mne_share_c'] >= 0.0
-    assert elast_dict['mne_share_c'] <= 1.0
-    assert elast_dict['mne_share_nc'] >= 0.0
-    assert elast_dict['mne_share_nc'] <= 1.0
-    assert elast_dict['debt_taxshield_c'] >= 0.0
-    assert elast_dict['debt_taxshield_nc'] >= 0.0
-    assert elast_dict['legalform_ratediff'] <= 0.0
-test_elast_dict()
+    assert elast_params['inv_usercost_c'] <= 0.0
+    assert elast_params['inv_usercost_nc'] <= 0.0
+    assert elast_params['inv_eatr_c'] <= 0.0
+    assert elast_params['inv_eatr_nc'] <= 0.0
+    assert elast_params['mne_share_c'] >= 0.0
+    assert elast_params['mne_share_c'] <= 1.0
+    assert elast_params['mne_share_nc'] >= 0.0
+    assert elast_params['mne_share_nc'] <= 1.0
+    assert elast_params['debt_taxshield_c'] >= 0.0
+    assert elast_params['debt_taxshield_nc'] >= 0.0
+    assert elast_params['legalform_ratediff'] <= 0.0
+    assert elast_params['first_year_response'] in range(2014, 2028)
+
+
+def check_elast_update(dict2):
+    assert type(dict2) == dict
+    if len(dict2) > 0:
+        for key in dict2.keys():
+            assert key in elast_params.keys()
+
+
+def update_elast_dict(dict1):
+    # Update elast_dict using parameters in dict1
+    check_elast_update(dict1)
+    for key in dict1:
+        elast_params[key] = dict1[key]
+    check_elast_params(elast_params)
+update_elast_dict(elast_dict)
 
 
 def buildNewInvMatrix(response_data):
@@ -75,7 +125,8 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99,
                               on debt originated before id_hc_year (old) and
                               on debt originated beginning in id_hc_year (new)
     """
-    elast_debt = elast_dict['debt_taxshield_c']
+    elast_debt = elast_params['debt_taxshield_c']
+    firstyear = elast_params['first_year_response']
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_corp['Kfa'][:57].tolist()
     A = debt_data_corp['A'][:57].tolist()
@@ -90,15 +141,18 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99,
         L.append(D[i] + A[i])
     # Apply debt response
     hclist = np.zeros(14)
+    elast_debt_list = np.zeros(14)
     for i in range(14):
         if i + 2014 >= nid_hc_year:
             hc1 = nid_hc
         if i + 2014 >= id_hc_year:
             hc2 = id_hc_new
         hclist[i] = max(hc1, hc2)
+        if i + 2014 >= firstyear:
+            elast_debt_list[i] = elast_debt
     taxshield_base = btax_defaults['tau_c']
     taxshield_ref = np.asarray(btax_params_reform['tau_c']) * (1 - hclist)
-    pctchg_delta = elast_debt * (taxshield_ref / taxshield_base - 1)
+    pctchg_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1)
     D_opt = copy.deepcopy(D)
     L_opt = copy.deepcopy(L)
     for i in range(len(D)):
@@ -157,7 +211,8 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
                               on debt originated before id_hc_year (old) and
                               on debt originated beginning in id_hc_year (new)
     """
-    elast_debt = elast_dict['debt_taxshield_nc']
+    elast_debt = elast_params['debt_taxshield_nc']
+    firstyear = elast_params['first_year_response']
     Kstock2016 = capital_path['Kstock'][2]
     K_fa = debt_data_noncorp['Kfa'][:57].tolist()
     L = debt_data_noncorp['L'][:57].tolist()
@@ -168,12 +223,15 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
         L.append(L[56] * K_fa[i] / K_fa[56])
     # Apply debt response
     hclist = np.zeros(14)
+    elast_debt_list = np.zeros(14)
     for i in range(14):
         if i + 2014 >= id_hc_year:
             hclist[i] = id_hc_year
+        if i + 2014 >= firstyear:
+            elast_debt_list[i] = elast_debt
     taxshield_base = btax_defaults['tau_nc']
     taxshield_ref = btax_params_reform['tau_nc'] * (1 - hclist)
-    pctchg_delta = (taxshield_ref / taxshield_base - 1) * elast_debt
+    pctchg_delta = (taxshield_ref / taxshield_base - 1) * elast_debt_list
     L_opt = copy.deepcopy(L)
     for i in range(len(L)):
         if i + 1960 >= id_hc_year:
@@ -212,32 +270,35 @@ def noncorpIntDeduction_response(capital_path, eta=0.4,
     return ID_results
 
 
-def legal_response(firstyear):
+def legal_response():
     """
     Reallocation of business activity between corporate and noncorporate
     sections, achieved by modifying the rescaling factors. For now,
     assuming identical tax bases.
-    firstyear: first year when this takes effect
     """
-    assert firstyear in range(2017, 2028)
-    elast = elast_dict['legalform_ratediff']
-    tau_nc_base = btax_defaults['tau_nc'][firstyear-2014:]
-    tau_c_base = btax_defaults['tau_c'][firstyear-2014:]
-    tau_nc_ref = btax_params_reform['tau_nc'][firstyear-2014:]
-    tau_c_ref = btax_params_reform['tau_c'][firstyear-2014:]
-    tau_e_base = btax_defaults['tau_e'][firstyear-2014:]
-    tau_e_ref = btax_params_reform['tau_e'][firstyear-2014:]
+    elast = elast_params['legalform_ratediff']
+    firstyear = elast_params['first_year_response']
+    elast_list = np.zeros(14)
+    for i in range(14):
+        if i + 2014 >= firstyear:
+            elast_list[i] = elast
+    tau_nc_base = btax_defaults['tau_nc']
+    tau_c_base = btax_defaults['tau_c']
+    tau_nc_ref = btax_params_reform['tau_nc']
+    tau_c_ref = btax_params_reform['tau_c']
+    tau_e_base = btax_defaults['tau_e']
+    tau_e_ref = btax_params_reform['tau_e']
     taxterm_base = (tau_c_base + tau_e_base - tau_c_base * tau_e_base -
                     tau_nc_base)
     taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
-    legalshift = elast * (taxterm_ref - taxterm_base)
+    legalshift = elast_list * (taxterm_ref - taxterm_base)
     # business activity shares
-    earnings_c = combined_base['ebitda'][firstyear-2014:]
-    earnings_nc = earnings_base['ebitda'][firstyear-2014:]
-    assets_c = capPath_base_corp['Kstock'][firstyear-2014:]
-    assets_nc = capPath_base_noncorp['Kstock'][firstyear-2014:]
-    debt_c = NID_base['debt'][firstyear-2014:]
-    debt_nc = IntPaid_base_noncorp['debt'][firstyear-2014:]
+    earnings_c = combined_base['ebitda']
+    earnings_nc = earnings_base['ebitda']
+    assets_c = capPath_base_corp['Kstock']
+    assets_nc = capPath_base_noncorp['Kstock']
+    debt_c = NID_base['debt']
+    debt_nc = IntPaid_base_noncorp['debt']
     cshare_earnings = earnings_c / (earnings_c + earnings_nc)
     cshare_assets = assets_c / (assets_c + assets_nc)
     cshare_debt = debt_c / (debt_c + debt_nc)
@@ -245,5 +306,5 @@ def legal_response(firstyear):
     cshare_ref = cshare_base + legalshift
     scale_c = cshare_ref / cshare_base
     scale_nc = (1 - cshare_ref) / (1 - cshare_base)
-    rescale_corp[firstyear-2014:] = scale_c
-    rescale_noncorp[firstyear-2014:] = scale_nc
+    rescale_corp = scale_c
+    rescale_noncorp = scale_nc

@@ -364,22 +364,21 @@ def run_btax_mini(yearlist, btax_params, other_params):
     return basedata
 
 
-def inv_response(firstyear):
+def inv_response():
     """
     Calculates the percent change in investment & marginal product of capital,
     for each asset type, for each year, corporate and noncorporate.
     firstyear: when the firm behavioral response takes effect
     """
-    assert type(firstyear) is int
-    assert firstyear in range(2017, 2028)
+    firstyear = elast_params['first_year_response']
     maindata = copy.deepcopy(assets_data)
     maindata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
-    elast_c = elast_dict['inv_usercost_c']
-    elast_nc = elast_dict['inv_usercost_nc']
-    selast_c = elast_dict['inv_eatr_c']
-    selast_nc = elast_dict['inv_eatr_nc']
-    mne_share_c = elast_dict['mne_share_c']
-    mne_share_nc = elast_dict['mne_share_nc']
+    elast_c = elast_params['inv_usercost_c']
+    elast_nc = elast_params['inv_usercost_nc']
+    selast_c = elast_params['inv_eatr_c']
+    selast_nc = elast_params['inv_eatr_nc']
+    mne_share_c = elast_params['mne_share_c']
+    mne_share_nc = elast_params['mne_share_nc']
     for year in range(2014, firstyear):
         maindata['deltaIc' + str(year)] = 0.
         maindata['deltaInc' + str(year)] = 0.
