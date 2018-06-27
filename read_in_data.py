@@ -60,4 +60,4 @@ assets_data.reset_index(drop=True, inplace=True)
 rescale_corp = np.ones(14)
 rescale_noncorp = np.ones(14)
 if track_progress:
-    print "Data imports complete"
+    print("Data imports complete")

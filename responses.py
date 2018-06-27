@@ -37,7 +37,7 @@ def check_elast_params(dict2):
     try:
         elast_params
     except NameError:
-        print "Elasticity dictionary undefined"
+        print("Elasticity dictionary undefined")
     else:
         for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr_c',
                     'inv_eatr_nc', 'mne_share_c', 'mne_share_nc',

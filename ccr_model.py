@@ -1,5 +1,5 @@
 if track_progress:
-    print "Beginning CCR model"
+    print("Beginning CCR model")
 # construct base dataset
 
 
@@ -140,8 +140,8 @@ def get_btax_params_oneyear(btax_params, other_params, year):
         bonus_275yr = btax_params['depr_275yr_bonus'][year-2014]
         bonus_39yr = btax_params['depr_39yr_bonus'][year-2014]
         # figure out reclassification of tax lives
-        gds_year = other_params['reclassify_taxdep_gdslife'].keys()[0]
-        ads_year = other_params['reclassify_taxdep_adslife'].keys()[0]
+        gds_year = list(other_params['reclassify_taxdep_gdslife'])[0]
+        ads_year = list(other_params['reclassify_taxdep_adslife'])[0]
         if gds_year <= year:
             reclass_gds = other_params['reclassify_taxdep_gdslife'][gds_year]
         else:
@@ -278,7 +278,7 @@ def build_inv_matrix(corp_noncorp=True):
                               investmentGfactors_data['ngdp'][56] - 1 +
                               base_data['delta']))
     inv_mat2 = np.zeros((96, 75))
-    l1 = range(96)
+    l1 = list(range(96))
     l1.remove(32)  # exclude land
     for j in range(75):
         for i in l1:
@@ -322,10 +322,10 @@ def calcDepAdjustment(corp_noncorp=True):
     return(adj_factor)
 adjfactor_dep_corp = calcDepAdjustment()
 if track_progress:
-    print "Corporate depreciation adjustment calculated"
+    print("Corporate depreciation adjustment calculated")
 adjfactor_dep_noncorp = calcDepAdjustment(False)
 if track_progress:
-    print "Noncorporate depreciation adjustment calculated"
+    print("Noncorporate depreciation adjustment calculated")
 
 
 def annualCCRdeduction(investment_matrix, btax_params, other_params,
