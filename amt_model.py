@@ -6,6 +6,7 @@ def calcAMTparams():
     """
     Calculates the adjustment factors for the AMT and PYMTC
     """
+    # Grab historical data
     amt_data2 = copy.deepcopy(amtdata2)
     Clist = amt_data2['C'].tolist()
     Alist = amt_data2['A'].tolist()[:20]
@@ -14,6 +15,7 @@ def calcAMTparams():
     Slist[19] = 26.0
     AMT_rate = 0.2
     Ctax_rate = 0.347
+    # Expand model backward based on defined value of S[19]
     for i in range(19):
         Slist[18-i] = Slist[19-i] + Plist[18-i] - Alist[18-i]
     gross_use_rate = sum([Plist[i] / Slist[i] for i in range(20)]) / 20.
@@ -63,6 +65,7 @@ def AMTmodel(amt_repeal_year=9e99, pymtc_repeal_year=9e99,
         else:
             Plist.append(Slist[i] * adjfactor_pymtc_corp * theta_set[2])
         Slist.append(Slist[i] + Alist[i] - Plist[i])
+    # Rescale for any cross-sector shifting
     amt_final = np.asarray(Alist[1:]) * rescale_corp
     pymtc_final = np.asarray(Plist[1:]) * rescale_corp
     AMT_results = pd.DataFrame({'year': range(2014, 2028),
