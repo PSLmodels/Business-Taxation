@@ -50,7 +50,7 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
     system[class_life == 25] = depr_25yr_method
     system[class_life == 27.5] = depr_275yr_method
     system[class_life == 39] = depr_39yr_method
-    # Determine asset lives to use
+    # Determine asset lives to use under any reclassification
     L_gds = np.asarray(taxdep['L_gds'])
     if len(reclassify_gds_life) > 0:
         for life in reclassify_gds_life:
@@ -63,13 +63,13 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
     Llist[system == 'ADS'] = L_ads[system == 'ADS']
     Llist[system == 'None'] = 100
     taxdep['L'] = Llist
-    # Determine depreciation method
+    # Determine depreciation method. Default is GDS method
     method = np.asarray(taxdep['Method'])
     method[system == 'ADS'] = 'SL'
     method[system == 'Economic'] = 'Economic'
     method[system == 'None'] = 'None'
     taxdep['Method'] = method
-    # Detemine bonus depreciation
+    # Detemine bonus depreciation rate
     bonus = np.zeros(len(taxdep))
     bonus[class_life == 3] = depr_3yr_bonus
     bonus[class_life == 5] = depr_5yr_bonus
@@ -373,7 +373,10 @@ def capitalPath(investment_mat, depDeduction_vec,
             amount of tax depreciation deductions taken
             amount of true depreciation occurring
         Kstock: DataFrame of amount of each asset type in each year
+    Note: MdepTotal does not require the adjustment factor, as that was applied
+          when computing the depreciation deductions taken.
     """
+    # Select scaling factors to use depending on corporate or noncorporate run
     if corp_noncorp:
         adj_factor = adjfactor_dep_corp
         rescalar = rescale_corp
@@ -385,14 +388,17 @@ def capitalPath(investment_mat, depDeduction_vec,
     pcelist = np.asarray(investmentGfactors_data['pce'])
     deltalist = np.asarray(base_data['delta'])
     for i in range(96):
+        # Starting by assigning 2017 data from B-Tax
         if corp_noncorp:
             Kstock[i, 3] = np.asarray(base_data['assets_c'])[i]
         else:
             Kstock[i, 3] = np.asarray(base_data['assets_nc'])[i]
+        # Using 2017 asset totals, apply retroactively
         for j in [56, 55, 54]:
             Kstock[i, j-54] = ((Kstock[i, j-53] * pcelist[j] / pcelist[j+1] -
                                 investment_mat[i, j]) / (1 - deltalist[i]))
             trueDep[i, j-54] = Kstock[i, j-54] * deltalist[i]
+        # Using 2017 asset totals, apply to future
         for j in range(57, 68):
             trueDep[i, j-54] = Kstock[i, j-54] * deltalist[i]
             Kstock[i, j-53] = ((Kstock[i, j-54] + investment_mat[i, j] -

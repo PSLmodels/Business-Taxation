@@ -1,0 +1,110 @@
+{
+    "undepBasis_corp_hc": {
+        "description": "Haircut on corporate depreciation deductions taken beginning in YEAR on investments made before YEAR.",
+        "notes": "May only implement once.",
+        "section": "CCR model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "undepBasis_noncorp_hc": {
+        "description": "Haircut on noncorporate depreciation deductions taken beginning in YEAR on investments made before YEAR.",
+        "notes": "May only implement once.",
+        "section": "CCR model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "amt_repeal": {
+        "description": "Repeals the corporate alternative minimum tax. Equivalent to setting tau_amt to zero.",
+        "notes": "May only implement once.",
+        "section": "AMT model",
+        "boolean_value": true,
+        "integer_value": false,
+        "value": {9e99: false}
+    },
+
+    "pymtc_repeal": {
+        "description": "Repeals the prior year minimum tax credit.",
+        "notes": "May only implement once.",
+        "section": "AMT model",
+        "boolean_value": true,
+        "integer_value": false,
+        "value": {9e99: false}
+    },
+
+    "ftc_hc": {
+        "description": "Haircut on the foreign tax credit.",
+        "notes": "May only implement once.",
+        "section": "FTC model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {9e99: 0.0}
+    },
+
+
+    "sec199_hc": {
+        "description": "Haircut on the domestic production deduction.",
+        "notes": "May only implement once.",
+        "section": "Sec 199 model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {9e99: 0.0}
+    },
+
+    "oldIntPaid_corp_hc": {
+        "description": "Haircut on interest deduction on previously issued corporate debt.",
+        "notes": "May only implement once.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "newIntPaid_corp_hc": {
+        "description": "Haircut on interest deduction on newly issued corporate debt.",
+        "notes": "May only implement once.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "oldIntPaid_noncorp_hc": {
+        "description": "Haircut on interest deduction on previously issued noncorporate debt.",
+        "notes": "May only implement once.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "newIntPaid_noncorp_hc": {
+        "description": "Haircut on interest deduction on newly issued noncorporate debt.",
+        "notes": "May only implement once.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {0: 0.0}
+    },
+
+    "reclassify_taxdep_gdslife": {
+        "description": "Reclassification of depreciation tax life for existing group of assets with that GDS class life.",
+        "notes": "May only implement once. Requires dictionary pairing existing tax life with new tax life.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {9e99: {}}
+    },
+
+    "reclassify_taxdep_adslife": {
+        "description": "Reclassification of depreciation tax life for existing group of assets with that ADS class life.",
+        "notes": "May only implement once. Requires dictionary pairing existing tax life with new tax life.",
+        "section": "NID model",
+        "boolean_value": false,
+        "integer_value": false,
+        "value": {9e99: {}}
+    }
+}
