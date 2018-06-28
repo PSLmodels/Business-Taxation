@@ -71,4 +71,4 @@ other_params_reform = update_brc_params(btax_dict2)
 (mtr_nclist_ref, mtr_elist_ref) = gen_mtr_lists(iit_params_ref)
 btax_params_reform['tau_nc'] = mtr_nclist_ref
 btax_params_reform['tau_e'] = mtr_elist_ref
-print "All parameters updated"
+print("All parameters updated")

@@ -6,7 +6,7 @@ import numpy as np
 import copy
 import math
 if track_progress:
-    print "All packages successfully imported"
+    print("All packages successfully imported")
 """
 Set defauls for various repeals and other provisions
 Note that these must be constant after implementation.

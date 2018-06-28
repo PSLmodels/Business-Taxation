@@ -6,7 +6,7 @@ and the investment responses calculated.
 # Investment, depreciation and capital
 (inv_mat_ref_corp, inv_mat_ref_noncorp) = buildNewInvMatrix(response_results)
 if track_progress:
-    print "New investment matrices constructed"
+    print("New investment matrices constructed")
 (hc_dep_year_c, hc_dep_c) = extract_other_param('undepBasis_corp_hc',
                                                 other_params_reform)
 (hc_dep_year_nc, hc_dep_nc) = extract_other_param('undepBasis_noncorp_hc',
@@ -17,21 +17,21 @@ annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp,
                                                  adjfactor_dep_corp,
                                                  hc_dep_c, hc_dep_year_c)
 if track_progress:
-    print "New corporate depreciation calculated"
+    print("New corporate depreciation calculated")
 annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp,
                                                     btax_params_reform,
                                                     other_params_reform,
                                                     adjfactor_dep_noncorp,
                                                     hc_dep_nc, hc_dep_year_nc)
 if track_progress:
-    print "New noncorporate depreciation calculated"
+    print("New noncorporate depreciation calculated")
 (capPath_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp,
                                                   annualDepreciation_ref_corp)
 (capPath_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp,
                                                         annualDepreciation_ref_noncorp,
                                                         corp_noncorp=False)
 if track_progress:
-    print "New capital paths calculated"
+    print("New capital paths calculated")
 
 # Change in earnings
 earnings_ref_data = earningsResponse(response_results)
@@ -43,7 +43,7 @@ combined_ref = earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1,
 combined_ref['ebitda'] = np.asarray(combined_ref['ebitda']) * rescale_corp
 combined_ref['taxDep'] = capPath_ref_corp['taxDep']
 if track_progress:
-    print "New earnings calculated"
+    print("New earnings calculated")
 
 # Net interest deduction and interest paid deduction
 (hc_nid_year_c, hc_nid_c) = extract_other_param('netIntPaid_corp_hc',
@@ -63,13 +63,13 @@ NID_ref = NID_response(capPath_ref_corp, id_hc_year=hc_id_old_year_c,
                        id_hc_old=hc_id_old_c, id_hc_new=hc_id_new_c,
                        nid_hc=hc_nid_c)
 if track_progress:
-    print "New corporate net interest deduction calculated"
+    print("New corporate net interest deduction calculated")
 IntDed_ref_noncorp = noncorpIntDeduction_response(capPath_ref_noncorp,
                                                   id_hc_year=hc_id_old_year_nc,
                                                   id_hc_old=hc_id_old_nc,
                                                   id_hc_new=hc_id_new_nc)
 if track_progress:
-    print "New noncorporate interest deduction calculated"
+    print("New noncorporate interest deduction calculated")
 combined_ref['nid'] = NID_ref['nid']
 
 # Sec 199
@@ -85,7 +85,7 @@ combined_ref['tau'] = btax_params_reform['tau_c']
 combined_ref['taxbc'] = (combined_ref['taxinc'] *
                          (combined_ref['tau'] - combined_ref['gbc_adj']))
 if track_progress:
-    print "New taxable income calculated"
+    print("New taxable income calculated")
 # FTC
 (ftchc_year, ftchc) = extract_other_param('ftc_hc', other_params_reform)
 ftc_ref = FTC_model(haircut=ftchc, haircut_year=ftchc_year)
@@ -114,5 +114,5 @@ combined_ref = combined_ref.merge(right=amt_ref, how='outer', on='year')
 combined_ref['taxrev'] = (combined_ref['taxbc'] + combined_ref['amt'] -
                           combined_ref['ftc'] - combined_ref['pymtc'])
 # Pass-through model
-execfile('passthru_reform.py')
-print "Reform corporate tax revenue complete"
+exec(open('passthru_reform.py').read())
+print("Reform corporate tax revenue complete")

@@ -33,35 +33,45 @@ def distribute_results(reformdict):
     indiv_rev_impact = np.zeros(14)
     for i in range(2014, 2028):
         calc_ref2 = copy.deepcopy(calc_ref)
-        # Change noncorporate business income
-        calc_ref2.records.e00900p = np.where(calc_ref2.records.e00900p >= 0,
-                                             calc_ref2.records.e00900p * indiv_gfactors['SchC_pos'][i-2014],
-                                             calc_ref2.records.e00900p * indiv_gfactors['SchC_neg'][i-2014])
-        calc_ref2.records.e00900s = np.where(calc_ref2.records.e00900s >= 0,
-                                             calc_ref2.records.e00900s * indiv_gfactors['SchC_pos'][i-2014],
-                                             calc_ref2.records.e00900s * indiv_gfactors['SchC_neg'][i-2014])
-        calc_ref2.records.e00900 = np.where(calc_ref2.records.e00900 >= 0,
-                                            calc_ref2.records.e00900 * indiv_gfactors['SchC_pos'][i-2014],
-                                            calc_ref2.records.e00900 * indiv_gfactors['SchC_neg'][i-2014])
-        change_e26270 = np.where(calc_ref2.records.e26270 >= 0,
-                                 calc_ref2.records.e26270 * (indiv_gfactors['e26270_pos'][i-2014] - 1),
-                                 calc_ref2.records.e26270 * (indiv_gfactors['e26270_neg'][i-2014] - 1))
-        calc_ref2.records.e26270 = calc_ref2.records.e26270 + change_e26270
-        calc_ref2.records.e02000 = calc_ref2.records.e02000 + change_e26270
+        # Change Sch C business income
+        ref2_e00900p = calc_ref2.array('e00900p')
+        ref2_e00900s = calc_ref2.array('e00900s')
+        ref2_e00900 = calc_ref2.array('e00900')
+        ref3_e00900p = np.where(ref2_e00900p >= 0,
+                                ref2_e00900p * indiv_gfactors['SchC_pos'][i-2014],
+                                ref2_e00900p * indiv_gfactors['SchC_neg'][i-2014])
+        ref3_e00900s = np.where(ref2_e00900s >= 0,
+                                ref2_e00900s * indiv_gfactors['SchC_pos'][i-2014],
+                                ref2_e00900s * indiv_gfactors['SchC_neg'][i-2014])
+        ref3_e00900 = np.where(ref2_e00900 >= 0,
+                               ref2_e00900 * indiv_gfactors['SchC_pos'][i-2014],
+                               ref2_e00900 * indiv_gfactors['SchC_neg'][i-2014])
+        calc_ref2.array('e00900p', ref3_e00900p)
+        calc_ref2.array('e00900s', ref3_e00900s)
+        calc_ref2.array('e00900', ref3_e00900)
+        # Change Sch E business income
+        ref2_e26270 = calc_ref2.array('e26270')
+        change_e26270 = np.where(ref2_e26270 >= 0,
+                                 ref2_e26270 * (indiv_gfactors['e26270_pos'][i-2014] - 1),
+                                 ref2_e26270 * (indiv_gfactors['e26270_neg'][i-2014] - 1))
+        ref3_e26270 = ref2_e26270 + change_e26270
+        ref3_e02000 = calc_ref2.array('e02000') + change_e26270
+        calc_ref2.array('e26270', ref3_e26270)
+        calc_ref2.array('e02000', ref3_e02000)
         # Change investment income
-        calc_ref2.records.e00600 = calc_ref2.records.e00600 * indiv_gfactors['equity'][i-2014]
-        calc_ref2.records.e00650 = calc_ref2.records.e00650 * indiv_gfactors['equity'][i-2014]
-        calc_ref2.records.p22250 = calc_ref2.records.p22250 * indiv_gfactors['equity'][i-2014]
-        calc_ref2.records.p23250 = calc_ref2.records.p23250 * indiv_gfactors['equity'][i-2014]
+        calc_ref2.array('e00600', calc_ref2.array('e00600') * indiv_gfactors['equity'][i-2014])
+        calc_ref2.array('e00650', calc_ref2.array('e00650') * indiv_gfactors['equity'][i-2014])
+        calc_ref2.array('p22250', calc_ref2.array('p22250') * indiv_gfactors['equity'][i-2014])
+        calc_ref2.array('p23250', calc_ref2.array('p23250') * indiv_gfactors['equity'][i-2014])
         # Change noncorporate business credits
-        calc_ref2.records.e07300 = calc_ref2.records.e07300 * rescale_noncorp[i-2014]
-        calc_ref2.records.e07400 = calc_ref2.records.e07400 * rescale_noncorp[i-2014]
-        calc_ref2.records.e07600 = calc_ref2.records.e07600 * rescale_noncorp[i-2014]
+        calc_ref2.array('e07300', calc_ref2.array('e07300') * rescale_noncorp[i-2014])
+        calc_ref2.array('e07400', calc_ref2.array('e07400') * rescale_noncorp[i-2014])
+        calc_ref2.array('e07600', calc_ref2.array('e07600') * rescale_noncorp[i-2014])
         calc_base.calc_all()
         calc_ref2.calc_all()
-        indiv_rev_impact[i-2014] = sum((calc_ref2.records.combined -
-                                        calc_base.records.combined) *
-                                       calc_base.records.s006) / 10**9
+        indiv_rev_impact[i-2014] = sum((calc_ref2.array('combined') -
+                                        calc_base.array('combined')) *
+                                       calc_base.array('s006')) / 10**9
         if i < 2027:
             calc_base.increment_year()
             calc_ref.increment_year()
@@ -161,17 +171,17 @@ def gen_mtr_lists(iit_refdict={}):
         for var in needed_mtr_list:
             _, _, mtr1[var] = calc1.mtr(var, calc_all_already_called=True)
         inc1 = dict()
-        inc1['SchC'] = calc1.records.e00900
-        inc1['SchEactive'] = calc1.records.e26270
-        inc1['SchEpassive'] = calc1.records.e02000 - calc1.records.e26270
-        inc1['definc'] = calc1.records.e01700
-        inc1['div'] = calc1.records.e00650
-        inc1['stcg'] = calc1.records.p22250
-        inc1['ltcg'] = calc1.records.p23250
-        inc1['wgt'] = calc1.records.s006
-        inc1['taxinc'] = calc1.records.c04800
+        inc1['SchC'] = calc1.array('e00900')
+        inc1['SchEactive'] = calc1.array('e26270')
+        inc1['SchEpassive'] = calc1.array('e02000') - calc1.array('e26270')
+        inc1['definc'] = calc1.array('e01700')
+        inc1['div'] = calc1.array('e00650')
+        inc1['stcg'] = calc1.array('p22250')
+        inc1['ltcg'] = calc1.array('p23250')
+        inc1['wgt'] = calc1.array('s006')
+        inc1['taxinc'] = calc1.array('c04800')
         mtrlist_nc[year-2014] = calc_tauNC(mtr1, inc1)
         mtrlist_e[year-2014] = calc_tauE(mtr1, inc1, year)
         if track_progress:
-            print "MTR calculations complete for " + str(year)
+            print("MTR calculations complete for " + str(year))
     return (mtrlist_nc, mtrlist_e)
