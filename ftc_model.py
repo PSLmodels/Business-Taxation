@@ -28,7 +28,7 @@ def calcFTCAdjustment():
     ftc_gross = profits_f * tax_f / 100.
     adjfactor = sum(ftc_actual / ftc_gross) / 19.
     return adjfactor
-adjfactor_ftc_corp = calcFTCAdjustment()
+#adjfactor_ftc_corp = calcFTCAdjustment()
 
 
 def FTC_model(haircut=0.0, haircut_year=9e99):

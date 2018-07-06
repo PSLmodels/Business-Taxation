@@ -123,7 +123,6 @@ Scorp_results['ebitda_pos_base'] = (Scorp_results['netinc_pos_base'] +
 Scorp_results['ebitda_neg_base'] = (-Scorp_results['netinc_neg_base'] +
                                     Scorp_results['intpaid_neg_base'] +
                                     Scorp_results['dep_neg_base'])
-
 earnings1 = (SchC_results['ebitda_pos_base'] +
              SchC_results['ebitda_neg_base'] +
              partner_results['ebitda_pos_base'] +
