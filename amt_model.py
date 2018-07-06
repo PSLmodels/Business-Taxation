@@ -23,7 +23,7 @@ def calcAMTparams():
     nu = (sum([Alist[i] / Clist[i] for i in range(7, 20)]) / 13. *
           Ctax_rate / AMT_rate)
     return (gamma, nu)
-(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
+#(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
 
 amt_rates_default = np.asarray(btax_defaults['tau_amt'])
 ctax_rates_default = np.asarray(btax_defaults['tau_c'])
