@@ -75,15 +75,13 @@ combined_ref['nid'] = NID_ref['nid']
 # Sec 199
 (s199hc_yr, s199hc) = extract_other_param('sec199_hc', other_params_reform)
 sec199_reform = sec199(s199_hc=s199hc, s199_hc_year=s199hc_yr)
-combined_ref['sec199'] = sec199_reform['sec199']
+combined_ref['sec199'] = sec199_reform
 
 # Compute taxinc and taxbc
 combined_ref['taxinc'] = (combined_ref['ebitda'] - combined_ref['taxDep'] -
                           combined_ref['nid'] - combined_ref['sec199'])
-combined_ref['gbc_adj'] = 0.021642614
 combined_ref['tau'] = btax_params_reform['tau_c']
-combined_ref['taxbc'] = (combined_ref['taxinc'] *
-                         (combined_ref['tau'] - combined_ref['gbc_adj']))
+combined_ref['taxbc'] = combined_ref['taxinc'] * combined_ref['tau']
 if track_progress:
     print("New taxable income calculated")
 # FTC
@@ -109,10 +107,12 @@ amt_ref = AMTmodel(amt_repeal_year=amtrepealyear,
                    amt_rates=np.asarray(btax_params_reform['tau_amt']),
                    ctax_rates=np.asarray(btax_params_reform['tau_c']))
 
+combined_ref['gbc'] = gbc()
 # Complete combined_ref
 combined_ref = combined_ref.merge(right=amt_ref, how='outer', on='year')
 combined_ref['taxrev'] = (combined_ref['taxbc'] + combined_ref['amt'] -
-                          combined_ref['ftc'] - combined_ref['pymtc'])
+                          combined_ref['ftc'] - combined_ref['pymtc'] -
+                          combined_ref['gbc'])
 # Pass-through model
 exec(open('passthru_reform.py').read())
 print("Reform corporate tax revenue complete")

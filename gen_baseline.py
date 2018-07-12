@@ -12,17 +12,17 @@ ftc_base = FTC_model()
 # Combine and calculte taxable income
 combined_base = taxrev_data.merge(right=amt_base, how='outer', on='year')
 combined_base['ftc'] = ftc_base['ftc']
+combined_base['gbc'] = gbc()
 combined_base['taxbc'] = (combined_base['taxrev'] + combined_base['pymtc'] +
-                          combined_base['ftc'] - combined_base['amt'])
-combined_base['gbc_adj'] = 0.021642614
+                          combined_base['ftc'] - combined_base['amt'] +
+                          combined_base['gbc'])
 combined_base['tau'] = btax_defaults['tau_c']
-combined_base['taxinc'] = (combined_base['taxbc'] /
-                           (combined_base['tau'] - combined_base['gbc_adj']))
+combined_base['taxinc'] = combined_base['taxbc'] / combined_base['tau']
 if track_progress:
     print("Taxable income calculated")
 # Sec. 199
 sec199_base = sec199()
-combined_base['sec199'] = sec199_base['sec199']
+combined_base['sec199'] = sec199_base
 # CCR
 inv_mat_base_corp = build_inv_matrix()
 inv_mat_base_noncorp = build_inv_matrix(False)
@@ -76,14 +76,18 @@ exec(open('passthru_baseline.py').read())
 if track_progress:
     print("Baseline complete")
 # Save baseline components to CSVs
-capPath_base_corp.to_csv('capPath_base_corp.csv')
-capPath_base_noncorp.to_csv('capPath_base_noncorp.csv')
-combined_base.to_csv('corptax_results_base.csv')
-btax_defaults.to_csv('mini_params_btax.csv')
-SchC_results.to_csv('SchC_base.csv')
-partner_results.to_csv('partnership_base.csv')
-Scorp_results.to_csv('Scorp_base.csv')
-earnings_base.to_csv('passthru_earnings.csv')
+capPath_base_corp.to_csv('capPath_base_corp.csv', index=False)
+capPath_base_noncorp.to_csv('capPath_base_noncorp.csv', index=False)
+(pd.DataFrame(Kstock_base_corp)).to_csv('Kstock_base_corp.csv', index=False)
+(pd.DataFrame(Kstock_base_noncorp)).to_csv('Kstock_base_noncorp.csv', index=False)
+combined_base.to_csv('corptax_results_base.csv', index=False)
+btax_defaults.to_csv('mini_params_btax.csv', index=False)
+SchC_results.to_csv('SchC_base.csv', index=False)
+partner_results.to_csv('partnership_base.csv', index=False)
+Scorp_results.to_csv('Scorp_base.csv', index=False)
+earnings_base.to_csv('passthru_earnings.csv', index=False)
+NID_base.to_csv('nid_base.csv', index=False)
+IntPaid_base_noncorp.to_csv('int_base_noncorp.csv', index=False)
 adj_factors = {'amt': adjfactor_amt_corp,
                'pymtc': adjfactor_pymtc_corp,
                'ftc': adjfactor_ftc_corp,
@@ -104,8 +108,8 @@ passthru_factors = {'dep_scorp_pos': depshare_scorp_posinc,
                     'int_part_pos': intshare_partner_posinc,
                     'int_part_neg': intshare_partner_neginc}
 df_adjf = pd.DataFrame({k: [adj_factors[k]] for k in adj_factors})
-df_adjf.to_csv('adjfactors.csv')
+df_adjf.to_csv('adjfactors.csv', index=False)
 df_pts = pd.DataFrame({k: [passthru_factors[k]] for k in passthru_factors})
-df_pts.to_csv('passthru_shares.csv')
+df_pts.to_csv('passthru_shares.csv', index=False)
 if track_progress:
     print("BRC baseline results saved")

@@ -130,4 +130,3 @@ earnings1 = (SchC_results['ebitda_pos_base'] +
              Scorp_results['ebitda_pos_base'] +
              Scorp_results['ebitda_neg_base'])
 earnings_base = pd.DataFrame({'ebitda': earnings1, 'year': range(2014, 2028)})
-adjfactor_earnings_noncorp = 1.0
