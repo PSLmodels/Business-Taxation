@@ -11,10 +11,10 @@ def ccr_data():
     ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
     return ccrdata
 base_data = ccr_data()
-sec179_rate_corp = 0.0157
-bonus_takeup_rate_corp = 0.548
-sec179_rate_noncorp = 0.1602
-bonus_takeup_rate_noncorp = 0.1967
+sec179_rate_corp = 0.016687178
+bonus_takeup_rate_corp = 0.60290131
+sec179_rate_noncorp = 0.17299506
+bonus_takeup_rate_noncorp = 0.453683778
 
 
 def taxdep_final(depr_3yr_method, depr_3yr_bonus,

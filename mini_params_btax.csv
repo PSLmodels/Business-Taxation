@@ -1,6 +1,6 @@
 Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,Unnamed: 0.1.1.1,Unnamed: 0.1.1.1.1,Unnamed: 0.1.1.1.1.1,year,tau_c,tau_nc,tau_e,tau_amt,depr_3yr_method,depr_3yr_bonus,depr_5yr_method,depr_5yr_bonus,depr_7yr_method,depr_7yr_bonus,depr_10yr_method,depr_10yr_bonus,depr_15yr_method,depr_15yr_bonus,depr_20yr_method,depr_20yr_bonus,depr_25yr_method,depr_25yr_bonus,depr_275yr_method,depr_275yr_bonus,depr_39yr_method,depr_39yr_bonus,depr_land_bonus,inventory_method
 0,0,0,0,0,0,2014,0.34700000000000003,0.283637722,0.095454191,0.2,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0,GDS,0,GDS,0,0,Mix
-1,1,1,1,1,1,2015,0.34700000000000003,0.284784914,0.096784722,0.2,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0,GDS,0,GDS,0,0,Mix
+1,1,1,1,1,1,2015,0.34700000000000003,0.284784914,0.09678472199999999,0.2,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0,GDS,0,GDS,0,0,Mix
 2,2,2,2,2,2,2016,0.34700000000000003,0.284911335,0.096394563,0.2,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0,GDS,0,GDS,0,0,Mix
 3,3,3,3,3,3,2017,0.34700000000000003,0.28465582861993344,0.09552702814978355,0.2,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0.5,GDS,0,GDS,0,GDS,0,0,Mix
 4,4,4,4,4,4,2018,0.34700000000000003,0.2286662100194626,0.09061786691879896,0.2,GDS,0.4,GDS,0.4,GDS,0.4,GDS,0.4,GDS,0.4,GDS,0.4,GDS,0,GDS,0,GDS,0,0,Mix
