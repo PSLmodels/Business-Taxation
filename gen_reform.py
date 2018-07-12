@@ -35,7 +35,8 @@ if track_progress:
 
 # Change in earnings
 earnings_ref_data = earningsResponse(response_results)
-earnings_ref_data['earnings_base'] = combined_base['ebitda'].tolist()
+#earnings_ref_data['earnings_base'] = combined_base['ebitda'].tolist()
+earnings_ref_data['earnings_base'] = extend_earnings()
 earnings_ref_data['ebitda'] = (earnings_ref_data['earnings_base'] +
                                earnings_ref_data['deltaE'])
 combined_ref = earnings_ref_data.drop(['deltaE', 'earnings_base'], axis=1,
