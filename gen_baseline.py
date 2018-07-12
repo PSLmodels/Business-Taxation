@@ -39,11 +39,13 @@ if track_progress:
 annualDepreciation_base_corp = annualCCRdeduction(inv_mat_base_corp,
                                                   btax_defaults,
                                                   brc_defaults_other,
-                                                  adjfactor_dep_corp)
+                                                  adjfactor_dep_corp,
+                                                  0, 0, True)
 annualDepreciation_base_noncorp = annualCCRdeduction(inv_mat_base_noncorp,
                                                      btax_defaults,
                                                      brc_defaults_other,
-                                                     adjfactor_dep_noncorp)
+                                                     adjfactor_dep_noncorp,
+                                                     0, 0, False)
 if track_progress:
     print("Noncorporate depreciation calculated")
 (capPath_base_corp, Kstock_base_corp) = capitalPath(inv_mat_base_corp,

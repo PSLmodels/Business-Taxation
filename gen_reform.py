@@ -15,14 +15,14 @@ annualDepreciation_ref_corp = annualCCRdeduction(inv_mat_ref_corp,
                                                  btax_params_reform,
                                                  other_params_reform,
                                                  adjfactor_dep_corp,
-                                                 hc_dep_c, hc_dep_year_c)
+                                                 hc_dep_c, hc_dep_year_c, True)
 if track_progress:
     print("New corporate depreciation calculated")
 annualDepreciation_ref_noncorp = annualCCRdeduction(inv_mat_ref_noncorp,
                                                     btax_params_reform,
                                                     other_params_reform,
                                                     adjfactor_dep_noncorp,
-                                                    hc_dep_nc, hc_dep_year_nc)
+                                                    hc_dep_nc, hc_dep_year_nc, False)
 if track_progress:
     print("New noncorporate depreciation calculated")
 (capPath_ref_corp, Kstock_ref_corp) = capitalPath(inv_mat_ref_corp,
