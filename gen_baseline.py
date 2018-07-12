@@ -1,29 +1,12 @@
 """
 The code in this file generates the baseline.
 """
-
-
-# AMT and PYMTC
-(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
-amt_base = AMTmodel()
-# FTC
-adjfactor_ftc_corp = calcFTCAdjustment()
-ftc_base = FTC_model()
-# Combine and calculte taxable income
-combined_base = taxrev_data.merge(right=amt_base, how='outer', on='year')
-combined_base['ftc'] = ftc_base['ftc']
-combined_base['gbc'] = gbc()
-combined_base['taxbc'] = (combined_base['taxrev'] + combined_base['pymtc'] +
-                          combined_base['ftc'] - combined_base['amt'] +
-                          combined_base['gbc'])
-combined_base['tau'] = btax_defaults['tau_c']
-combined_base['taxinc'] = combined_base['taxbc'] / combined_base['tau']
+# Calculate earnings
+combined_base = pd.DataFrame({'year': range(2014, 2028),
+                              'ebitda': extend_earnings()})
 if track_progress:
-    print("Taxable income calculated")
-# Sec. 199
-sec199_base = sec199()
-combined_base['sec199'] = sec199_base
-# CCR
+    print("Earnings extrapolated")
+# Calculate capital path (CCR model)
 inv_mat_base_corp = build_inv_matrix()
 inv_mat_base_noncorp = build_inv_matrix(False)
 if track_progress:
@@ -65,9 +48,30 @@ IntPaid_base_noncorp = noncorpIntDeduction(capPath_base_noncorp)
 if track_progress:
     print("Noncorporate interest deduction calculated")
 combined_base['nid'] = NID_base['nid']
+# Sec. 199
+combined_base['sec199'] = sec199()
+# Taxable income
+combined_base['taxinc'] = (combined_base['ebitda'] - combined_base['taxDep'] -
+                           combined_base['nid'] - combined_base['sec199'])
+if track_progress:
+    print("Taxable income calculated")
+
+# AMT and PYMTC
+(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
+amt_base = AMTmodel()
+combined_base['amt'] = amt_base['amt']
+combined_base['pymtc'] = amt_base['pymtc']
+# FTC
+adjfactor_ftc_corp = calcFTCAdjustment()
+combined_base['ftc'] = FTC_model()['ftc']
+# Combine and calculte taxable income
+combined_base['gbc'] = gbc()
+combined_base['tau'] = btax_defaults['tau_c']
+combined_base['taxbc'] = combined_base['taxinc'] * combined_base['tau']
+combined_base['taxrev'] = (combined_base['taxbc'] + combined_base['amt'] -
+                           combined_base['ftc'] - combined_base['gbc'] -
+                           combined_base['pymtc'])
 # Complete the combining of baseline results
-combined_base['ebitda'] = (combined_base['taxinc'] + combined_base['sec199'] +
-                           combined_base['taxDep'] + combined_base['nid'])
 (mtr_nclist_base, mtr_elist_base) = gen_mtr_lists({})
 btax_defaults['tau_nc'] = mtr_nclist_base
 btax_defaults['tau_e'] = mtr_elist_base

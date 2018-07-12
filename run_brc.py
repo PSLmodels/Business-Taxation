@@ -15,8 +15,8 @@ exec(open('sec199_model.py').read())
 exec(open('ccr_model.py').read())
 exec(open('usercode_taxcalc.py').read())
 exec(open('gbc_model.py').read())
+exec(open('earnings.py').read())
 # Read in the baseline
-#exec(open('gen_baseline.py').read())
 exec(open('read_baseline.py').read())
 # Preliminary implementation of reform and behavioral responses
 exec(open('reform_implementation.py').read())
