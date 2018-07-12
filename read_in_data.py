@@ -1,6 +1,8 @@
 # This file reads in all of the datasets and saves them accordingly.
 ctax_data_path = 'brc_data/'
 btax_data_path = 'btax_data/'
+gfactors = pd.read_csv('gfactors.csv')
+historical_taxdata = pd.read_csv('historical_taxdata.csv')
 # import tax revenue data
 taxrev_data = pd.read_csv(ctax_data_path + 'taxrev.csv')
 # import data for AMT model

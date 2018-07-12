@@ -1,12 +1,16 @@
 # Read in baseline results
 capPath_base_corp = pd.read_csv('capPath_base_corp.csv')
 capPath_base_noncorp = pd.read_csv('capPath_base_noncorp.csv')
+Kstock_base_corp = np.array(pd.read_csv('Kstock_base_corp.csv'))
+Kstock_base_noncorp = np.array(pd.read_csv('Kstock_base_noncorp.csv'))
 combined_base = pd.read_csv('corptax_results_base.csv')
 base_params = pd.read_csv('mini_params_btax.csv')
 SchC_results = pd.read_csv('SchC_base.csv')
 partner_results = pd.read_csv('partnership_base.csv')
 Scorp_results = pd.read_csv('Scorp_base.csv')
 earnings_base = pd.read_csv('passthru_earnings.csv')
+NID_base = pd.read_csv('nid_base.csv')
+IntPaid_base_noncorp = pd.read_csv('int_base_noncorp.csv')
 # Read in adjustment factors
 adj_factors = pd.read_csv('adjfactors.csv')
 adjfactor_amt_corp = adj_factors['amt'].values[0]

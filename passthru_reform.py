@@ -2,7 +2,7 @@
 earnings_results_noncorp = earningsResponse(response_results, False)
 earnings_results_noncorp['ebitda_base'] = earnings_base['ebitda']
 earnings_results_noncorp['ebitda_ref'] = (earnings_results_noncorp['ebitda_base'] +
-                                          earnings_results_noncorp['deltaE']) * adjfactor_earnings_noncorp * rescale_noncorp
+                                          earnings_results_noncorp['deltaE']) * rescale_noncorp
 earnings_results_noncorp['ebitda_chgfactor'] = (earnings_results_noncorp['ebitda_ref'] /
                                                 earnings_results_noncorp['ebitda_base'])
 
