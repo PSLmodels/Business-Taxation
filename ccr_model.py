@@ -11,6 +11,10 @@ def ccr_data():
     ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
     return ccrdata
 base_data = ccr_data()
+sec179_rate_corp = 0.016687178
+bonus_takeup_rate_corp = 0.60290131
+sec179_rate_noncorp = 0.17299506
+bonus_takeup_rate_noncorp = 0.453683778
 
 
 def taxdep_final(depr_3yr_method, depr_3yr_bonus,
@@ -286,6 +290,12 @@ def calcDepAdjustment(corp_noncorp=True):
     Calculates the adjustment factor for assets, depreciation and investment
     corp_noncorp: indicator for whether corporate or noncorporate data
     """
+    if corp_noncorp:
+        bonus_adj = bonus_takeup_rate_corp
+        sec179_adj = sec179_rate_corp
+    else:
+        bonus_adj = bonus_takeup_rate_noncorp
+        sec179_adj = sec179_rate_noncorp
     investment_matrix = build_inv_matrix(corp_noncorp)
     Dep_arr = np.zeros((96, 75, 75))
     for j in range(75):
@@ -293,11 +303,12 @@ def calcDepAdjustment(corp_noncorp=True):
                                              brc_defaults_other, j+1960)
         for i in range(96):
             for k in range(j, 75):
+                bonus1 = min(taxdepinfo['bonus'][i] * bonus_adj + sec179_adj, 1.0)
                 Dep_arr[i,j,k] = (depreciationDeduction(j, k,
                                                         taxdepinfo['Method'][i],
                                                         taxdepinfo['L'][i],
                                                         taxdepinfo['delta'][i],
-                                                        taxdepinfo['bonus'][i]) *
+                                                        bonus1) *
                                   investment_matrix[i, j])
     totalAnnualDepreciation = np.zeros(75)
     for k in range(75):
@@ -316,16 +327,10 @@ def calcDepAdjustment(corp_noncorp=True):
                   len(depreciation_data['scale']))
     return(adj_factor)
 
-#adjfactor_dep_corp = calcDepAdjustment()
-#if track_progress:
-#    print("Corporate depreciation adjustment calculated")
-#adjfactor_dep_noncorp = calcDepAdjustment(False)
-#if track_progress:
-#    print("Noncorporate depreciation adjustment calculated")
-
 
 def annualCCRdeduction(investment_matrix, btax_params, other_params,
-                       adj_factor, hc_undep=0., hc_undep_year=0):
+                       adj_factor, hc_undep=0., hc_undep_year=0,
+                       corp_noncorp=True):
     """
     Calculates the annual depreciation deduction for each year 1960-2034
     investment_matrix: the matrix of investment (by asset and year)
@@ -333,16 +338,23 @@ def annualCCRdeduction(investment_matrix, btax_params, other_params,
     hc_undep: haircut on depreciation deductions taken
               after hc_undep_year on investments made before hc_undep_year
     """
+    if corp_noncorp:
+        bonus_adj = bonus_takeup_rate_corp
+        sec179_adj = sec179_rate_corp
+    else:
+        bonus_adj = bonus_takeup_rate_noncorp
+        sec179_adj = sec179_rate_noncorp
     Dep_arr = np.zeros((96, 75, 75))
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_params, other_params, j+1960)
         for i in range(96):
             for k in range(j, 75):
+                bonus1 = min(taxdepinfo['bonus'][i] * bonus_adj + sec179_adj, 1.0)
                 Dep_arr[i,j,k] = (depreciationDeduction(j, k,
                                                         taxdepinfo['Method'][i],
                                                         taxdepinfo['L'][i],
                                                         taxdepinfo['delta'][i],
-                                                        taxdepinfo['bonus'][i]) *
+                                                        bonus1) *
                                   investment_matrix[i, j])
     for j in range(75):
         for k in range(75):
