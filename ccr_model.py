@@ -1,3 +1,9 @@
+import copy
+import numpy as np
+import pandas as pd
+from data_sources import assets_data, econ_depr_df, taxdep_info_gross
+
+
 def ccr_data():
     """
     Constructs the main CCR dataset used.
@@ -7,25 +13,20 @@ def ccr_data():
         noncorporate stock of each asset type,
         true depreciation rate.
     """
-    btax_data = copy.deepcopy(assets_data)
-    ccrdata = btax_data.merge(right=df_econdepr, how='outer', on='Asset')
+    btax_data = copy.deepcopy(assets_data())
+    ccrdata = btax_data.merge(right=econ_depr_df(), how='outer', on='Asset')
     return ccrdata
+
+
 base_data = ccr_data()
 sec179_rate_corp = 0.016687178
 bonus_takeup_rate_corp = 0.60290131
 sec179_rate_noncorp = 0.17299506
 bonus_takeup_rate_noncorp = 0.453683778
+LIVES = [3, 5, 7, 10, 15, 20, 25, 27.5, 39]
 
 
-def taxdep_final(depr_3yr_method, depr_3yr_bonus,
-                 depr_5yr_method, depr_5yr_bonus,
-                 depr_7yr_method, depr_7yr_bonus,
-                 depr_10yr_method, depr_10yr_bonus,
-                 depr_15yr_method, depr_15yr_bonus,
-                 depr_20yr_method, depr_20yr_bonus,
-                 depr_25yr_method, depr_25yr_bonus,
-                 depr_275yr_method, depr_275yr_bonus,
-                 depr_39yr_method, depr_39yr_bonus,
+def taxdep_final(depr_methods, depr_bonuses,
                  reclassify_gds_life, reclassify_ads_life):
     """
     Constructs the DataFrame of information for tax depreciation.
@@ -36,49 +37,35 @@ def taxdep_final(depr_3yr_method, depr_3yr_bonus,
         true depreciation rate,
         bonus depreciation rate.
     """
-    taxdep = copy.deepcopy(taxdep_info_gross)
+    taxdep = copy.deepcopy(taxdep_info_gross())
     system = np.empty(len(taxdep), dtype='S10')
     class_life = np.asarray(taxdep['GDS Class Life'])
     # Determine depreciation systems for each asset type
-    system[class_life == 3] = depr_3yr_method
-    system[class_life == 5] = depr_5yr_method
-    system[class_life == 7] = depr_7yr_method
-    system[class_life == 10] = depr_10yr_method
-    system[class_life == 15] = depr_15yr_method
-    system[class_life == 20] = depr_20yr_method
-    system[class_life == 25] = depr_25yr_method
-    system[class_life == 27.5] = depr_275yr_method
-    system[class_life == 39] = depr_39yr_method
+    for cl, method in depr_methods.items():
+        system[class_life == cl] = method
     # Determine asset lives to use under any reclassification
     L_gds = np.asarray(taxdep['L_gds'])
-    if len(reclassify_gds_life) > 0:
-        for life in reclassify_gds_life:
-            L_gds = np.where(L_gds == life, reclassify_gds_life[life], L_gds)
     L_ads = np.asarray(taxdep['L_ads'])
-    if len(reclassify_ads_life) > 0:
-        for life in reclassify_ads_life:
-            L_ads = np.where(L_ads == life, reclassify_ads_life[life], L_ads)
+    for (L, reclassify) in [(L_gds, reclassify_gds_life),
+                            (L_ads, reclassify_ads_life)]:
+        for life in reclassify:
+            L = np.where(L == life, reclassify[life], L)
     Llist = L_gds
     Llist[system == 'ADS'] = L_ads[system == 'ADS']
     Llist[system == 'None'] = 100
     taxdep['L'] = Llist
+
     # Determine depreciation method. Default is GDS method
     method = np.asarray(taxdep['Method'])
     method[system == 'ADS'] = 'SL'
     method[system == 'Economic'] = 'Economic'
     method[system == 'None'] = 'None'
     taxdep['Method'] = method
+
     # Detemine bonus depreciation rate
     bonus = np.zeros(len(taxdep))
-    bonus[class_life == 3] = depr_3yr_bonus
-    bonus[class_life == 5] = depr_5yr_bonus
-    bonus[class_life == 7] = depr_7yr_bonus
-    bonus[class_life == 10] = depr_10yr_bonus
-    bonus[class_life == 15] = depr_15yr_bonus
-    bonus[class_life == 20] = depr_20yr_bonus
-    bonus[class_life == 25] = depr_25yr_bonus
-    bonus[class_life == 27.5] = depr_275yr_bonus
-    bonus[class_life == 39] = depr_39yr_bonus
+    for cl, cl_bonus in depr_bonuses.items():
+        bonus[class_life == cl] = cl_bonus
     taxdep['bonus'] = bonus
     taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
     return taxdep
@@ -94,19 +81,13 @@ def taxdep_preset(year):
         true depreciation rate,
         bonus depreciation rate.
     """
-    taxdep = copy.deepcopy(taxdep_info_gross)
+    taxdep = copy.deepcopy(taxdep_info_gross())
     taxdep['L'] = taxdep['L_gds']
     class_life = np.asarray(taxdep['GDS Class Life'])
     bonus = np.zeros(len(class_life))
-    bonus[class_life == 3] = bonus_data['bonus3'][year-1960]
-    bonus[class_life == 5] = bonus_data['bonus5'][year-1960]
-    bonus[class_life == 7] = bonus_data['bonus7'][year-1960]
-    bonus[class_life == 10] = bonus_data['bonus10'][year-1960]
-    bonus[class_life == 15] = bonus_data['bonus15'][year-1960]
-    bonus[class_life == 20] = bonus_data['bonus20'][year-1960]
-    bonus[class_life == 25] = bonus_data['bonus25'][year-1960]
-    bonus[class_life == 27.5] = bonus_data['bonus27'][year-1960]
-    bonus[class_life == 39] = bonus_data['bonus39'][year-1960]
+    for y in LIVES:
+        s = "bonus{}".format(y if y != 27.5 else 27)
+        bonus[class_life == y] = bonus_data[s][year - 1960]
     taxdep['bonus'] = bonus
     taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
     return taxdep
@@ -120,24 +101,12 @@ def get_btax_params_oneyear(btax_params, other_params, year):
     """
     if year >= 2014:
         year = min(year, 2027)
-        method_3yr = btax_params['depr_3yr_method'][year-2014]
-        method_5yr = btax_params['depr_5yr_method'][year-2014]
-        method_7yr = btax_params['depr_7yr_method'][year-2014]
-        method_10yr = btax_params['depr_10yr_method'][year-2014]
-        method_15yr = btax_params['depr_15yr_method'][year-2014]
-        method_20yr = btax_params['depr_20yr_method'][year-2014]
-        method_25yr = btax_params['depr_25yr_method'][year-2014]
-        method_275yr = btax_params['depr_275yr_method'][year-2014]
-        method_39yr = btax_params['depr_39yr_method'][year-2014]
-        bonus_3yr = btax_params['depr_3yr_bonus'][year-2014]
-        bonus_5yr = btax_params['depr_5yr_bonus'][year-2014]
-        bonus_7yr = btax_params['depr_7yr_bonus'][year-2014]
-        bonus_10yr = btax_params['depr_10yr_bonus'][year-2014]
-        bonus_15yr = btax_params['depr_15yr_bonus'][year-2014]
-        bonus_20yr = btax_params['depr_20yr_bonus'][year-2014]
-        bonus_25yr = btax_params['depr_25yr_bonus'][year-2014]
-        bonus_275yr = btax_params['depr_275yr_bonus'][year-2014]
-        bonus_39yr = btax_params['depr_39yr_bonus'][year-2014]
+        depr_methods = {}
+        depr_bonuses = {}
+        for y in LIVES:
+            s = "depr_{}yr_".format(y if y != 27.5 else 275)
+            depr_methods[y] = btax_params[s + 'method'][year - 2014]
+            depr_bonuses[y] = btax_params[s + 'bonus'][year - 2014]
         # figure out reclassification of tax lives
         gds_year = list(other_params['reclassify_taxdep_gdslife'])[0]
         ads_year = list(other_params['reclassify_taxdep_adslife'])[0]
@@ -149,11 +118,7 @@ def get_btax_params_oneyear(btax_params, other_params, year):
             reclass_ads = other_params['reclassify_taxdep_adslife'][ads_year]
         else:
             reclass_ads = {}
-        taxdep = taxdep_final(method_3yr, bonus_3yr, method_5yr, bonus_5yr,
-                              method_7yr, bonus_7yr, method_10yr, bonus_10yr,
-                              method_15yr, bonus_15yr, method_20yr, bonus_20yr,
-                              method_25yr, bonus_25yr, method_275yr,
-                              bonus_275yr, method_39yr, bonus_39yr,
+        taxdep = taxdep_final(depr_methods, depr_bonuses,
                               reclass_gds, reclass_ads)
     else:
         taxdep = taxdep_preset(year)
@@ -174,8 +139,8 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
         delta: economic depreciation rate
         bonus: bonus depreciation rate
     """
-    assert method in ['DB 200%', 'DB 150%', 'SL', 'Expensing',
-                      'Economic', 'None']
+    assert method in ['DB 200%', 'DB 150%', 'SL', 'Expensing', 'Economic',
+                      'None']
     # No depreciation
     if method == 'None':
         deduction = 0
@@ -198,20 +163,18 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
             else:
                 annual_change = ((pi_temp * np.exp(delta) - 1) /
                                  (np.log(pi_temp) - delta))
+
         if year_deduction < year_investment:
             sval = 0
+            deduction = 0
         elif year_deduction == year_investment:
             sval = 1.0
+            deduction = bonus + (1 - bonus) * delta * sval * annual_change
         else:
             sval = (np.exp(-delta * (year_deduction - year_investment)) *
                     investmentGfactors_data['pce'][year_deduction] / 2.0 /
                     (investmentGfactors_data['pce'][year_investment] +
                      investmentGfactors_data['pce'][year_investment + 1]))
-        if year_deduction < year_investment:
-            deduction = 0
-        elif year_deduction == year_investment:
-            deduction = bonus + (1 - bonus) * delta * sval * annual_change
-        else:
             deduction = (1 - bonus) * delta * sval * annual_change
     else:
         if method == 'DB 200%':
@@ -220,6 +183,7 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
             N = 1.5
         elif method == 'SL':
             N = 1
+
     # DB or SL depreciation, half-year convention
         t0 = year_investment + 0.5
         t1 = t0 + L * (1 - 1 / N)
@@ -242,19 +206,19 @@ def depreciationDeduction(year_investment, year_deduction, method, L,
             deduction = ((1 - bonus) * (np.exp(-N / L * (s1 - t0)) -
                                         np.exp(-N / L * (t1 - t0)) +
                                         N / L * np.exp(1 - N) * (s2 - t1)))
-    return(deduction)
+    return deduction
 
 
-def build_inv_matrix(corp_noncorp=True):
+def build_inv_matrix(corp=True):
     """
     Builds a matrix of investment by asset type by year
-    corp_noncorp: indicator for corporate or noncorporate investment
+    corp: indicator for corporate or noncorporate investment
     Returns 96x75 invesment matrix (96 assets, years 1960-2034)
     """
     inv_mat1 = np.zeros((96, 75))
     # build historical portion
     for j in range(57):
-        if corp_noncorp:
+        if corp:
             inv_mat1[:, j] = (investmentrate_data['i' + str(j + 1960)] *
                               investmentshare_data['c_share'][j])
         else:
@@ -266,7 +230,7 @@ def build_inv_matrix(corp_noncorp=True):
                           investmentGfactors_data['ngdp'][j] /
                           investmentGfactors_data['ngdp'][56])
     # Rescale investment to match investment based on B-Tax for 2017
-    if corp_noncorp:
+    if corp:
         inv2017 = np.asarray(base_data['assets_c'] *
                              (investmentGfactors_data['ngdp'][57] /
                               investmentGfactors_data['ngdp'][56] - 1 +
@@ -282,40 +246,46 @@ def build_inv_matrix(corp_noncorp=True):
     for j in range(75):
         for i in l1:
             inv_mat2[i, j] = inv_mat1[i, j] * inv2017[i] / inv_mat1[i, 57]
-    return(inv_mat2)
+    return inv_mat2
 
 
-def calcDepAdjustment(corp_noncorp=True):
-    """
-    Calculates the adjustment factor for assets, depreciation and investment
-    corp_noncorp: indicator for whether corporate or noncorporate data
-    """
-    if corp_noncorp:
+def buildDepreciationArray(investment_matrix, corp=True):
+    if corp:
         bonus_adj = bonus_takeup_rate_corp
         sec179_adj = sec179_rate_corp
     else:
         bonus_adj = bonus_takeup_rate_noncorp
         sec179_adj = sec179_rate_noncorp
-    investment_matrix = build_inv_matrix(corp_noncorp)
     Dep_arr = np.zeros((96, 75, 75))
     for j in range(75):
         taxdepinfo = get_btax_params_oneyear(btax_defaults,
-                                             brc_defaults_other, j+1960)
+                                             brc_defaults_other, j + 1960)
         for i in range(96):
             for k in range(j, 75):
-                bonus1 = min(taxdepinfo['bonus'][i] * bonus_adj + sec179_adj, 1.0)
-                Dep_arr[i,j,k] = (depreciationDeduction(j, k,
-                                                        taxdepinfo['Method'][i],
-                                                        taxdepinfo['L'][i],
-                                                        taxdepinfo['delta'][i],
-                                                        bonus1) *
-                                  investment_matrix[i, j])
+                bonus1 = min(taxdepinfo['bonus'][i] * bonus_adj + sec179_adj,
+                             1.0)
+                Dep_arr[i, j, k] = (depreciationDeduction(
+                                        j, k, taxdepinfo['Method'][i],
+                                        taxdepinfo['L'][i],
+                                        taxdepinfo['delta'][i],
+                                        bonus1) *
+                                    investment_matrix[i, j])
+    return Dep_arr
+
+
+def calcDepAdjustment(corp=True):
+    """
+    Calculates the adjustment factor for assets, depreciation and investment
+    corp: indicator for whether corporate or noncorporate data
+    """
+    investment_matrix = build_inv_matrix(corp)
+    Dep_arr = buildDepreciationArray(investment_matrix, corp)
     totalAnnualDepreciation = np.zeros(75)
     for k in range(75):
         totalAnnualDepreciation[k] = Dep_arr[:, :, k].sum().sum()
     depreciation_data = copy.deepcopy(depreciationIRS_data)
     depreciation_data['dep_model'] = totalAnnualDepreciation[40:54]
-    if corp_noncorp:
+    if corp:
         depreciation_data['scale'] = (depreciation_data['dep_Ccorp'] /
                                       depreciation_data['dep_model'])
     else:
@@ -325,12 +295,12 @@ def calcDepAdjustment(corp_noncorp=True):
                                       depreciation_data['dep_model'])
     adj_factor = (sum(depreciation_data['scale']) /
                   len(depreciation_data['scale']))
-    return(adj_factor)
+    return adj_factor
 
 
 def annualCCRdeduction(investment_matrix, btax_params, other_params,
                        adj_factor, hc_undep=0., hc_undep_year=0,
-                       corp_noncorp=True):
+                       corp=True):
     """
     Calculates the annual depreciation deduction for each year 1960-2034
     investment_matrix: the matrix of investment (by asset and year)
@@ -338,24 +308,7 @@ def annualCCRdeduction(investment_matrix, btax_params, other_params,
     hc_undep: haircut on depreciation deductions taken
               after hc_undep_year on investments made before hc_undep_year
     """
-    if corp_noncorp:
-        bonus_adj = bonus_takeup_rate_corp
-        sec179_adj = sec179_rate_corp
-    else:
-        bonus_adj = bonus_takeup_rate_noncorp
-        sec179_adj = sec179_rate_noncorp
-    Dep_arr = np.zeros((96, 75, 75))
-    for j in range(75):
-        taxdepinfo = get_btax_params_oneyear(btax_params, other_params, j+1960)
-        for i in range(96):
-            for k in range(j, 75):
-                bonus1 = min(taxdepinfo['bonus'][i] * bonus_adj + sec179_adj, 1.0)
-                Dep_arr[i,j,k] = (depreciationDeduction(j, k,
-                                                        taxdepinfo['Method'][i],
-                                                        taxdepinfo['L'][i],
-                                                        taxdepinfo['delta'][i],
-                                                        bonus1) *
-                                  investment_matrix[i, j])
+    Dep_arr = buildDepreciationArray(investment_matrix, corp)
     for j in range(75):
         for k in range(75):
             if j + 1960 < hc_undep_year and k + 1960 >= hc_undep_year:
@@ -368,7 +321,7 @@ def annualCCRdeduction(investment_matrix, btax_params, other_params,
 
 
 def capitalPath(investment_mat, depDeduction_vec,
-                corp_noncorp=True):
+                corp=True):
     """
     Computes the all information on the capital stock for 2014-2027
     Returns two DataFrames:
@@ -385,7 +338,7 @@ def capitalPath(investment_mat, depDeduction_vec,
           when computing the depreciation deductions taken.
     """
     # Select scaling factors to use depending on corporate or noncorporate run
-    if corp_noncorp:
+    if corp:
         adj_factor = adjfactor_dep_corp
         rescalar = rescale_corp
     else:
@@ -397,21 +350,22 @@ def capitalPath(investment_mat, depDeduction_vec,
     deltalist = np.asarray(base_data['delta'])
     for i in range(96):
         # Starting by assigning 2017 data from B-Tax
-        if corp_noncorp:
+        if corp:
             Kstock[i, 3] = np.asarray(base_data['assets_c'])[i]
         else:
             Kstock[i, 3] = np.asarray(base_data['assets_nc'])[i]
         # Using 2017 asset totals, apply retroactively
         for j in [56, 55, 54]:
-            Kstock[i, j-54] = ((Kstock[i, j-53] * pcelist[j] / pcelist[j+1] -
-                                investment_mat[i, j]) / (1 - deltalist[i]))
-            trueDep[i, j-54] = Kstock[i, j-54] * deltalist[i]
+            Kstock[i, j - 54] = ((Kstock[i, j - 53] * pcelist[j] /
+                                  pcelist[j + 1] - investment_mat[i, j]) /
+                                 (1 - deltalist[i]))
+            trueDep[i, j - 54] = Kstock[i, j - 54] * deltalist[i]
         # Using 2017 asset totals, apply to future
         for j in range(57, 68):
-            trueDep[i, j-54] = Kstock[i, j-54] * deltalist[i]
-            Kstock[i, j-53] = ((Kstock[i, j-54] + investment_mat[i, j] -
-                                trueDep[i, j-54]) *
-                               pcelist[j+1] / pcelist[j])
+            trueDep[i, j - 54] = Kstock[i, j - 54] * deltalist[i]
+            Kstock[i, j - 53] = ((Kstock[i, j - 54] + investment_mat[i, j] -
+                                  trueDep[i, j - 54]) *
+                                 pcelist[j + 1] / pcelist[j])
     # Sum across assets and put into new dataset
     Kstock_total = np.zeros(14)
     fixedK_total = np.zeros(14)
@@ -421,13 +375,15 @@ def capitalPath(investment_mat, depDeduction_vec,
     Mdep_total = np.zeros(14)
     for j in range(14):
         Kstock_total[j] = sum(Kstock[:, j]) * adj_factor * rescalar[j]
-        fixedK_total[j] = ((sum(Kstock[:, j]) - Kstock[31, j] - Kstock[32, j]) *
-                           adj_factor * rescalar[j])
+        fixedK_total[j] = ((sum(Kstock[:, j]) - Kstock[31, j] -
+                            Kstock[32, j]) * adj_factor * rescalar[j])
         trueDep_total[j] = sum(trueDep[:, j]) * adj_factor * rescalar[j]
-        inv_total[j] = sum(investment_mat[:, j+54]) * adj_factor * rescalar[j]
-        fixedInv_total[j] = (sum(investment_mat[:, j+54]) -
-                             investment_mat[31, j+54]) * adj_factor * rescalar[j]
-        Mdep_total[j] = depDeduction_vec[j+54] * rescalar[j]
+        inv_total[j] = (sum(investment_mat[:, j + 54]) *
+                        adj_factor * rescalar[j])
+        fixedInv_total[j] = ((sum(investment_mat[:, j + 54]) -
+                             investment_mat[31, j + 54]) *
+                             adj_factor * rescalar[j])
+        Mdep_total[j] = depDeduction_vec[j + 54] * rescalar[j]
     cap_result = pd.DataFrame({'year': range(2014, 2028),
                                'Kstock': Kstock_total,
                                'Investment': inv_total,

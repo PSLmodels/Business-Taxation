@@ -35,7 +35,7 @@ if track_progress:
                                                     annualDepreciation_base_corp)
 (capPath_base_noncorp, Kstock_base_noncorp) = capitalPath(inv_mat_base_noncorp,
                                                           annualDepreciation_base_noncorp,
-                                                          corp_noncorp=False)
+                                                          corp=False)
 if track_progress:
     print("Capital paths calculated")
 combined_base['taxDep'] = capPath_base_corp['taxDep']
