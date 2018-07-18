@@ -1,13 +1,7 @@
 # Background functions and calculations of adjustment factors
 exec(open('import_packages.py').read())
-# Define values for adjustment factors to avoid compiling errors
-adjfactor_amt_corp = 1
-adjfactor_pymtc_corp = 1
-adjfactor_ftc_corp = 1
-adjfactor_dep_corp = 1
-adjfactor_dep_noncorp = 1
-adjfactor_int_corp = 1
-adjfactor_int_noncorp = 1
+# Read in the baseline
+exec(open('read_baseline.py').read())
 exec(open('read_in_data.py').read())
 exec(open('amt_model.py').read())
 exec(open('ftc_model.py').read())
@@ -16,8 +10,6 @@ exec(open('ccr_model.py').read())
 exec(open('usercode_taxcalc.py').read())
 exec(open('gbc_model.py').read())
 exec(open('earnings.py').read())
-# Read in the baseline
-exec(open('read_baseline.py').read())
 # Preliminary implementation of reform and behavioral responses
 exec(open('reform_implementation.py').read())
 exec(open('responses.py').read())

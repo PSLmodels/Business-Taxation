@@ -3,10 +3,9 @@ ctax_data_path = 'brc_data/'
 btax_data_path = 'btax_data/'
 gfactors = pd.read_csv('gfactors.csv')
 historical_taxdata = pd.read_csv('historical_taxdata.csv')
+historical_combined = pd.read_csv('historical_combined.csv')
 # import tax revenue data
 taxrev_data = pd.read_csv(ctax_data_path + 'taxrev.csv')
-# import data for AMT model
-amtdata2 = pd.read_csv(ctax_data_path + 'amt data2.csv')
 # import data for FTC model
 ftc_taxrates_data = pd.read_csv(ctax_data_path + 'ftc taxrates data.csv')
 ftc_gdp_data = pd.read_csv(ctax_data_path + 'ftc gdp data.csv')

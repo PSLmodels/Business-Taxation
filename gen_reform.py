@@ -91,26 +91,13 @@ ftc_ref = FTC_model(haircut=ftchc, haircut_year=ftchc_year)
 combined_ref['ftc'] = ftc_ref['ftc']
 
 # AMT and PYMTC
-(amtrepeal_yr, amtrepeal_truth) = extract_other_param('amt_repeal',
-                                                      other_params_reform)
-if amtrepeal_truth:
-    amtrepealyear = amtrepeal_yr
-else:
-    amtrepealyear = 9e99
-(pymtcrepeal_yr, pymtcrepeal_truth) = extract_other_param('pymtc_repeal',
-                                                          other_params_reform)
-if pymtcrepeal_truth:
-    pymtcrepealyear = pymtcrepeal_yr
-else:
-    pymtcrepealyear = 9e99
-amt_ref = AMTmodel(amt_repeal_year=amtrepealyear,
-                   pymtc_repeal_year=pymtcrepealyear,
-                   amt_rates=np.asarray(btax_params_reform['tau_amt']),
-                   ctax_rates=np.asarray(btax_params_reform['tau_c']))
-
+amt_ref = AMTmodel(combined_ref['taxinc'], btax_params_reform['tau_amt'],
+                   btax_params_reform['tau_c'],
+                   btax_params_reform['pymtc_status'])
+combined_ref['amt'] = amt_ref['amt']
+combined_ref['pymtc'] = amt_ref['pymtc']
 combined_ref['gbc'] = gbc()
 # Complete combined_ref
-combined_ref = combined_ref.merge(right=amt_ref, how='outer', on='year')
 combined_ref['taxrev'] = (combined_ref['taxbc'] + combined_ref['amt'] -
                           combined_ref['ftc'] - combined_ref['pymtc'] -
                           combined_ref['gbc'])

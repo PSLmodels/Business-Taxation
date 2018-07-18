@@ -56,9 +56,19 @@ combined_base['taxinc'] = (combined_base['ebitda'] - combined_base['taxDep'] -
 if track_progress:
     print("Taxable income calculated")
 
-# AMT and PYMTC
-(adjfactor_pymtc_corp, adjfactor_amt_corp) = calcAMTparams()
-amt_base = AMTmodel()
+# AMT and PYMTC (lambda, theta, eta, gamma, alpha, beta,stock)
+all_amt_params = calcAMTparams2()
+param_amt = all_amt_params[0]
+amt_frac = all_amt_params[1]
+totaluserate_pymtc = all_amt_params[2]
+userate_pymtc = all_amt_params[3]
+trans_amt1 = all_amt_params[4]
+trans_amt2 = all_amt_params[5]
+stock2014 = all_amt_params[6]
+amt_rates_default = np.asarray(btax_defaults['tau_amt'])
+ctax_rates_default = np.asarray(btax_defaults['tau_c'])
+amt_base = AMTmodel(combined_base['taxinc'], btax_defaults['tau_amt'],
+                    btax_defaults['tau_c'], btax_defaults['pymtc_status'])
 combined_base['amt'] = amt_base['amt']
 combined_base['pymtc'] = amt_base['pymtc']
 # FTC
@@ -94,8 +104,13 @@ Scorp_results.to_csv('Scorp_base.csv', index=False)
 earnings_base.to_csv('passthru_earnings.csv', index=False)
 NID_base.to_csv('nid_base.csv', index=False)
 IntPaid_base_noncorp.to_csv('int_base_noncorp.csv', index=False)
-adj_factors = {'amt': adjfactor_amt_corp,
-               'pymtc': adjfactor_pymtc_corp,
+adj_factors = {'param_amt': param_amt,
+               'amt_frac': amt_frac,
+               'totaluserate_pymtc': totaluserate_pymtc,
+               'userate_pymtc': userate_pymtc,
+               'trans_amt1': trans_amt1,
+               'trans_amt2': trans_amt2,
+               'stock2014': stock2014,
                'ftc': adjfactor_ftc_corp,
                'dep_corp': adjfactor_dep_corp,
                'dep_noncorp': adjfactor_dep_noncorp,
