@@ -88,8 +88,8 @@ def buildNewInvMatrix(response_data):
     return (inv_mat_ref_corp, inv_mat_ref_noncorp)
 
 
-def earningsResponse(response_data, corp_noncorp=True):
-    if corp_noncorp:
+def earningsResponse(response_data, corp=True):
+    if corp:
         Kstock_base = copy.deepcopy(Kstock_base_corp)
         Kstock_ref = copy.deepcopy(Kstock_ref_corp)
     else:
@@ -98,7 +98,7 @@ def earningsResponse(response_data, corp_noncorp=True):
     changeEarnings = np.zeros((96, 14))
     for i in range(96):
         for j in range(14):
-            if corp_noncorp:
+            if corp:
                 changeEarnings[i, j] = (Kstock_ref[i, j] - Kstock_base[i, j]) * np.asarray(response_data['MPKc' + str(j + 2014)])[i] * adjfactor_dep_corp
             else:
                 changeEarnings[i, j] = (Kstock_ref[i, j] - Kstock_base[i, j]) * np.asarray(response_data['MPKnc' + str(j + 2014)])[i] * adjfactor_dep_noncorp

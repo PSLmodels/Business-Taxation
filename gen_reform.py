@@ -29,7 +29,7 @@ if track_progress:
                                                   annualDepreciation_ref_corp)
 (capPath_ref_noncorp, Kstock_ref_noncorp) = capitalPath(inv_mat_ref_noncorp,
                                                         annualDepreciation_ref_noncorp,
-                                                        corp_noncorp=False)
+                                                        corp=False)
 if track_progress:
     print("New capital paths calculated")
 

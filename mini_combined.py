@@ -316,7 +316,7 @@ def build_prelim_oneyear(year, econ_params, btax_params, other_params):
     taxdep = get_btax_params_oneyear(btax_params, other_params, year)
     tdict_c = make_tdict_c(btax_params, year)
     tdict_nc = make_tdict_nc(btax_params, year)
-    asset_data = copy.deepcopy(assets_data)
+    asset_data = copy.deepcopy(assets_data())
     main_data = asset_data.merge(right=taxdep, how='outer', on='Asset')
     (fracded_c, fracded_nc) = calc_frac_ded(other_params, year)
     inv_method = btax_params['inventory_method'][year-2014]
@@ -352,7 +352,7 @@ def run_btax_mini(yearlist, btax_params, other_params):
     for each asset type for each year in yearlist.
     """
     econ_params_df = copy.deepcopy(econ_defaults)
-    basedata = copy.deepcopy(assets_data)
+    basedata = copy.deepcopy(assets_data())
     for year in yearlist:
         results_oneyear = build_prelim_oneyear(year, econ_params_df, btax_params, other_params)
         results_oneyear.rename(columns={'uc_c': 'u_c' + str(year),
@@ -371,7 +371,7 @@ def inv_response():
     firstyear: when the firm behavioral response takes effect
     """
     firstyear = elast_params['first_year_response']
-    maindata = copy.deepcopy(assets_data)
+    maindata = copy.deepcopy(assets_data())
     maindata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
     elast_c = elast_params['inv_usercost_c']
     elast_nc = elast_params['inv_usercost_nc']
