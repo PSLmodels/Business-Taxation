@@ -6,6 +6,7 @@ import numpy as np
 import copy
 import math
 import csv
+import scipy.optimize
 if track_progress:
     print("All packages successfully imported")
 """
@@ -15,8 +16,6 @@ Note that these must be constant after implementation.
 brc_defaults_other = {
     'undepBasis_corp_hc': {0: 0.0},
     'undepBasis_noncorp_hc': {0: 0.0},
-    'amt_repeal': {9e99: False},
-    'pymtc_repeal': {9e99: False},
     'ftc_hc': {9e99: 0.0},
     'sec199_hc': {9e99: 0.0},
     'oldIntPaid_corp_hc': {0: 0.0},

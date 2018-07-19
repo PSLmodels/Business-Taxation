@@ -13,8 +13,13 @@ NID_base = pd.read_csv('nid_base.csv')
 IntPaid_base_noncorp = pd.read_csv('int_base_noncorp.csv')
 # Read in adjustment factors
 adj_factors = pd.read_csv('adjfactors.csv')
-adjfactor_amt_corp = adj_factors['amt'].values[0]
-adjfactor_pymtc_corp = adj_factors['pymtc'].values[0]
+param_amt = adj_factors['param_amt'].values[0]
+amt_frac = adj_factors['amt_frac'].values[0]
+totaluserate_pymtc = adj_factors['totaluserate_pymtc'].values[0]
+userate_pymtc = adj_factors['userate_pymtc'].values[0]
+trans_amt1 = adj_factors['trans_amt1'].values[0]
+trans_amt2 = adj_factors['trans_amt2'].values[0]
+stock2014 = adj_factors['stock2014'].values[0]
 adjfactor_ftc_corp = adj_factors['ftc'].values[0]
 adjfactor_dep_corp = adj_factors['dep_corp'].values[0]
 adjfactor_dep_noncorp = adj_factors['dep_noncorp'].values[0]
