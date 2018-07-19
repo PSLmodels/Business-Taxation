@@ -76,7 +76,7 @@ def AMTmodel(taxinc, amt_rates=btax_defaults['tau_amt'],
             frac_amt = np.exp(-param_amt * (ctax_rates[i] / amt_rates[i] - 1))
         # Adjust transition params for change in AMT frequency
         alpha = trans_amt1 * frac_amt / amt_frac
-        beta = trans_amt2 * frac_amt / amt_frac
+        beta = (1 - alpha) * frac_amt / (1 - frac_amt)
         if pymtc_status[i] == 0:
             # No change from baseline
             userate = userate_pymtc
@@ -87,10 +87,10 @@ def AMTmodel(taxinc, amt_rates=btax_defaults['tau_amt'],
             # PYMTC made fully refundable
             userate = 1.0
         P[i] = userate * stockN[i]
-        stockA[i+1] = (trans_amt1 * (stockA[i] + A[i]) +
-                       trans_amt2 * (stockN[i] - P[i]))
-        stockN[i+1] = ((1 - trans_amt1) * (stockA[i] + A[i]) +
-                       (1 - trans_amt2) * (stockN[i] - P[i]))
+        stockA[i+1] = (alpha * (stockA[i] + A[i]) +
+                       beta * (stockN[i] - P[i]))
+        stockN[i+1] = ((1 - alpha) * (stockA[i] + A[i]) +
+                       (1 - beta) * (stockN[i] - P[i]))
     # Rescale for any cross-sector shifting
     amt_final = A * rescale_corp
     pymtc_final = P * rescale_corp
