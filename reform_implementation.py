@@ -20,11 +20,11 @@ def test_other_reform(paramdict):
     for key in paramdict:
         assert key in brc_defaults_other.keys()
     if 'reclassify_taxdep_gdslife' in paramdict:
-        year = paramdict['reclassify_taxdep_gdslife'].keys()[0]
+        year = list(paramdict['reclassify_taxdep_gdslife'].keys())[0]
         for life in paramdict['reclassify_taxdep_gdslife'][year]:
             assert life in [3, 5, 7, 10, 15, 20, 25, 27.5, 39]
     if 'reclassify_taxdep_adslife' in paramdict:
-        year = paramdict['reclassify_taxdep_adslife'].keys()[0]
+        year = list(paramdict['reclassify_taxdep_adslife'].keys())[0]
         for life in paramdict['reclassify_taxdep_adslife'][year]:
             assert life in [3, 4, 5, 6, 7, 9, 9.5, 10, 12, 14, 15,
                             18, 19, 20, 25, 28, 30, 40, 50, 100]

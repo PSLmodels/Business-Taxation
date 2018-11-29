@@ -145,8 +145,12 @@ def NID_response(capital_path, eta=0.4, id_hc_year=9e99, nid_hc_year=9e99,
     for i in range(14):
         if i + 2014 >= nid_hc_year:
             hc1 = nid_hc
+        else:
+            hc1 = 0
         if i + 2014 >= id_hc_year:
             hc2 = id_hc_new
+        else:
+            hc2 = 0
         hclist[i] = max(hc1, hc2)
         if i + 2014 >= firstyear:
             elast_debt_list[i] = elast_debt
