@@ -7,10 +7,10 @@ btax_data_path = 'btax_data/'
 
 @lru_cache(maxsize=None)
 def assets_data():
-    assets_data = pd.read_csv('mini_assets.csv')
-    assets_data.drop([3, 21, 32, 91], axis=0, inplace=True)
-    assets_data.reset_index(drop=True, inplace=True)
-    return assets_data
+    asset_data = pd.read_csv('mini_assets.csv')
+    asset_data.drop([3, 21, 32, 91], axis=0, inplace=True)
+    asset_data.reset_index(drop=True, inplace=True)
+    return asset_data
 
 
 @lru_cache(maxsize=None)
