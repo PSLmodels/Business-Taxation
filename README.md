@@ -21,5 +21,8 @@ Instructions:
  - In the `BRC` folder, add `taxcalc` and `puf.csv`. 
  - To run BRC, see the example code in `combined_corporate_model.ipynb`. 
 
+## Current status
+BRC is undergoing a major refactoring. Currently, the response component of BRC is deprecated, although the status analysis can still be run.
+
 ## Citing BRC
 BRC (Version 0.0.0)[Source code], https://github.com/open-source-economics/BRC
