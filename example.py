@@ -21,11 +21,14 @@ btax_refdict = {2018: {'tau_c': 0.28,
                        'depr_20yr_bonus': 0.0,
                        'depr_25yr_bonus': 0.0,
                        'depr_275yr_bonus': 0.0,
-                       'depr_39yr_bonus': 0.0}}
+                       'depr_39yr_bonus': 0.0,
+                       'pymtc_status': 1}}
 
 # Create the reform dictionary for special, one-time changes
-other_refdict = {'newIntPaid_corp_hc': {2017: 1.0},
-                 'newIntPaid_noncorp_hc': {2017: 1.0}}
+other_refdict = {'newIntPaid_corp_hc': {2018: 1.0},
+                 'oldIntPaid_corp_hc': {2018: 0.0},
+                 'newIntPaid_noncorp_hc': {2018: 1.0},
+                 'oldIntPaid_noncorp_hc': {2018: 0.0}}
 
 # Create the (empty) reform dictionary for the individual income tax (taxcalc)
 iitax_refdict = {}
@@ -41,9 +44,9 @@ BM.ModelResults
 
 # Take a closer look at corporate tax items
 # Baseline
-BM.corp_base.taxreturn.combined_return
+BM.corp_base.taxreturn.combined_return.to_csv('test_results/ex_out1.csv', index=False)
 # Reform
-BM.corp_ref.taxreturn.combined_return
+BM.corp_ref.taxreturn.combined_return.to_csv('test_results/ex_out2.csv', index=False)
 
 """
 Until the response capability is properly refactored, we will ignore this.
