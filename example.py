@@ -44,9 +44,9 @@ BM.ModelResults
 
 # Take a closer look at corporate tax items
 # Baseline
-BM.corp_base.taxreturn.combined_return.to_csv('test_results/ex_out1.csv', index=False)
+(BM.corp_base.taxreturn.combined_return).round(4).to_csv('test_results/ex_out1.csv', index=False)
 # Reform
-BM.corp_ref.taxreturn.combined_return.to_csv('test_results/ex_out2.csv', index=False)
+(BM.corp_ref.taxreturn.combined_return).round(4).to_csv('test_results/ex_out2.csv', index=False)
 
 """
 Until the response capability is properly refactored, we will ignore this.
