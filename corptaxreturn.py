@@ -183,14 +183,14 @@ class CorpTaxReturn():
                 # If AMT rate exceeds regular rate (all subject to AMT)
                 A[i] = ((amt_rates[i] - ctax_rates[i] + amt_rates[i] / self.data.param_amt) *
                         taxinc[i])
-                frac_amt = 1.
+                frac_amt = 0.999
             else:
                 A[i] = (amt_rates[i] / self.data.param_amt *
                         np.exp(-self.data.param_amt * (ctax_rates[i] / amt_rates[i] - 1)) *
                         taxinc[i])
                 frac_amt = np.exp(-self.data.param_amt * (ctax_rates[i] / amt_rates[i] - 1))
             # Adjust transition params for change in AMT frequency
-            alpha = self.data.trans_amt1 * frac_amt / self.data.amt_frac
+            alpha = max(0.0, min(1.0, self.data.trans_amt1 * (frac_amt / self.data.amt_frac)**0.5))
             beta = (1 - alpha) * frac_amt / (1 - frac_amt)
             if pymtc_status[i] == 0:
                 # No change from baseline
