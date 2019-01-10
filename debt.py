@@ -54,6 +54,10 @@ class Debt():
                 raise ValueError('Wrong response')
         else:
             self.response = np.zeros(14)
+        if corp:
+            self.delta = np.array(self.data.econ_defaults['f_c']) * (1 + self.response)
+        else:
+            self.delta = np.array(self.data.econ_defaults['f_nc']) * (1 + self.response)
         if len(asset_forecast) == 14:
             self.asset_forecast = asset_forecast
         else:
@@ -112,7 +116,7 @@ class Debt():
             K_fa.append(K_fa[56] * self.asset_forecast[i-54] /
                         self.asset_forecast[2])
             A.append(A[56] * K_fa[i] / K_fa[56])
-            D.append(D[56] * K_fa[i] / K_fa[56] * (1 + self.response[i-54]))
+            D.append(D[56] * K_fa[i] / K_fa[56] * self.delta[i-54] / self.delta[2])
             L.append(D[i] + A[i])
         # Save level histories
         self.net_debt_history = D
