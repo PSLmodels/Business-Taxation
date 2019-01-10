@@ -113,7 +113,7 @@ class Corporation():
         Updates the Asset object to include investment response.
         """
         # First, save the capital stock by asset type and year (for earnings)
-        self.old_capital_path = copy.deepcopy(self.asset.capital_path)
+        self.old_capital_history = copy.deepcopy(self.asset.capital_history)
         self.asset.update_response(responses.investment_response)
         self.asset.calc_all()
     
@@ -123,13 +123,14 @@ class Corporation():
         new capital stock by asset type (based on the investment response),
         and the marginal product of capital.
         """
-        Kstock_base = copy.deepcopy(self.new_capital_path)
-        Kstock_ref = copy.deepcopy(self.asset.capital_path)
+        Kstock_base = copy.deepcopy(self.old_capital_history)
+        Kstock_ref = copy.deepcopy(self.asset.capital_history)
         deltaK = Kstock_ref - Kstock_base
         changeEarnings = np.zeros((96, 14))
-        for i in range(96): # by asset
-            for j in range(14): # for each year
-                changeEarnings[i,j] = deltaK[i,j] * np.asarray(responses.investment_response['MPKc' + str(j + 2014)])[i] * self.data.adjfactor_dep_corp
+        for j in range(14): # for each year
+            mpk = np.array(responses.investment_response['MPKc' + str(j + 2014)])
+            for i in range(96): # by asset
+                changeEarnings[i,j] = deltaK[i,j] * mpk[i] * self.data.adjfactor_dep_corp
         deltaE = np.zeros(14)
         for j in range(14):
             deltaE[j] = changeEarnings[:, j].sum()
@@ -139,7 +140,7 @@ class Corporation():
         """
         Replaces the Debt object to use the new asset forecast and Data
         """
-        pctch_delta = np.array(responses.debt_responses['pchDelta_corp'])
+        pctch_delta = np.array(responses.debt_response['pchDelta_corp'])
         self.debt = Debt(self.btax_params, self.other_params,
                          self.asset.get_forecast(), data=self.data, 
                          response=pctch_delta, corp=True)

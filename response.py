@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import copy
 from data import Data
+from btaxmini import BtaxMini
 
 
 class Response():
@@ -62,18 +63,20 @@ class Response():
             maindata['deltaInc' + str(year)] = 0.
             maindata['MPKc' + str(year)] = 0.
             maindata['MPKnc' + str(year)] = 0.
-        # Calculate cost of capital and EATR for every year for base and reform
-        results_base = run_btax_mini(range(firstyear, 2028), self.btax_params_base, self.other_params_base)
-        results_ref = run_btax_mini(range(firstyear, 2028), self.btax_params_ref, self.other_params_ref)
+        # Calculate cost of capital and EATR for every year for baseline
+        Btax_base = BtaxMini(self.btax_params_base, self.other_params_base)
+        results_base = Btax_base.run_btax_mini(range(firstyear, 2028))
+        # Calculate cost of capital and EATR for every year for reform
+        Btax_ref = BtaxMini(self.btax_params_ref, self.other_params_ref)
+        results_ref = Btax_ref.run_btax_mini(range(firstyear, 2028))
         # Compare results to produce the responses
         for year in range(firstyear, 2028):
-            infl = Data.econ_defaults['pi'][firstyear-2017]
             maindata['deltaIc' + str(year)] = ((results_ref['u_c' + str(year)] / results_base['u_c' + str(year)] - 1) * elast_c +
                                                (results_ref['eatr_c' + str(year)] - results_base['eatr_c' + str(year)]) * selast_c * mne_share_c)
             maindata['deltaInc' + str(year)] = ((results_ref['u_nc' + str(year)] / results_base['u_nc' + str(year)] - 1) * elast_nc +
                                                 (results_ref['eatr_nc' + str(year)] - results_base['eatr_nc' + str(year)]) * selast_nc * mne_share_nc)
-            maindata['MPKc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0 + infl
-            maindata['MPKnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0 + infl
+            maindata['MPKc' + str(year)] = (results_ref['u_c' + str(year)] + results_base['u_c' + str(year)]) / 2.0
+            maindata['MPKnc' + str(year)] = (results_ref['u_nc' + str(year)] + results_base['u_nc' + str(year)]) / 2.0
         # Save the responses
         self.investment_response = copy.deepcopy(maindata)
     
@@ -82,8 +85,8 @@ class Response():
         Calculates the corporate debt response.
         """
         # Extract the information on haircuts
-        (nid_hc_year, nid_hc) = extract_other_param('netIntPaid_corp_hc', self.other_params_ref)
-        (id_hc_year, id_hc_new) = extract_other_param('newIntPaid_corp_hc', self.other_params_ref)
+        (nid_hc_year, nid_hc) = Data().extract_other_param('netIntPaid_corp_hc', self.other_params_ref)
+        (id_hc_year, id_hc_new) = Data().extract_other_param('newIntPaid_corp_hc', self.other_params_ref)
         hclist = np.zeros(14)
         elast_debt_list = np.zeros(14)
         for i in range(14):
@@ -128,7 +131,7 @@ class Response():
         """
         debtresp_c = self.calc_debt_response_corp()
         debtresp_nc = self.calc_debt_response_noncorp()
-        debtresp_df = pd.DataFrame({'year': range(2014,2027),
+        debtresp_df = pd.DataFrame({'year': range(2014,2028),
                                     'pchDelta_corp': debtresp_c,
                                     'pchDelta_noncorp': debtresp_nc})
         self.debt_response = debtresp_df
