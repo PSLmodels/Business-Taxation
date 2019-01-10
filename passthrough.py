@@ -252,7 +252,7 @@ class PassThrough():
         """
         Replaces the Debt object to use the new asset forecast and Data
         """
-        pctch_delta = np.array(responses.debt_responses['pchDelta_corp'])
+        pctch_delta = np.array(responses.debt_responses['pchDelta_noncorp'])
         self.debt = Debt(self.btax_params, self.other_params,
                          self.asset.get_forecast(), data=self.data, 
                          response=pctch_delta, corp=False)
