@@ -48,6 +48,14 @@ BM.ModelResults
 # Reform
 (BM.corp_ref.taxreturn.combined_return).round(4).to_csv('test_results/ex_out2.csv', index=False)
 
-"""
-Until the response capability is properly refactored, we will ignore this.
-"""
+# Add investment and debt responses
+BM.update_elasticities({'inv_usercost_c': -1.0, 'inv_usercost_nc': -0.5,
+                        'debt_taxshield_c': 0.4, 'debt_taxshield_nc': 0.2,
+                        'first_year_response': 2018})
+BM.calc_withresponse()
+
+# Look at the changes in total corporate and individual income tax liability
+BM.ModelResults
+
+# Compare real effects on corporations
+BM.corp_ref.real_results - BM.corp_base.real_results

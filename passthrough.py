@@ -77,10 +77,10 @@ class PassThrough():
         part_neginc = part_neginc2014 / gfact_propinc[0] * gfact_propinc
         scorp_neginc = scorp_neginc2014 / gfact_propinc[0] * gfact_propinc
         # Aggregate and save EBITDAs
-        total_propinc = (sp_posinc + sp_neginc + part_posinc + part_neginc +
-                         scorp_posinc + scorp_neginc)
+        total_inc = (sp_posinc + sp_neginc + part_posinc + part_neginc +
+                     scorp_posinc + scorp_neginc)
         earnings_result = pd.DataFrame({'year': range(2014,2028),
-                                        'total': total_propinc,
+                                        'total': total_inc,
                                         'SchC_pos': sp_posinc,
                                         'SchC_neg': sp_neginc,
                                         'partner_pos': part_posinc,
@@ -221,7 +221,7 @@ class PassThrough():
         Updates the Asset object to include investment response.
         """
         # First, save the capital stock by asset type and year (for earnings)
-        self.old_capital_path = copy.deepcopy(self.asset.capital_path)
+        self.old_capital_history = copy.deepcopy(self.asset.capital_history)
         self.asset.update_response(responses.investment_response)
         self.asset.calc_all()
     
@@ -231,28 +231,29 @@ class PassThrough():
         new capital stock by asset type (based on the investment response),
         and the marginal product of capital.
         """
-        Kstock_base = copy.deepcopy(self.new_capital_path)
-        Kstock_ref = copy.deepcopy(self.asset.capital_path)
+        Kstock_base = copy.deepcopy(self.old_capital_history)
+        Kstock_ref = copy.deepcopy(self.asset.capital_history)
         deltaK = Kstock_ref - Kstock_base
         changeEarnings = np.zeros((96, 14))
-        for i in range(96): # by asset
-            for j in range(14): # for each year
-                changeEarnings[i,j] = deltaK[i,j] * np.asarray(responses.investment_response['MPKnc' + str(j + 2014)])[i] * self.data.adjfactor_dep_noncorp
+        
+        for j in range(14): # for each year
+            mpk = np.array(responses.investment_response['MPKnc' + str(j + 2014)])
+            for i in range(96): # by asset
+                changeEarnings[i,j] = deltaK[i,j] * mpk[i] * self.data.adjfactor_dep_noncorp
         deltaE = np.zeros(14)
         for j in range(14):
             deltaE[j] = changeEarnings[:, j].sum()
         earnings_old = np.array(self.earnings['total'])
-        ebitda_chgfactor = (self.earnings + deltaE) * self.data.rescale_noncorp / earnings_old
+        ebitda_chgfactor = (earnings_old + deltaE) * self.data.rescale_noncorp / earnings_old
         keylist = list(self.earnings)
         for key in keylist:
             self.earnings[key] = self.earnings[key] * ebitda_chgfactor
-        
     
     def update_debt(self, responses):
         """
         Replaces the Debt object to use the new asset forecast and Data
         """
-        pctch_delta = np.array(responses.debt_responses['pchDelta_noncorp'])
+        pctch_delta = np.array(responses.debt_response['pchDelta_corp'])
         self.debt = Debt(self.btax_params, self.other_params,
                          self.asset.get_forecast(), data=self.data, 
                          response=pctch_delta, corp=False)
