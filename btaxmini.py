@@ -15,18 +15,16 @@ class BtaxMini():
     Parameters
     ----------
     btax_params: DataFrame of regular tax parameters
-    other_params: dict of special tax parameters
     
     Returns
     -------
     DataFrame of user cost of capital and EATR for each year and asset type
     """
     
-    def __init__(self, btax_params, other_params):
+    def __init__(self, btax_params):
         self.econ_params = copy.deepcopy(Data().econ_defaults)
         self.btax_params = btax_params
-        self.other_params = other_params
-        self.asset_c = Asset(btax_params, other_params, corp=True)
+        self.asset_c = Asset(btax_params, corp=True)
         self.asset_c.build_deprLaw_matrices()
     
     def make_tdict_c(self, start_year):
@@ -79,30 +77,19 @@ class BtaxMini():
     
     def calc_frac_ded(self, year):
         """
-        Calculates the fraction of interest deductible for all future years,
+        Calculates the fraction of interest deductible for the given year,
         for corporate and noncorporate.
         """
         # Extract the corporate interest haircuts
-        (hc_nid_year_c, hc_nid_c) = Data().extract_other_param('netIntPaid_corp_hc',
-                                                               self.other_params)
-        (hc_id_new_year_c, hc_id_new_c) = Data().extract_other_param('newIntPaid_corp_hc',
-                                                                     self.other_params)
+        hc_nid_c = np.array(self.btax_params['netIntPaid_corp_hc'])[year-2014]
+        hc_id_new_year_c = np.array(self.btax_params['newIntPaid_corp_hcyear'])[year-2014]
+        hc_id_new_c = np.array(self.btax_params['newIntPaid_corp_hc'])[year-2014]
         # Find haircut for corporations
-        if year < min(hc_nid_year_c, hc_id_new_year_c):
-            # If not subject to either haircut
-            fracdedc = 1.0
-        elif year >= max(hc_nid_year_c, hc_id_new_year_c):
-            # If subject to both haircuts, use bigger one
-            fracdedc = 1.0 - max(hc_nid_c, hc_id_new_c)
-        else:
-            if hc_nid_year_c > hc_id_new_year_c:
-                # If subject to NID haircut but not ID haircut
-                fracdedc = 1.0 - hc_id_new_c
-            else:
-                # If subject to ID haircut but not NID haircut
-                fracdedc = 1.0 - hc_nid_c
-        (hc_id_new_year_nc, hc_id_new_nc) = Data().extract_other_param('newIntPaid_noncorp_hc',
-                                                                       self.other_params)
+        fracdedc = 1.0 - hc_nid_c
+        if year >= hc_id_new_year_c:
+            fracdedc = min(fracdedc, 1.0 - hc_id_new_c)
+        hc_id_new_year_nc = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])[year-2014]
+        hc_id_new_nc = np.array(self.btax_params['newIntPaid_noncorp_hc'])[year-2014]
         # Find haircut for noncorporate businesses
         if year < hc_id_new_year_nc:
             # If not subject to haircut
@@ -469,7 +456,7 @@ class BtaxMini():
         return eatr
     
     def calc_usercost(self, r, pi, delta, method, life, bonus, f, rd, fracded,
-                      tdict, length=100):
+                      tdict, length=50):
         """
         Calculates the cost of capital
             r: discount rate

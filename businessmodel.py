@@ -26,34 +26,28 @@ class BusinessModel():
     
     Parameters:
         btax_refdict: main business policy reform dictionary
-        other_refdict: special business policy reform dictionary
         iit_refdict: individual policy reform dictionary (for taxcalc)
         btax_basedict: business policy baseline dictionary (default none)
-        other_basedict: special policy baseline dictionary (default none)
         iit_basedict: individual policy baseline dictionary (default none)
         elast_dict: dictionary of elasticities for firm responses
     """
     
-    def __init__(self, btax_refdict, other_refdict, iit_refdict,
-                 btax_basedict={}, other_basedict={}, iit_basedict={},
-                 elast_dict=None):
+    def __init__(self, btax_refdict, iit_refdict, btax_basedict={}, 
+                 iit_basedict={}, elast_dict=None):
         # Set default policy parameters for later use
         self.btax_defaults = Data().btax_defaults
-        self.brc_defaults_other = Data().brc_defaults_other
         # Create the baseline and reform parameter storing forms
         self.btax_params_base = self.update_btax_params(btax_basedict)
         self.btax_params_ref = self.update_btax_params(btax_refdict)
-        self.other_params_base = self.update_brc_params(other_basedict)
-        self.other_params_ref = self.update_brc_params(other_refdict)
         # Create Investors
         self.investor_base = Investor(iit_basedict)
         self.investor_ref = Investor(iit_refdict)
         # Create Corporations
-        self.corp_base = Corporation(self.btax_params_base, self.other_params_base)
-        self.corp_ref = Corporation(self.btax_params_ref, self.other_params_ref)
+        self.corp_base = Corporation(self.btax_params_base)
+        self.corp_ref = Corporation(self.btax_params_ref)
         # Create PassThroughs
-        self.passthru_base = PassThrough(self.btax_params_base, self.other_params_base)
-        self.passthru_ref = PassThrough(self.btax_params_ref, self.other_params_ref)
+        self.passthru_base = PassThrough(self.btax_params_base)
+        self.passthru_ref = PassThrough(self.btax_params_ref)
         # Save the elasticity dictionary
         if elast_dict is not None:
             self.check_elast_dict(elast_dict)
@@ -74,23 +68,6 @@ class BusinessModel():
             for param in paramdict[key]:
                 assert param in paramnames
     
-    def check_other_reform(self, paramdict):
-        """
-        Checks that the other parameter dictionaries are acceptable
-        """
-        assert isinstance(paramdict, dict)
-        for key in paramdict:
-            assert key in self.brc_defaults_other.keys()
-        if 'reclassify_taxdep_gdslife' in paramdict:
-            year = list(paramdict['reclassify_taxdep_gdslife'].keys())[0]
-            for life in paramdict['reclassify_taxdep_gdslife'][year]:
-                assert life in [3, 5, 7, 10, 15, 20, 25, 27.5, 39]
-        if 'reclassify_taxdep_adslife' in paramdict:
-            year = list(paramdict['reclassify_taxdep_adslife'].keys())[0]
-            for life in paramdict['reclassify_taxdep_adslife'][year]:
-                assert life in [3, 4, 5, 6, 7, 9, 9.5, 10, 12, 14, 15,
-                                18, 19, 20, 25, 28, 30, 40, 50, 100]
-    
     def update_btax_params(self, param_dict):
         """
         Updates btax_params
@@ -110,17 +87,7 @@ class BusinessModel():
                 paramlist1 = np.asarray(params_df[param])
                 paramlist1[years >= int(year)] = param_dict[year][param]
                 params_df[param] = paramlist1
-        return params_df    
-    
-    def update_brc_params(self, paramdict_other):
-        """
-        Updates other_params
-        """
-        self.check_other_reform(paramdict_other)
-        other_params = copy.deepcopy(self.brc_defaults_other)
-        for key in paramdict_other:
-            other_params[key] = paramdict_other[key]
-        return other_params
+        return params_df
     
     def produce_multipliers(self):
         # Get corporate net after-tax incomes
@@ -238,7 +205,7 @@ class BusinessModel():
         # Calculate MTRs and update all policy DataFrames (btax_params)
         self.update_mtrlists()
         # Create Response object and execute all responses
-        self.response = Response(self.elast_dict, self.btax_params_base, self.btax_params_ref, self.other_params_base, self.other_params_ref)
+        self.response = Response(self.elast_dict, self.btax_params_base, self.btax_params_ref)
         self.response.calc_all()
         # Run calculations for corporations
         self.corp_base.calc_static()

@@ -22,13 +22,12 @@ class Debt():
     Parameters:
         corp: True for corporate, False for noncorporate
         btax_params: dict of business tax policy parameters
-        other_params: dict of special tax policy parameters
         asset_forecast: list of nonfinancial asset amounts
         response: list of percent changes in optimal debt-asset ratios
         eta: debt retirement rate
     """
     
-    def __init__(self, btax_params, other_params, asset_forecast,
+    def __init__(self, btax_params, asset_forecast,
                  data=None, response=None, eta = 0.4, corp=True):
         # Create an associated Data object
         if isinstance(data, Data):
@@ -43,10 +42,6 @@ class Debt():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if isinstance(other_params, dict):
-            self.other_params = other_params
-        else:
-            raise ValueError('other_params must be dict')
         if response is not None:
             if len(response) == 14:
                 self.response = response
@@ -69,27 +64,23 @@ class Debt():
     
     def get_haircuts(self):
         if self.corp:
-            (hc_nid_year, hc_nid) = self.data.extract_other_param('netIntPaid_corp_hc',
-                                                        self.other_params)
-            (hc_id_old_year, hc_id_old) = self.data.extract_other_param('oldIntPaid_corp_hc',
-                                                              self.other_params)
-            (hc_id_new_year, hc_id_new) = self.data.extract_other_param('newIntPaid_corp_hc',
-                                                              self.other_params)
-            assert hc_id_old_year == hc_id_new_year
+            hc_nids = np.array(self.btax_params['netIntPaid_corp_hc'])
+            hc_id_old_years = np.array(self.btax_params['oldIntPaid_corp_hcyear'])
+            hc_id_olds = np.array(self.btax_params['oldIntPaid_corp_hc'])
+            hc_id_new_years = np.array(self.btax_params['newIntPaid_corp_hcyear'])
+            hc_id_news = np.array(self.btax_params['newIntPaid_corp_hc'])
         else:
-            hc_nid_year = 9e99
-            hc_nid = 0.0
-            (hc_id_old_year, hc_id_old) = self.data.extract_other_param('oldIntPaid_noncorp_hc',
-                                                              self.other_params)
-            (hc_id_new_year, hc_id_new) = self.data.extract_other_param('newIntPaid_noncorp_hc',
-                                                              self.other_params)
-            assert hc_id_old_year == hc_id_new_year
+            hc_nids =np.zeros(14)
+            hc_id_old_years = np.array(self.btax_params['oldIntPaid_noncorp_hcyear'])
+            hc_id_olds = np.array(self.btax_params['oldIntPaid_noncorp_hc'])
+            hc_id_new_years = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])
+            hc_id_news = np.array(self.btax_params['newIntPaid_noncorp_hc'])
         haircuts = {}
-        haircuts['nid_hc_year'] = hc_nid_year
-        haircuts['nid_hc']= hc_nid
-        haircuts['id_hc_year'] = hc_id_old_year
-        haircuts['id_hc_old'] = hc_id_old
-        haircuts['id_hc_new'] = hc_id_new
+        haircuts['nid_hc']= hc_nids
+        haircuts['id_hc_oldyear'] = hc_id_old_years
+        haircuts['id_hc_old'] = hc_id_olds
+        haircuts['id_hc_newyear'] = hc_id_new_years
+        haircuts['id_hc_new'] = hc_id_news
         self.haircuts = haircuts
     
     def build_level_history(self):
@@ -160,14 +151,13 @@ class Debt():
     def calc_real_interest(self):
         """
         Calculates interest income, interest paid and net interest paid.
-        WARNING: INCORRECTLY SET UP. ELIMINATE THE (-1) FROM EXPONENT
         """
         self.int_income = np.array(self.debt_asset_history) * np.array(self.i_a)
         int_expense = np.zeros(68)
         for i in range(1, 68):
             for j in range(i+1):
                 int_expense[i] += (self.originations[j] *
-                                   (1 - self.eta)**(i - j - 1) * self.i_l[j])
+                                   (1 - self.eta)**(i - j) * self.i_l[j])
         self.int_expense = int_expense
     
     def calc_tax_interest(self):
@@ -177,29 +167,28 @@ class Debt():
         """
         int_income = copy.deepcopy(self.int_income)
         int_expded = np.zeros(68)
-        for i in range(1, 68):
+        # Calculations for years before the budget window
+        for i in range(1, 54):
             for j in range(i+1):
-                if j + 1960 < self.haircuts['id_hc_year'] and i + 1960 >= self.haircuts['id_hc_year']:
-                    int_expded[i] += (self.originations[j] *
-                                      (1 - self.eta)**(i - j - 1) *
-                                      self.i_l[j] *
-                                      (1 - self.haircuts['id_hc_old']))
-                elif j + 1960 >= self.haircuts['id_hc_year']:
-                    int_expded[i] += (self.originations[j] *
-                                      (1 - self.eta)**(i - j - 1) *
-                                      self.i_l[j] *
-                                      (1 - self.haircuts['id_hc_new']))
-                else:
-                    int_expded[i] += (self.originations[j] *
-                                      (1 - self.eta)**(i - j - 1) *
-                                      self.i_l[j])
+                int_expded[i] += (self.originations[j] *
+                                  (1 - self.eta)**(i - j - 1) * self.i_l[j])
+        # Calculations during the budget window
+        for i in range(54, 68):
+            for j in range(i+1):
+                hctouse = 0.0
+                if j + 1960 < self.haircuts['id_hc_oldyear'][i-54]:
+                    # If originated before "old" haircut, apply haircut
+                    hctouse = self.haircuts['id_hc_old'][i-54]
+                if j + 1960 >= self.haircuts['id_hc_newyear'][i-54]:
+                    # If originated after "new" haircut, apply haircut
+                    hctouse = max(hctouse, self.haircuts['id_hc_new'][i-54])
+                int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j) *
+                                  self.i_l[j] * (1 - hctouse))
         NID_gross = int_expded - int_income
-        NID = np.zeros(len(NID_gross))
-        for i in range(len(NID)):
-            if i + 1960 < self.haircuts['nid_hc_year']:
-                NID[i] = NID_gross[i]
-            else:
-                NID[i] = NID_gross[i] * (1 - self.haircuts['nid_hc'])
+        # Get (contemporary) NID haircut
+        nid_hc = np.zeros(68)
+        nid_hc[54:68] = self.haircuts['nid_hc']
+        NID = NID_gross * (1 - nid_hc)
         self.int_expded = int_expded
         self.NID = NID
     

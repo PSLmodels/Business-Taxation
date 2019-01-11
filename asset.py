@@ -38,13 +38,11 @@ class Asset():
     Parameters:
         corp: True for corporate, False for noncorporate
         btax_params: dict of business tax policy parameters
-        other_params: dict of special tax policy parameters
         response: DataFrame of investment responses
         
     """
     
-    def __init__(self, btax_params, other_params,
-                 corp=True, data=None, response=None):
+    def __init__(self, btax_params, corp=True, data=None, response=None):
         # Create an associated Data object
         if isinstance(data, Data):
             self.data = data
@@ -68,10 +66,6 @@ class Asset():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if isinstance(other_params, dict):
-            self.other_params = other_params
-        else:
-            raise ValueError('other_params must be dict')
         
     def update_response(self, response):
         """
@@ -140,8 +134,7 @@ class Asset():
         """
         Builds the arrays for tax depreciation laws
         """
-        def taxdep_final(depr_methods, depr_bonuses,
-                         reclassify_gds_life, reclassify_ads_life):
+        def taxdep_final(depr_methods, depr_bonuses):
             """
             Constructs the DataFrame of information for tax depreciation.
             Only relevant for years beginning with 2014.
@@ -157,25 +150,18 @@ class Asset():
             # Determine depreciation systems for each asset type
             for cl, method in depr_methods.items():
                 system[class_life == cl] = method
-            # Determine asset lives to use under any reclassification
-            L_gds = np.asarray(taxdep['L_gds'])
+            # Determine tax life
             L_ads = np.asarray(taxdep['L_ads'])
-            for (L, reclassify) in [(L_gds, reclassify_gds_life),
-                                    (L_ads, reclassify_ads_life)]:
-                for life in reclassify:
-                    L = np.where(L == life, reclassify[life], L)
-            Llist = L_gds
+            Llist = np.asarray(taxdep['L_gds'])
             Llist[system == 'ADS'] = L_ads[system == 'ADS']
             Llist[system == 'None'] = 100
             taxdep['L'] = Llist
-        
             # Determine depreciation method. Default is GDS method
             method = np.asarray(taxdep['Method'])
             method[system == 'ADS'] = 'SL'
             method[system == 'Economic'] = 'Economic'
             method[system == 'None'] = 'None'
             taxdep['Method'] = method
-        
             # Detemine bonus depreciation rate
             bonus = np.zeros(len(taxdep))
             for cl, cl_bonus in depr_bonuses.items():
@@ -207,7 +193,7 @@ class Asset():
             return taxdep
         
         
-        def get_btax_params_oneyear(btax_params, other_params, year):
+        def get_btax_params_oneyear(btax_params, year):
             """
             Extracts tax depreciation parameters and
             calls the functions to build the tax depreciation
@@ -221,19 +207,7 @@ class Asset():
                     s = "depr_{}yr_".format(y if y != 27.5 else 275)
                     depr_methods[y] = btax_params[s + 'method'][year - 2014]
                     depr_bonuses[y] = btax_params[s + 'bonus'][year - 2014]
-                # figure out reclassification of tax lives
-                gds_year = list(other_params['reclassify_taxdep_gdslife'])[0]
-                ads_year = list(other_params['reclassify_taxdep_adslife'])[0]
-                if gds_year <= year:
-                    reclass_gds = other_params['reclassify_taxdep_gdslife'][gds_year]
-                else:
-                    reclass_gds = {}
-                if ads_year <= year:
-                    reclass_ads = other_params['reclassify_taxdep_adslife'][ads_year]
-                else:
-                    reclass_ads = {}
-                taxdep = taxdep_final(depr_methods, depr_bonuses,
-                                      reclass_gds, reclass_ads)
+                taxdep = taxdep_final(depr_methods, depr_bonuses)
             else:
                 taxdep = taxdep_preset(year)
             return taxdep
@@ -244,7 +218,7 @@ class Asset():
         life_history = np.zeros((96,75))
         bonus_history = np.zeros((96,75))
         for year in range(1960, 2035):
-            params_oneyear = get_btax_params_oneyear(self.btax_params, self.other_params, year)
+            params_oneyear = get_btax_params_oneyear(self.btax_params, year)
             method_history[year-1960] = params_oneyear['Method']
             life_history[:,year-1960] = params_oneyear['L']
             bonus_history[:,year-1960] = params_oneyear['bonus']
@@ -351,9 +325,11 @@ class Asset():
         Dep_arr = self.investment_history * unitDep_arr
         # Apply the haircut on undepreciated basis
         if self.corp:
-            (hc_undep_year, hc_undep) = self.data.extract_other_param('undepBasis_corp_hc', self.other_params)
+            hc_undep_year = np.array(self.btax_params['undepBasis_corp_hcyear'])[year-2014]
+            hc_undep = np.array(self.btax_params['undepBasis_corp_hc'])[year-2014]
         else:
-            (hc_undep_year, hc_undep) = self.data.extract_other_param('undepBasis_noncorp_hc', self.other_params)
+            hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[year-2014]
+            hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[year-2014]
         if year >= hc_undep_year:
             for j in range(75):
                 if j < hc_undep_year:

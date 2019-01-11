@@ -18,8 +18,6 @@ class Response():
         elast_dict: dict of response elasticities/semi-elasticities
         btax_params1: baseline policy parameters
         btax_params2: reform policy parameters
-        other_params1: baseline special policy parameters
-        other_params2: reform special policy parameters
         
     Associated objects (results):
         investment_response: DataFrame of investment responses and MPKs
@@ -29,15 +27,12 @@ class Response():
     WARNING: The legal response is not function in its current form!
     """
     
-    def __init__(self, elast_dict, btax_params1, btax_params2,
-                 other_params1, other_params2):
+    def __init__(self, elast_dict, btax_params1, btax_params2):
         # Save elasticity dictionary
         self.elast_dict = elast_dict
         # Save policy parameters
         self.btax_params_base = copy.deepcopy(btax_params1)
         self.btax_params_ref = copy.deepcopy(btax_params2)
-        self.other_params_base = copy.deepcopy(other_params1)
-        self.other_params_ref = copy.deepcopy(other_params2)
     
     def calc_inv_response(self):
         """
@@ -46,7 +41,6 @@ class Response():
         firstyear: when the firm behavioral response takes effect
         """
         # Read in the underlying functions for the investment response
-        exec(open('mini_combined.py').read())
         maindata = copy.deepcopy(Data().assets_data())
         maindata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
         # Extract relevant response parameters
@@ -64,10 +58,10 @@ class Response():
             maindata['MPKc' + str(year)] = 0.
             maindata['MPKnc' + str(year)] = 0.
         # Calculate cost of capital and EATR for every year for baseline
-        Btax_base = BtaxMini(self.btax_params_base, self.other_params_base)
+        Btax_base = BtaxMini(self.btax_params_base)
         results_base = Btax_base.run_btax_mini(range(firstyear, 2028))
         # Calculate cost of capital and EATR for every year for reform
-        Btax_ref = BtaxMini(self.btax_params_ref, self.other_params_ref)
+        Btax_ref = BtaxMini(self.btax_params_ref)
         results_ref = Btax_ref.run_btax_mini(range(firstyear, 2028))
         # Compare results to produce the responses
         for year in range(firstyear, 2028):
@@ -85,22 +79,14 @@ class Response():
         Calculates the corporate debt response.
         """
         # Extract the information on haircuts
-        (nid_hc_year, nid_hc) = Data().extract_other_param('netIntPaid_corp_hc', self.other_params_ref)
-        (id_hc_year, id_hc_new) = Data().extract_other_param('newIntPaid_corp_hc', self.other_params_ref)
-        hclist = np.zeros(14)
-        elast_debt_list = np.zeros(14)
-        for i in range(14):
-            if i + 2014 >= nid_hc_year:
-                hc1 = nid_hc
-            else:
-                hc1 = 0
-            if i + 2014 >= id_hc_year:
-                hc2 = id_hc_new
-            else:
-                hc2 = 0
-            hclist[i] = max(hc1, hc2)
-            if i + 2014 >= self.elast_dict['first_year_response']:
-                elast_debt_list[i] = self.elast_dict['debt_taxshield_c']
+        nid_hcs = np.array(self.btax_params_ref['netIntPaid_corp_hc'])
+        id_hc_years = np.array(self.btax_params_ref['newIntPaid_corp_hcyear'])
+        id_hc_new = np.array(self.btax_params_ref['newIntPaid_corp_hc'])
+        yearlist = np.array(range(2014,2028))
+        id_hcs = np.where(id_hc_years >= yearlist, id_hc_new, 0.0)
+        hclist = np.maximum(nid_hcs, id_hcs)
+        elast_debt_list = np.where(yearlist >= self.elast_dict['first_year_response'],
+                                   self.elast_dict['debt_taxshield_c'], 0.0)
         taxshield_base = self.btax_params_base['tau_c']
         taxshield_ref = np.asarray(self.btax_params_ref['tau_c']) * (1 - hclist)
         pctch_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1)
@@ -111,14 +97,12 @@ class Response():
         Calculates the noncorporate debt response
         """
         # Extract the information on haircuts
-        (id_hc_year, id_hc_new) = Data().extract_other_param('newIntPaid_noncorp_hc', self.other_params_ref)
-        hclist = np.zeros(14)
-        elast_debt_list = np.zeros(14)
-        for i in range(14):
-            if i + 2014 >= id_hc_year:
-                hclist[i] = id_hc_new
-            if i + 2014 >= self.elast_dict['first_year_response']:
-                elast_debt_list[i] = self.elast_dict['debt_taxshield_nc']
+        id_hc_years = np.array(self.btax_params_ref['newIntPaid_noncorp_hcyear'])
+        id_hc_new = np.array(self.btax_params_ref['newIntPaid_noncorp_hc'])
+        yearlist = np.array(range(2014,2028))
+        hclist = np.where(id_hc_years >= yearlist, id_hc_new, 0.0)
+        elast_debt_list = np.where(yearlist >= self.elast_dict['first_year_response'],
+                                   self.elast_dict['debt_taxshield_nc'], 0.0)
         taxshield_base = self.btax_params_base['tau_nc']
         taxshield_ref = self.btax_params_ref['tau_nc'] * (1 - hclist)
         pctch_delta = (taxshield_ref / taxshield_base - 1) * elast_debt_list

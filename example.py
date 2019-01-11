@@ -22,19 +22,22 @@ btax_refdict = {2018: {'tau_c': 0.28,
                        'depr_25yr_bonus': 0.0,
                        'depr_275yr_bonus': 0.0,
                        'depr_39yr_bonus': 0.0,
-                       'pymtc_status': 1}}
+                       'pymtc_status': 1,
+                       'newIntPaid_corp_hc': 1.0,
+                       'newIntPaid_corp_hcyear': 2018,
+                       'oldIntPaid_corp_hc': 1.0,
+                       'oldIntPaid_corp_hcyear': 2018,
+                       'newIntPaid_noncorp_hc': 1.0,
+                       'newIntPaid_noncorp_hcyear': 2018,
+                       'oldIntPaid_noncorp_hc': 1.0,
+                       'oldIntPaid_noncorp_hcyear': 2018}}
 
-# Create the reform dictionary for special, one-time changes
-other_refdict = {'newIntPaid_corp_hc': {2018: 1.0},
-                 'oldIntPaid_corp_hc': {2018: 0.0},
-                 'newIntPaid_noncorp_hc': {2018: 1.0},
-                 'oldIntPaid_noncorp_hc': {2018: 0.0}}
 
 # Create the (empty) reform dictionary for the individual income tax (taxcalc)
 iitax_refdict = {}
 
 # Create the BusinessModel object
-BM = BusinessModel(btax_refdict, other_refdict, iitax_refdict)
+BM = BusinessModel(btax_refdict, iitax_refdict)
 
 # Run the static calculations
 BM.calc_noresponse()
