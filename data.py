@@ -43,17 +43,6 @@ class Data():
         # Defaults for posssible use (may be deprecated)
         self.btax_defaults = pd.read_csv('mini_params_btax.csv')
         self.econ_defaults = pd.read_csv('mini_params_econ.csv')
-        self.brc_defaults_other = {'undepBasis_corp_hc': {0: 0.0},
-                                   'undepBasis_noncorp_hc': {0: 0.0},
-                                   'ftc_hc': {9e99: 0.0},
-                                   'sec199_hc': {9e99: 0.0},
-                                   'oldIntPaid_corp_hc': {0: 0.0},
-                                   'newIntPaid_corp_hc': {0: 0.0},
-                                   'netIntPaid_corp_hc': {0: 0.0},
-                                   'oldIntPaid_noncorp_hc': {0: 0.0},
-                                   'newIntPaid_noncorp_hc': {0: 0.0},
-                                   'reclassify_taxdep_gdslife': {9e99: {}},
-                                   'reclassify_taxdep_adslife': {9e99: {}}}
         self.elast_defaults = {'inv_usercost_c': 0.0, 'inv_usercost_nc': 0.0,
                                'inv_eatr_c': 0.0, 'inv_eatr_nc': 0.0,
                                'mne_share_c': 0.0, 'mne_share_nc': 0.0,
@@ -145,15 +134,4 @@ class Data():
         assert len(ncorplist) == 14
         self.rescale_corp = corplist
         self.rescale_noncorp = ncorplist
-    
-    def extract_other_param(self, paramname, paramdict):
-        """
-        Functions for extracting from other_params the year-haircut pairings
-        """
-        assert paramname in list(paramdict)
-        year = list(paramdict[paramname])[0]
-        val = paramdict[paramname][year]
-        return (year, val)
-    
-    
     

@@ -16,16 +16,12 @@ class Corporation():
     corporate income tax.
     """
     
-    def __init__(self, btax_params, other_params):
+    def __init__(self, btax_params):
         # Store policy parameter objects
         if isinstance(btax_params, pd.DataFrame):
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if isinstance(other_params, dict):
-            self.other_params = other_params
-        else:
-            raise ValueError('other_params must be dict')
         # Create Data object
         self.data = Data()
     
@@ -33,8 +29,7 @@ class Corporation():
         """
         Creates the Asset object for the Corporation.
         """
-        self.asset = Asset(self.btax_params, self.other_params,
-                           corp=True, data=self.data)
+        self.asset = Asset(self.btax_params, corp=True, data=self.data)
         self.asset.calc_all()
     
     def create_debt(self):
@@ -42,8 +37,8 @@ class Corporation():
         Creates the Debt object for the Corporation. 
         Note: create_asset must have already been called
         """
-        self.debt = Debt(self.btax_params, self.other_params,
-                         self.asset.get_forecast(), data=self.data, corp=True)
+        self.debt = Debt(self.btax_params, self.asset.get_forecast(),
+                         data=self.data, corp=True)
         self.debt.calc_all()
     
     def create_earnings(self):
@@ -59,9 +54,9 @@ class Corporation():
         """
         Creates the CorpTaxReturn object.
         """
-        self.taxreturn = CorpTaxReturn(self.btax_params, self.other_params, 
-                                       self.earnings, data=self.data,
-                                       assets=self.asset, debts=self.debt)
+        self.taxreturn = CorpTaxReturn(self.btax_params, self.earnings,
+                                       data=self.data, assets=self.asset,
+                                       debts=self.debt)
         self.taxreturn.calc_all()
     
     def real_activity(self):
@@ -141,9 +136,8 @@ class Corporation():
         Replaces the Debt object to use the new asset forecast and Data
         """
         pctch_delta = np.array(responses.debt_response['pchDelta_corp'])
-        self.debt = Debt(self.btax_params, self.other_params,
-                         self.asset.get_forecast(), data=self.data, 
-                         response=pctch_delta, corp=True)
+        self.debt = Debt(self.btax_params, self.asset.get_forecast(),
+                         data=self.data, response=pctch_delta, corp=True)
         self.debt.calc_all()
     
     def apply_responses(self, responses):

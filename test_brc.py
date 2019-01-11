@@ -13,46 +13,54 @@ OVERWRITE = False
 
 # Specify defaults
 btax_defaults = Data().btax_defaults
-other_defaults = Data().brc_defaults_other
 
 # Specify reform 1
-btax_dict1 = {2017: {
-        'tau_c': 0.3,
-        'depr_3yr_method': 'GDS',
-        'depr_3yr_bonus': 0.8,
-        'depr_5yr_method': 'ADS',
-        'depr_5yr_bonus': 0.8,
-        'depr_7yr_method': 'Economic',
-        'depr_7yr_bonus': 0.8,
-        'depr_10yr_method': 'GDS',
-        'depr_10yr_bonus': 0.6,
-        'depr_15yr_method': 'Expensing',
-        'depr_15yr_bonus': 0.6,
-        'depr_20yr_method': 'ADS',
-        'depr_20yr_bonus': 0.4,
-        'depr_25yr_method': 'EconomicDS',
-        'depr_25yr_bonus': 0.2,
-        'depr_275yr_method': 'GDS',
-        'depr_275yr_bonus': 0.2,
-        'depr_39yr_method': 'ADS',
-        'depr_39yr_bonus': 0.2,
-        'tau_amt': 0.0,
-        'pymtc_status': 1}}
-other_dict1 = {'netIntPaid_corp_hc': {2018: 0.5},
-               'sec199_hc': {2018: 0.5},
-               'ftc_hc': {2018: 0.5}}
-BM1 = BusinessModel(btax_dict1, other_dict1, {})
+btax_dict1 = {
+        2017: {
+                'tau_c': 0.3,
+                'depr_3yr_method': 'GDS',
+                'depr_3yr_bonus': 0.8,
+                'depr_5yr_method': 'ADS',
+                'depr_5yr_bonus': 0.8,
+                'depr_7yr_method': 'Economic',
+                'depr_7yr_bonus': 0.8,
+                'depr_10yr_method': 'GDS',
+                'depr_10yr_bonus': 0.6,
+                'depr_15yr_method': 'Expensing',
+                'depr_15yr_bonus': 0.6,
+                'depr_20yr_method': 'ADS',
+                'depr_20yr_bonus': 0.4,
+                'depr_25yr_method': 'EconomicDS',
+                'depr_25yr_bonus': 0.2,
+                'depr_275yr_method': 'GDS',
+                'depr_275yr_bonus': 0.2,
+                'depr_39yr_method': 'ADS',
+                'depr_39yr_bonus': 0.2,
+                'tau_amt': 0.0,
+                'pymtc_status': 1},
+        2018: {
+                'netIntPaid_corp_hc': 0.5,
+                'sec199_hc': 0.5,
+                'ftc_hc': 0.5}}
+BM1 = BusinessModel(btax_dict1, {})
 
 # Specify reform 2
-btax_dict2 = {}
-other_dict2 = {'oldIntPaid_corp_hc': {2017: 0.5},
-               'newIntPaid_corp_hc': {2017: 1.0},
-               'undepBasis_corp_hc': {2018: 0.5},
-               'oldIntPaid_noncorp_hc': {2017: 0.5},
-               'newIntPaid_noncorp_hc': {2017: 1.0},
-               'undepBasis_noncorp_hc': {2018: 0.5},
-               'reclassify_taxdep_gdslife': {2018: {39: 25}}}
-BM2 = BusinessModel(btax_dict2, other_dict2, {})
+btax_dict2 = {
+        2017: {
+                'oldIntPaid_corp_hcyear': 2017,
+                'oldIntPaid_corp_hc': 0.5,
+                'newIntPaid_corp_hcyear': 2017,
+                'newIntPaid_corp_hc': 1.0,
+                'oldIntPaid_noncorp_hcyear': 2017,
+                'oldIntPaid_noncorp_hc': 0.5,
+                'newIntPaid_noncorp_hcyear': 2017,
+                'newIntPaid_noncorp_hc': 1.0},
+        2018: {
+                'undepBasis_corp_hcyear': 2018,
+                'undepBasis_corp_hc': 0.5,
+                'undepBasis_noncorp_hcyear': 2018,
+                'undepBasis_noncorp_hc': 0.5}}
+BM2 = BusinessModel(btax_dict2, {})
 
 
 def test_asset0():
@@ -60,11 +68,11 @@ def test_asset0():
     Test the baseline results (capital_path)
     """
     # Corporate
-    asset1 = Asset(btax_defaults, other_defaults)
+    asset1 = Asset(btax_defaults)
     asset1.calc_all()
     path1 = copy.deepcopy(asset1.capital_path).round(2)
     # Noncorporate
-    asset2 = Asset(btax_defaults, other_defaults, corp=False)
+    asset2 = Asset(btax_defaults, corp=False)
     asset2.calc_all()
     path2 = copy.deepcopy(asset2.capital_path).round(2)
     if OVERWRITE:
@@ -87,11 +95,11 @@ def test_asset1():
     Test reform 1 (capital_path)
     """
     # Corporate
-    asset1 = Asset(BM1.btax_params_ref, BM1.other_params_ref)
+    asset1 = Asset(BM1.btax_params_ref)
     asset1.calc_all()
     path1 = copy.deepcopy(asset1.capital_path).round(2)
     # Noncorporate
-    asset2 = Asset(BM1.btax_params_ref, BM1.other_params_ref, corp=False)
+    asset2 = Asset(BM1.btax_params_ref, corp=False)
     asset2.calc_all()
     path2 = copy.deepcopy(asset2.capital_path).round(2)
     if OVERWRITE:
@@ -113,11 +121,11 @@ def test_asset2():
     """
     Test reform 2 (capital_history, capital_path)
     """# Corporate
-    asset1 = Asset(BM2.btax_params_ref, BM2.other_params_ref)
+    asset1 = Asset(BM2.btax_params_ref)
     asset1.calc_all()
     path1 = copy.deepcopy(asset1.capital_path).round(2)
     # Noncorporate
-    asset2 = Asset(BM1.btax_params_ref, BM1.other_params_ref, corp=False)
+    asset2 = Asset(BM1.btax_params_ref, corp=False)
     asset2.calc_all()
     path2 = copy.deepcopy(asset2.capital_path).round(2)
     if OVERWRITE:
@@ -139,12 +147,12 @@ def test_debt0():
     """
     Test the baseline results (interest_path)
     """
-    asset1 = Asset(btax_defaults, other_defaults)
+    asset1 = Asset(btax_defaults)
     asset1.calc_all()
-    asset2 = Asset(btax_defaults, other_defaults, corp=False)
+    asset2 = Asset(btax_defaults, corp=False)
     asset2.calc_all()
-    debt1 = Debt(btax_defaults, other_defaults, asset1.get_forecast())
-    debt2 = Debt(btax_defaults, other_defaults, asset2.get_forecast())
+    debt1 = Debt(btax_defaults, asset1.get_forecast())
+    debt2 = Debt(btax_defaults, asset2.get_forecast())
     debt1.calc_all()
     debt2.calc_all()
     path1 = copy.deepcopy(debt1.interest_path).round(2)
@@ -168,12 +176,12 @@ def test_debt1():
     """
     Test reform 1 (interest_path)
     """
-    asset1 = Asset(BM1.btax_params_ref, BM1.other_params_ref)
+    asset1 = Asset(BM1.btax_params_ref)
     asset1.calc_all()
-    asset2 = Asset(BM1.btax_params_ref, BM1.other_params_ref, corp=False)
+    asset2 = Asset(BM1.btax_params_ref, corp=False)
     asset2.calc_all()
-    debt1 = Debt(BM1.btax_params_ref, BM1.other_params_ref, asset1.get_forecast())
-    debt2 = Debt(BM1.btax_params_ref, BM1.other_params_ref, asset2.get_forecast())
+    debt1 = Debt(BM1.btax_params_ref, asset1.get_forecast())
+    debt2 = Debt(BM1.btax_params_ref, asset2.get_forecast())
     debt1.calc_all()
     debt2.calc_all()
     path1 = copy.deepcopy(debt1.interest_path).round(2)
@@ -197,12 +205,12 @@ def test_debt2():
     """
     Test reform 2 (interest_path)
     """
-    asset1 = Asset(BM2.btax_params_ref, BM2.other_params_ref)
+    asset1 = Asset(BM2.btax_params_ref)
     asset1.calc_all()
-    asset2 = Asset(BM2.btax_params_ref, BM2.other_params_ref, corp=False)
+    asset2 = Asset(BM2.btax_params_ref, corp=False)
     asset2.calc_all()
-    debt1 = Debt(BM2.btax_params_ref, BM2.other_params_ref, asset1.get_forecast())
-    debt2 = Debt(BM2.btax_params_ref, BM2.other_params_ref, asset2.get_forecast())
+    debt1 = Debt(BM2.btax_params_ref, asset1.get_forecast())
+    debt2 = Debt(BM2.btax_params_ref, asset2.get_forecast())
     debt1.calc_all()
     debt2.calc_all()
     path1 = copy.deepcopy(debt1.interest_path).round(2)
@@ -226,7 +234,7 @@ def test_corporation0():
     """
     Test the baseline results (real_results, taxreturn.combined_return)
     """
-    corp1 = Corporation(btax_defaults, other_defaults)
+    corp1 = Corporation(btax_defaults)
     corp1.calc_static()
     real1 = copy.deepcopy(corp1.real_results).round(2)
     tax1 = copy.deepcopy(corp1.taxreturn.combined_return).round(2)
@@ -249,7 +257,7 @@ def test_corporation1():
     """
     Test reform 1 (real_results, taxreturn.combined_return)
     """
-    corp1 = Corporation(BM1.btax_params_ref, BM1.other_params_ref)
+    corp1 = Corporation(BM1.btax_params_ref)
     corp1.calc_static()
     real1 = copy.deepcopy(corp1.real_results).round(2)
     tax1 = copy.deepcopy(corp1.taxreturn.combined_return).round(2)
@@ -272,7 +280,7 @@ def test_corporation2():
     """
     Test reform 2 (real_results, taxreturn.combined_return)
     """
-    corp1 = Corporation(BM2.btax_params_ref, BM2.other_params_ref)
+    corp1 = Corporation(BM2.btax_params_ref)
     corp1.calc_static()
     real1 = copy.deepcopy(corp1.real_results).round(2)
     tax1 = copy.deepcopy(corp1.taxreturn.combined_return).round(2)
@@ -295,7 +303,7 @@ def test_passthrough0():
     """
     Test the baseline results (SchC_results, partner_results, Scorp_results)
     """
-    pt1 = PassThrough(btax_defaults, other_defaults)
+    pt1 = PassThrough(btax_defaults)
     pt1.calc_static()
     SchC = copy.deepcopy(pt1.SchC_results).round(2)
     partner = copy.deepcopy(pt1.partner_results).round(2)
@@ -322,7 +330,7 @@ def test_passthrough1():
     """
     Test reform 1 (SchC_results, partner_results, Scorp_results)
     """
-    pt1 = PassThrough(BM1.btax_params_ref, BM1.other_params_ref)
+    pt1 = PassThrough(BM1.btax_params_ref)
     pt1.calc_static()
     SchC = copy.deepcopy(pt1.SchC_results).round(2)
     partner = copy.deepcopy(pt1.partner_results).round(2)
@@ -349,7 +357,7 @@ def test_passthrough2():
     """
     Test reform 2 (real_results, SchC_results, partner_results, Scorp_results)
     """
-    pt1 = PassThrough(BM2.btax_params_ref, BM2.other_params_ref)
+    pt1 = PassThrough(BM2.btax_params_ref)
     pt1.calc_static()
     SchC = copy.deepcopy(pt1.SchC_results).round(2)
     partner = copy.deepcopy(pt1.partner_results).round(2)

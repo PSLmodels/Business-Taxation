@@ -92,7 +92,7 @@ def calcDepAdjustment(corp):
     corp: indicator for whether corporate or noncorporate data
     """
     # Create Asset object
-    asset1 = Asset(data1.btax_defaults, data1.brc_defaults_other, corp)
+    asset1 = Asset(data1.btax_defaults, corp)
     asset1.calc_all()
     # Get unscaled depreciation for all years
     totalAnnualDepreciation = asset1.calcDep_allyears()
@@ -118,12 +118,12 @@ def calcIDAdjustment(Corp, eta=0.4):
     eta: retirement rate of existing debt
     """
     # Create Asset object
-    asset1 = Asset(data1.btax_defaults, data1.brc_defaults_other, Corp)
+    asset1 = Asset(data1.btax_defaults, Corp)
     asset1.calc_all()
     # Get asset forecast
     forecast = asset1.get_forecast()
     # Create Debt object
-    debt1 = Debt(data1.btax_defaults, data1.brc_defaults_other, forecast, corp=Corp)
+    debt1 = Debt(data1.btax_defaults, forecast, corp=Corp)
     debt1.calc_all()
     # Get unscaled net interest deduction
     NID_gross = debt1.NID[38:54]

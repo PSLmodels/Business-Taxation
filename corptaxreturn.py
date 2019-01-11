@@ -17,13 +17,12 @@ class CorpTaxReturn():
     
     Parameters:
         btax_params: dict of business tax policy parameters
-        other_params: dict of special tax policy parameters
         assets: Asset object for the corporation
         debts: Debt object for the corporation
         earnings: list or array of earnings for each year in the budget window
     """
     
-    def __init__(self, btax_params, other_params, earnings,
+    def __init__(self, btax_params, earnings,
                  data=None, assets=None, debts=None):
         # Create an associated Data object
         if isinstance(data, Data):
@@ -34,17 +33,13 @@ class CorpTaxReturn():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if isinstance(other_params, dict):
-            self.other_params = other_params
-        else:
-            raise ValueError('other_params must be dict')
         if assets is not None:
             if isinstance(assets, Asset):
                 self.assets = assets
             else:
                 raise ValueError('assets must be Asset object')
         else:
-            self.assets = Asset(btax_params, other_params)
+            self.assets = Asset(btax_params)
             self.assets.calc_all()
         if debts is not None:
             if isinstance(debts, Debt):
@@ -53,7 +48,7 @@ class CorpTaxReturn():
                 raise ValueError('debts must be Debt object')
         else:
             assets_forecast = self.assets.get_forecast()
-            self.debts = Debt(btax_params, other_params, assets_forecast)
+            self.debts = Debt(btax_params, assets_forecast)
             self.debts.calc_all()
         # Use earnings to create DataFrame for results
         assert len(earnings) == 14
@@ -93,15 +88,12 @@ class CorpTaxReturn():
         Calculates section 199 deduction.
         """
         # Extract relevant parmeters
-        (s199_hc_year, s199_hc) = self.data.extract_other_param('sec199_hc', self.other_params)
+        s199_hclist = np.array(self.btax_params['sec199_hc'])
         profit = np.asarray(self.data.gfactors['profit_d'])
         sec199_res = np.zeros(14)
         sec199_2013 = np.asarray(self.data.historical_taxdata['sec199'])[-1]
         for i in range(14):
-            sec199_res[i] = profit[i+1] / profit[0] * sec199_2013
-            if i + 2014 >= s199_hc_year:
-                # Applt haircut
-                sec199_res[i] = sec199_res[i] * (1 - s199_hc)
+            sec199_res[i] = profit[i+1] / profit[0] * sec199_2013 * (1 - s199_hclist[i])
         self.combined_return['sec199'] = sec199_res
     
     def calcInitialTax(self):
@@ -120,7 +112,7 @@ class CorpTaxReturn():
         """
         Calculates foreign tax credit for 2014-2027.
         """
-        (haircut_year, haircut) = self.data.extract_other_param('ftc_hc', self.other_params)
+        hclist = np.array(self.btax_params['ftc_hc'])
         def calcWAvgTaxRate(year):
             """
             Calculates the weighted average statutory corporate tax rate
@@ -139,13 +131,11 @@ class CorpTaxReturn():
         profits = np.asarray(self.data.ftc_other_data['C_total'][19:])
         profits_d = np.asarray(self.data.ftc_other_data['C_domestic'][19:])
         tax_f = np.zeros(14)
-        hc_applied = np.zeros(14)
         for i in range(14):
             tax_f[i] = calcWAvgTaxRate(i + 2014)
-            if i + 2014 >= haircut_year:
-                hc_applied = haircut
-        ftc_final = ((profits - profits_d) * tax_f / 100. * self.data.adjfactor_ftc_corp *
-                     (1 - hc_applied)) * self.data.rescale_corp
+        ftc_final = ((profits - profits_d) * tax_f / 100. *
+                     self.data.adjfactor_ftc_corp *
+                     (1 - hclist)) * self.data.rescale_corp
         self.combined_return['ftc'] = ftc_final
     
     def calcAMT(self):

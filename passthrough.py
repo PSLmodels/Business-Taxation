@@ -35,16 +35,12 @@ class PassThrough():
        real_activity() 
     """
     
-    def __init__(self, btax_params, other_params):
+    def __init__(self, btax_params):
         # Store policy parameter objects
         if isinstance(btax_params, pd.DataFrame):
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if isinstance(other_params, dict):
-            self.other_params = other_params
-        else:
-            raise ValueError('other_params must be dict')
         # Create Data object
         self.data = Data()
     
@@ -52,8 +48,7 @@ class PassThrough():
         """
         Creates the Asset object for the pass-through sector.
         """
-        self.asset = Asset(self.btax_params, self.other_params,
-                           corp=False, data=self.data)
+        self.asset = Asset(self.btax_params, corp=False, data=self.data)
         self.asset.calc_all()
     
     def create_earnings(self):
@@ -94,8 +89,8 @@ class PassThrough():
         Creates the Debt object for the pass-through sector. 
         Note: create_asset must have already been called
         """
-        self.debt = Debt(self.btax_params, self.other_params,
-                         self.asset.get_forecast(), data=self.data, corp=False)
+        self.debt = Debt(self.btax_params, self.asset.get_forecast(),
+                         data=self.data, corp=False)
         self.debt.calc_all()
     
     def real_activity(self):
@@ -254,9 +249,8 @@ class PassThrough():
         Replaces the Debt object to use the new asset forecast and Data
         """
         pctch_delta = np.array(responses.debt_response['pchDelta_corp'])
-        self.debt = Debt(self.btax_params, self.other_params,
-                         self.asset.get_forecast(), data=self.data, 
-                         response=pctch_delta, corp=False)
+        self.debt = Debt(self.btax_params, self.asset.get_forecast(),
+                         data=self.data, response=pctch_delta, corp=False)
         self.debt.calc_all()
     
     def apply_responses(self, responses):
