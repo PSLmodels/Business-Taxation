@@ -9,7 +9,7 @@ The example here includes 3 changes to policy:
     Eliminate bonus depreciation
     50% haircut on the deductibility of interest on new debt
 """
-from businessmodel import BusinessModel
+from biztax import BusinessModel
 
 # Create the main reform dictionary
 btax_refdict = {2018: {'tau_c': 0.28, 
