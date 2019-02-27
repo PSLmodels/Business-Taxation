@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 import copy
-from data import Data
-from corporation import Corporation
-from passthrough import PassThrough
-from investor import Investor
-from response import Response
+from biztax.data import Data
+from biztax.corporation import Corporation
+from biztax.passthrough import PassThrough
+from biztax.investor import Investor
+from biztax.response import Response
 
 
 class BusinessModel():

@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import copy
-from data import Data
-from btaxmini import BtaxMini
+from biztax.data import Data
+from biztax.btaxmini import BtaxMini
 
 
 class Response():
