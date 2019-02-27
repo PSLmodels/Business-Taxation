@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import copy
-from data import Data
+from biztax.data import Data
 
 btax_data_path = 'btax_data/'
 

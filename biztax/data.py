@@ -1,8 +1,12 @@
+import os
 import numpy as np
 import pandas as pd
 
-ctax_data_path = 'brc_data/'
-btax_data_path = 'btax_data/'
+
+CUR_PATH = os.path.abspath(os.path.dirname(__file__))
+ctax_data_path = os.path.join(CUR_PATH, 'brc_data')
+btax_data_path = os.path.join(CUR_PATH, 'btax_data')
+
 
 class Data():
     """
@@ -15,45 +19,69 @@ class Data():
     """
     
     def __init__(self):
-        self.gfactors = pd.read_csv('gfactors.csv')
-        self.historical_taxdata = pd.read_csv('historical_taxdata.csv')
-        self.historical_combined = pd.read_csv(ctax_data_path + 'historical_combined.csv')
+        self.gfactors = pd.read_csv(
+            os.path.join(CUR_PATH, 'gfactors.csv'))
+        self.historical_taxdata = pd.read_csv(
+            os.path.join(CUR_PATH, 'historical_taxdata.csv'))
+        self.historical_combined = pd.read_csv(
+            os.path.join(ctax_data_path, 'historical_combined.csv'))
         # Tax revenue data
-        self.taxrev_data = pd.read_csv(ctax_data_path + 'taxrev.csv')
+        self.taxrev_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'taxrev.csv'))
         # Data for FTC model
-        self.ftc_taxrates_data = pd.read_csv(ctax_data_path + 'ftc taxrates data.csv')
-        self.ftc_gdp_data = pd.read_csv(ctax_data_path + 'ftc gdp data.csv')
-        self.ftc_other_data = pd.read_csv(ctax_data_path + 'ftc other data.csv')
+        self.ftc_taxrates_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'ftc taxrates data.csv'))
+        self.ftc_gdp_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'ftc gdp data.csv'))
+        self.ftc_other_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'ftc other data.csv'))
         # Data for Sec. 199
-        self.sec199_data = pd.read_csv(ctax_data_path + 'sec199.csv')
+        self.sec199_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'sec199.csv'))
         # Investment data
-        self.investmentrate_data = pd.read_csv(ctax_data_path + 'investmentrates.csv')
-        self.investmentshare_data = pd.read_csv(ctax_data_path + 'investmentshares.csv')
-        self.investmentGfactors_data = pd.read_csv(ctax_data_path + 'investment_gfactors.csv')
+        self.investmentrate_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'investmentrates.csv'))
+        self.investmentshare_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'investmentshares.csv'))
+        self.investmentGfactors_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'investment_gfactors.csv'))
         # Tax depreciation information
-        self.depreciationIRS_data = pd.read_csv(ctax_data_path + 'dep data.csv')
-        self.bonus_data = pd.read_csv(ctax_data_path + 'bonus_data.csv')
+        self.depreciationIRS_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'dep data.csv'))
+        self.bonus_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'bonus_data.csv'))
         # Debt data
-        self.debt_data_corp = pd.read_csv(ctax_data_path + 'Corp debt data.csv')
-        self.debt_data_noncorp = pd.read_csv(ctax_data_path + 'Noncorp debt data.csv')
+        self.debt_data_corp = pd.read_csv(
+            os.path.join(ctax_data_path, 'Corp debt data.csv'))
+        self.debt_data_noncorp = pd.read_csv(
+            os.path.join(ctax_data_path, 'Noncorp debt data.csv'))
         # Pass-through IRS data
-        self.partner_data = pd.read_csv(ctax_data_path + 'partnership data.csv')
-        self.Scorp_data = pd.read_csv(ctax_data_path + 'Scorp data.csv')
-        self.sp_data = pd.read_csv(ctax_data_path + 'sp_nonfarm data.csv')
+        self.partner_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'partnership data.csv'))
+        self.Scorp_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'Scorp data.csv'))
+        self.sp_data = pd.read_csv(
+            os.path.join(ctax_data_path, 'sp_nonfarm data.csv'))
         # Defaults for posssible use (may be deprecated)
-        self.btax_defaults = pd.read_csv('mini_params_btax.csv')
-        self.econ_defaults = pd.read_csv('mini_params_econ.csv')
-        self.elast_defaults = {'inv_usercost_c': 0.0, 'inv_usercost_nc': 0.0,
-                               'inv_eatr_c': 0.0, 'inv_eatr_nc': 0.0,
-                               'mne_share_c': 0.0, 'mne_share_nc': 0.0,
-                               'debt_taxshield_c': 0.0, 'debt_taxshield_nc': 0.0,
+        self.btax_defaults = pd.read_csv(
+            os.path.join(CUR_PATH, 'mini_params_btax.csv'))
+        self.econ_defaults = pd.read_csv(
+            os.path.join(CUR_PATH, 'mini_params_econ.csv'))
+        self.elast_defaults = {'inv_usercost_c': 0.0,
+                               'inv_usercost_nc': 0.0,
+                               'inv_eatr_c': 0.0,
+                               'inv_eatr_nc': 0.0,
+                               'mne_share_c': 0.0,
+                               'mne_share_nc': 0.0,
+                               'debt_taxshield_c': 0.0,
+                               'debt_taxshield_nc': 0.0,
                                'legalform_ratediff': 0.0,
                                'first_year_response': 2017}
         # Rescaling factors (defaults, in case legal_response not run)
         self.rescale_corp = np.ones(14)
         self.rescale_noncorp = np.ones(14)
         # Read in adjustment factors
-        adj_factors = pd.read_csv('adjfactors.csv')
+        adj_factors = pd.read_csv(os.path.join(CUR_PATH, 'adjfactors.csv'))
         self.param_amt = adj_factors['param_amt'].values[0]
         self.amt_frac = adj_factors['amt_frac'].values[0]
         self.totaluserate_pymtc = adj_factors['totaluserate_pymtc'].values[0]
@@ -67,7 +95,8 @@ class Data():
         self.adjfactor_int_corp = adj_factors['int_corp'].values[0]
         self.adjfactor_int_noncorp = adj_factors['int_noncorp'].values[0]
         # Read in pass-through shares
-        passthru_factors = pd.read_csv('passthru_shares.csv')
+        passthru_factors = pd.read_csv(
+            os.path.join(CUR_PATH, 'passthru_shares.csv'))
         self.depshare_scorp_posinc = passthru_factors['dep_scorp_pos'].values[0]
         self.depshare_scorp_neginc = passthru_factors['dep_scorp_neg'].values[0]
         self.depshare_sp_posinc = passthru_factors['dep_sp_pos'].values[0]
@@ -85,7 +114,7 @@ class Data():
         """
         Retrieves the DataFrame with asset dames and amounts
         """
-        asset_data = pd.read_csv('mini_assets.csv')
+        asset_data = pd.read_csv(os.path.join(CUR_PATH, 'mini_assets.csv'))
         asset_data.drop([3, 21, 32, 91], axis=0, inplace=True)
         asset_data.reset_index(drop=True, inplace=True)
         return asset_data
@@ -94,8 +123,8 @@ class Data():
         """
         Retrieves the DataFrame with economic depreciation rates
         """
-        df_econdepr = pd.read_csv(btax_data_path +
-                                  'Economic Depreciation Rates.csv')
+        df_econdepr = pd.read_csv(
+            os.path.join(btax_data_path, 'Economic Depreciation Rates.csv'))
         asset = np.asarray(df_econdepr['Asset'])
         asset[78] = 'Communications equipment manufacturing'
         asset[81] = 'Motor vehicles and parts manufacturing'
@@ -111,7 +140,8 @@ class Data():
         """
         Retrieves the basic DataFrame with tax depreciation information
         """
-        taxdep1 = pd.read_csv(btax_data_path + 'tax_depreciation_rates.csv')
+        taxdep1 = pd.read_csv(
+            os.path.join(btax_data_path, 'tax_depreciation_rates.csv'))
         taxdep1.drop(['System'], axis=1, inplace=True)
         taxdep1.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads',
                                 'Asset Type': 'Asset'}, inplace=True)

@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 from taxcalc import Policy, Records, Calculator
-from data import Data
+from biztax.data import Data
 
 class Investor():
     """

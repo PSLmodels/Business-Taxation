@@ -1,12 +1,6 @@
 import pandas as pd
 import copy
-from data import Data
-from asset import Asset
-from debt import Debt
-from corporation import Corporation
-from passthrough import PassThrough
-from businessmodel import BusinessModel
-
+from biztax import Data, Asset, BusinessModel, Debt, Corporation, PassThrough
 
 # Specify whether to overwrite results
 OVERWRITE = False

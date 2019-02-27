@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 import copy
-from data import Data
-from asset import Asset
-from debt import Debt
-from corptaxreturn import CorpTaxReturn
-from response import Response
-
+from biztax.data import Data
+from biztax.asset import Asset
+from biztax.debt import Debt
+from biztax.corptaxreturn import CorpTaxReturn
+from biztax.response import Response
 
 
 class Corporation():

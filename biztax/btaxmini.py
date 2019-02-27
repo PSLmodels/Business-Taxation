@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import copy
-from data import Data
-from asset import Asset
+from biztax.data import Data
+from biztax.asset import Asset
 
 
 class BtaxMini():
