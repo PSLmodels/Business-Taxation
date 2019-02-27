@@ -30,38 +30,38 @@ class Data():
             os.path.join(ctax_data_path, 'taxrev.csv'))
         # Data for FTC model
         self.ftc_taxrates_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'ftc taxrates data.csv'))
+            os.path.join(ctax_data_path, 'ftc_taxrates_data.csv'))
         self.ftc_gdp_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'ftc gdp data.csv'))
+            os.path.join(ctax_data_path, 'ftc_gdp_data.csv'))
         self.ftc_other_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'ftc other data.csv'))
+            os.path.join(ctax_data_path, 'ftc_other_data.csv'))
         # Data for Sec. 199
         self.sec199_data = pd.read_csv(
             os.path.join(ctax_data_path, 'sec199.csv'))
         # Investment data
         self.investmentrate_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'investmentrates.csv'))
+            os.path.join(ctax_data_path, 'investment_rates.csv'))
         self.investmentshare_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'investmentshares.csv'))
+            os.path.join(ctax_data_path, 'investment_shares.csv'))
         self.investmentGfactors_data = pd.read_csv(
             os.path.join(ctax_data_path, 'investment_gfactors.csv'))
         # Tax depreciation information
         self.depreciationIRS_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'dep data.csv'))
+            os.path.join(ctax_data_path, 'dep_data.csv'))
         self.bonus_data = pd.read_csv(
             os.path.join(ctax_data_path, 'bonus_data.csv'))
         # Debt data
         self.debt_data_corp = pd.read_csv(
-            os.path.join(ctax_data_path, 'Corp debt data.csv'))
+            os.path.join(ctax_data_path, 'corp_debt_data.csv'))
         self.debt_data_noncorp = pd.read_csv(
-            os.path.join(ctax_data_path, 'Noncorp debt data.csv'))
+            os.path.join(ctax_data_path, 'noncorp_debt_data.csv'))
         # Pass-through IRS data
         self.partner_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'partnership data.csv'))
+            os.path.join(ctax_data_path, 'partnership_data.csv'))
         self.Scorp_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'Scorp data.csv'))
+            os.path.join(ctax_data_path, 'scorp_data.csv'))
         self.sp_data = pd.read_csv(
-            os.path.join(ctax_data_path, 'sp_nonfarm data.csv'))
+            os.path.join(ctax_data_path, 'sp_nonfarm_data.csv'))
         # Defaults for posssible use (may be deprecated)
         self.btax_defaults = pd.read_csv(
             os.path.join(CUR_PATH, 'mini_params_btax.csv'))
@@ -124,7 +124,7 @@ class Data():
         Retrieves the DataFrame with economic depreciation rates
         """
         df_econdepr = pd.read_csv(
-            os.path.join(btax_data_path, 'Economic Depreciation Rates.csv'))
+            os.path.join(btax_data_path, 'economic_depreciation_rates.csv'))
         asset = np.asarray(df_econdepr['Asset'])
         asset[78] = 'Communications equipment manufacturing'
         asset[81] = 'Motor vehicles and parts manufacturing'

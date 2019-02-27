@@ -1,0 +1,19 @@
+package:
+  name: biztax
+  version: 0.0.0
+
+requirements:
+  build:
+    - python
+    - taxcalc
+
+  run:
+    - python
+    - taxcalc
+
+test:
+  imports:
+    - biztax
+
+about:
+  home: https://github.com/PSLmodels/Business-Taxation
