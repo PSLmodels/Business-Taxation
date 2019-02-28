@@ -1,11 +1,6 @@
-name: brc
-
-dependencies:
-- python =3.6.5
-- taxcalc =0.20.1
-- btax =0.2.2
-- pandas >=0.22.0
-- jupyter
-
+name: biztax-dev
 channels:
-- ospc
+- PSLmodels
+dependencies:
+- python
+- taxcalc

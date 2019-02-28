@@ -205,7 +205,9 @@ class BusinessModel():
         # Calculate MTRs and update all policy DataFrames (btax_params)
         self.update_mtrlists()
         # Create Response object and execute all responses
-        self.response = Response(self.elast_dict, self.btax_params_base, self.btax_params_ref)
+        self.response = Response(self.elast_dict,
+                                 self.btax_params_base,
+                                 self.btax_params_ref)
         self.response.calc_all()
         # Run calculations for corporations
         self.corp_base.calc_static()
@@ -221,6 +223,3 @@ class BusinessModel():
         self.investor_base.undistributed_revenue()
         # Calculate and save total revenue changes
         self.calc_revenue_changes()
-    
-    
-    

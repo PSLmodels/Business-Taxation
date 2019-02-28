@@ -1,0 +1,30 @@
+include biztax/adjfactors.csv
+include biztax/gfactors.csv
+include biztax/historical_taxdata.csv
+include biztax/mini_assets.csv
+include biztax/mini_params_btax.csv
+include biztax/mini_params_econ.csv
+include biztax/passthru_shares.csv
+include biztax/brcparams_preTCJA.json
+include biztax/brcparams_preTCJA_special.json
+
+include biztax/brc_data/noncorp_debt_data.csv
+include biztax/brc_data/scorp_data.csv
+include biztax/brc_data/amt_data2.csv
+include biztax/brc_data/bonus_data.csv
+include biztax/brc_data/historical_combined.csv
+include biztax/brc_data/investment_gfactors.csv
+include biztax/brc_data/investment_rates.csv
+include biztax/brc_data/investment_shares.csv
+include biztax/brc_data/partnership_data.csv
+include biztax/brc_data/sec199.csv
+include biztax/brc_data/sp_nonfarm_data.csv
+include biztax/brc_data/taxrev.csv
+include biztax/brc_data/ftc_taxrates_data.csv
+include biztax/brc_data/ftc_gdp_data.csv
+include biztax/brc_data/ftc_other_data.csv
+include biztax/brc_data/dep_data.csv
+include biztax/brc_data/corp_debt_data.csv
+
+include biztax/btax_data/economic_depreciation_rates.csv
+include biztax/btax_data/tax_depreciation_rates.csv
