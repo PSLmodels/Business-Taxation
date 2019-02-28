@@ -7,12 +7,9 @@
 :: NOTE: for those with experience working with compiled languages,
 ::       building a local conda package is analogous to compiling an executable
 echo "STARTING ---"
-echo "CLEANUP..."
-:: uninstall any installed package
-call remove_local_package.bat
 echo "BUILD..."
 :: build conda package for specified version of Python
-conda build --old-build-string --python 3.6" .
+conda build --old-build-string --python 3.6 .
 echo "INSTALL..."
 :: install conda package
 conda install biztax=0.0.0 --use-local --yes
