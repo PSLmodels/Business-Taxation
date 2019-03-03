@@ -1,5 +1,6 @@
 @echo off
-:: USAGE: ./install_local_package.bat
+:: USAGE: > cd conda.recipe
+::        > install_local_package
 :: ACTION: (1) build local biztax=0.0.0 package (conda build)
 ::         (2) install local biztax=0.0.0 package (conda install)
 ::         (3) clean-up build intermediates (conda build purge)
@@ -9,7 +10,7 @@ echo "STARTING ---"
 echo "BUILD..."
 :: build conda package for specified version of Python
 conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.6 .
-::     If want to use local (instead of PSLmodels) package(s),
+::     If you want to use local (instead of PSLmodels) package(s),
 ::     replace "-c PSLmodels" with "-c local" in above conda build command.
 echo "INSTALL..."
 :: install local conda package
