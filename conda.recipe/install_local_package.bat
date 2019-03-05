@@ -8,14 +8,15 @@
 ::       building a local conda package is analogous to compiling an executable
 echo "STARTING ---"
 echo "BUILD..."
-:: build conda package for specified version of Python
-conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.7 .
+:: build conda package
+set OPTIONS="--old-build-string --no-anaconda-upload -c PSLmodels --python 3.7"
+call conda build %OPTIONS% .
 echo "INSTALL..."
 :: install local conda package
-conda install --yes -c PSLmodels taxcalc
-conda install --yes -c local biztax=0.0.0
+call conda install --yes -c PSLmodels taxcalc
+call conda install --yes -c local biztax=0.0.0
 echo "CLEANUP..."
 :: clean-up intermediate build files after package build
-conda build purge
+call conda build purge
 echo "FINISHED ---"
 exit 0
