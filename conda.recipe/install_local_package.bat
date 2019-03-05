@@ -9,8 +9,7 @@
 echo "STARTING ---"
 echo "BUILD..."
 :: build conda package
-set OPTIONS="--old-build-string --no-anaconda-upload -c PSLmodels --python 3.7"
-call conda build %OPTIONS% .
+call conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.7 .
 echo "INSTALL..."
 :: install local conda package
 call conda install --yes -c PSLmodels taxcalc
