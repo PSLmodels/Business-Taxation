@@ -9,16 +9,13 @@
 echo "STARTING ---"
 echo "BUILD..."
 :: build conda package for specified version of Python
-conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.6 .
-::     If you want to use local (instead of PSLmodels) package(s),
-::     replace "-c PSLmodels" with "-c local" in above conda build command.
+conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.7 .
 echo "INSTALL..."
 :: install local conda package
-conda install --yes -c local -n base biztax=0.0.0
-::     If above command does not work, try variants of this command:
-::     conda install -n base C:\Users\cody_\Anaconda3\conda-bld\win-64\biztax-0.0.0-py37_0.tar.bz2
+conda install --yes -c PSLmodels taxcalc
+conda install --yes -c local biztax=0.0.0
 echo "CLEANUP..."
 :: clean-up intermediate build files after package build
-:: TEMP conda build purge
+conda build purge
 echo "FINISHED ---"
 exit 0
