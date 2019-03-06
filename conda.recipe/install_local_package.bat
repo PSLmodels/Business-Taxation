@@ -1,6 +1,6 @@
 @echo off
 :: USAGE: > cd conda.recipe
-::        > install_local_package
+::        > start "install-local-package" install_local_package.bat
 :: ACTION: (1) build local biztax=0.0.0 package (conda build)
 ::         (2) install local biztax=0.0.0 package (conda install)
 ::         (3) clean-up build intermediates (conda build purge)
@@ -10,13 +10,13 @@ echo "STARTING ---"
 echo "BUILD..."
 :: build conda package
 set OPTIONS="--old-build-string --no-anaconda-upload -c PSLmodels --python 3.7"
-cmd /c conda build %OPTIONS% .
+call conda build %OPTIONS% .
 echo "INSTALL..."
 :: install local conda package
-cmd /c conda install --yes -c PSLmodels taxcalc
-cmd /c conda install --yes -c local biztax=0.0.0
+call conda install --yes -c PSLmodels taxcalc
+call conda install --yes -c local biztax=0.0.0
 echo "CLEANUP..."
 :: clean-up intermediate build files after package build
-cmd /c conda build purge
+call conda build purge
 echo "FINISHED ---"
 exit 0
