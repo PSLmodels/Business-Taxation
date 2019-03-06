@@ -9,13 +9,14 @@
 echo "STARTING ---"
 echo "BUILD..."
 :: build conda package
-call conda build --old-build-string --no-anaconda-upload -c PSLmodels --python 3.7 .
+set OPTIONS="--old-build-string --no-anaconda-upload -c PSLmodels --python 3.7"
+cmd /c conda build %OPTIONS% .
 echo "INSTALL..."
 :: install local conda package
-call conda install --yes -c PSLmodels taxcalc
-call conda install --yes -c local biztax=0.0.0
+cmd /c conda install --yes -c PSLmodels taxcalc
+cmd /c conda install --yes -c local biztax=0.0.0
 echo "CLEANUP..."
 :: clean-up intermediate build files after package build
-call conda build purge
+cmd /c conda build purge
 echo "FINISHED ---"
 exit 0
