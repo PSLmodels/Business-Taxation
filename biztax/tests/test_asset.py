@@ -11,12 +11,22 @@ import pytest
 from biztax import Data, Asset
 
 
-def test_asset_capital_path(actual_vs_expect):
+@pytest.mark.parametrize('reform_num, corporate',
+                         [(0, True),
+                          (0, False),
+                          (1, True),
+                          (1, False),
+                          (2, True),
+                          (2, False)])
+def test_asset_capital_path(reform_num, corporate,
+                            reform, actual_vs_expect):
     """
     Test corp/non-corp capital_path results under different reforms.
     """
-    reform = Data().btax_defaults
-    asset = Asset(reform, corp=True)
+    asset = Asset(reform[reform_num], corp=corporate)
     asset.calc_all()
-    capital_path = copy.deepcopy(asset.capital_path).round(2)
-    actual_vs_expect(capital_path, 'asset_ref0_corp_expect.csv', precision=2)
+    decimals = 2
+    capital_path = copy.deepcopy(asset.capital_path).round(decimals)
+    fname = 'asset_ref{}_{}_expect.csv'.format(reform_num,
+                                               'corp' if corporate else 'nonc')
+    actual_vs_expect(capital_path, fname, precision=decimals)
