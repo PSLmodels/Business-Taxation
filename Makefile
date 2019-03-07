@@ -41,7 +41,7 @@ rm -f tmp??????-??-#-tmp*
 endef
 
 .PHONY=pytest-few
-pytest-cps:
+pytest-few:
 	@cd taxcalc ; pytest -n4 -m "not requires_pufcsv and not pre_release"
 	@$(pytest-cleanup)
 
