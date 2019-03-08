@@ -31,7 +31,7 @@ def puf_subsample(puf_fullsample):
 
 
 @pytest.fixture(scope='session')
-def reform():
+def reforms():
     reform_dict = dict()
     # reform 0, the baseline
     reform_dict[0] = Data().btax_defaults
