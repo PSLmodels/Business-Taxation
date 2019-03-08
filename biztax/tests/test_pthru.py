@@ -8,7 +8,7 @@ Test PassThrough class.
 from copy import deepcopy
 import pytest
 # pylint: disable=import-error
-from biztax import Passthrough
+from biztax import PassThrough
 
 
 @pytest.mark.parametrize('reform_number, results_type',
@@ -26,7 +26,7 @@ def test_passthrough_results(reform_number, results_type,
     """
     Test different passthrough results under different reforms.
     """
-    pthru = Passthrough(reforms[reform_number])
+    pthru = PassThrough(reforms[reform_number])
     pthru.calc_static()
     decimals = 2
     if results_type == 'schc':
