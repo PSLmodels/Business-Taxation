@@ -2,8 +2,8 @@
 Test Corporation class.
 """
 # CODING-STYLE CHECKS:
-# pycodestyle test_corporation.py
-# pylint --disable=locally-disabled test_corporation.py
+# pycodestyle test_corp.py
+# pylint --disable=locally-disabled test_corp.py
 
 from copy import deepcopy
 import pytest
