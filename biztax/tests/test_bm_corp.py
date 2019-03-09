@@ -7,7 +7,7 @@ import pandas as pd
 from biztax import BusinessModel
 
 
-def test_bm_corp(actual_vs_expect):
+def test_bm_corp(actual_vs_expect, puf_fullsample):
     """
     Test BusinessModel corporate results under a corporate-income-tax reform.
     """
@@ -41,7 +41,8 @@ def test_bm_corp(actual_vs_expect):
     # specify individual-income-tax reform dictionary with no reform provisions
     iitax_refdict = {}
     # calculate results assuming no responses
-    bizmod = BusinessModel(citax_refdict, iitax_refdict)
+    bizmod = BusinessModel(citax_refdict, iitax_refdict,
+                           investor_data=puf_fullsample)
     bizmod.calc_noresponse()
     # compare actual and expected results
     dec = 4

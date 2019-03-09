@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import copy
 from taxcalc import Policy, Records, Calculator
 from biztax.data import Data
@@ -12,31 +13,33 @@ class Investor():
     and pass-through business net income.
     
     Parameters:
-        refdict: reform dict for the Calculator
-    
+        refdict: individual-income-tax reform dict for taxcalc.Policy class
+        data: investor data for taxcalc.Records class
     """
     
-    def __init__(self, refdict):
-        if refdict is not None:
-            if isinstance(refdict, dict):
-                self.refdict = refdict
-            else:
-                raise ValueError('refdict must be a dictionary')
+    def __init__(self, refdict=None, data='puf.csv'):
+        # Specify refdict
+        if refdict is None:
+            self.refdict = {}            
+        if isinstance(refdict, dict):
+            self.refdict = refdict
         else:
-            self.refdict = {}
-        # Specify path to PUF
-        self.records_url = 'puf.csv'
+            raise ValueError('refdict must be a dictionary or None')
+        # Specify records_data
+        if isinstance(data, str) or isinstance(data, pd.DataFrame):
+            self.records_data = data
+        else:
+            raise ValueError('data must be a string or a Pandas DataFrame')
         # MTRs needed for calculating tax rates on business equity
         self.needed_mtr_list = ['e00900p', 'e26270', 'e02000', 'e01700',
                                 'e00650', 'p22250', 'p23250']
 
-        
     def initiate_calculator(self):
         """
-        Creates an intial version of the Calculator object for 2014
+        Creates an intial version of the taxcalc.Calculator object for 2014
         """
         policy1 = Policy()
-        records1 = Records(self.records_url)
+        records1 = Records(data=self.records_data)
         if self.refdict != {}:
             policy1.implement_reform(self.refdict)
         calc1 = Calculator(records=records1, policy=policy1, verbose=False)

@@ -1,6 +1,6 @@
 import os
 import numpy
-import pandas as pd
+import pandas
 import pytest
 from biztax import Data, BusinessModel
 
@@ -108,11 +108,11 @@ def actual_vs_expect():
         """
         tests_path = os.path.abspath(os.path.dirname(__file__))
         exp_path = os.path.join(tests_path, exp_csv_filename)
-        exp_df = pd.read_csv(exp_path, index_col=False)
+        exp_df = pandas.read_csv(exp_path, index_col=False)
         assert list(act_df.columns.values) == list(exp_df.columns.values)
         diffs = False
-        for icol in act_df.columns.values:
-            if not numpy.allclose(act_df[icol], exp_df[icol]):
+        for col in act_df.columns.values:
+            if not numpy.allclose(act_df[col], exp_df[col]):
                 diffs = True
         if diffs:
             act_csv_filename = '{}{}'.format(exp_path[:-10], 'actual.csv')
