@@ -1,3 +1,9 @@
+"""
+Contains pytest fixtures for the whole pytest session.
+"""
+# CODING-STYLE CHECKS:
+# pycodestyle conftest.py
+
 import os
 import numpy
 import pandas

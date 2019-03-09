@@ -5,7 +5,6 @@ Test PassThrough class.
 # pycodestyle test_pthru.py
 # pylint --disable=locally-disabled test_pthru.py
 
-from copy import deepcopy
 import pytest
 # pylint: disable=import-error
 from biztax import PassThrough
@@ -30,11 +29,11 @@ def test_passthrough_results(reform_number, results_type,
     pthru.calc_static()
     decimals = 2
     if results_type == 'schc':
-        results = deepcopy(pthru.SchC_results).round(decimals)
+        results = pthru.SchC_results.round(decimals)
     elif results_type == 'part':
-        results = deepcopy(pthru.partner_results).round(decimals)
+        results = pthru.partner_results.round(decimals)
     elif results_type == 'scor':
-        results = deepcopy(pthru.Scorp_results).round(decimals)
+        results = pthru.Scorp_results.round(decimals)
     else:
         assert results_type == 'illegal passthrough results type'
     fname = 'pthru_ref{}_{}_expect.csv'.format(reform_number, results_type)
