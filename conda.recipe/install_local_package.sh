@@ -1,9 +1,9 @@
 #!/bin/bash
 # USAGE: ./install_local_package.sh
-# ACTION: (1) uninstall any installed package (remove_local_package.sh)
-#         (2) executes "conda install conda-build" (if necessary)
-#         (3) builds local biztax=0.0.0 package (conda build)
-#         (4) installs local biztax=0.0.0 package (conda install)
+# ACTION: (1) uninstall _ANY_ installed package (remove_local_package.sh)
+#         (2) execute "conda install conda-build" (if necessary)
+#         (3) build local behresp=0.0.0 package (conda build)
+#         (4) install local behresp=0.0.0 package (conda install)
 # NOTE: for those with experience working with compiled languages,
 #       building a local conda package is analogous to compiling an executable
 
@@ -11,7 +11,7 @@ echo "STARTING : `date`"
 
 echo "BUILD-PREP..."
 
-# uninstall any installed package
+# uninstall _ANY_ installed biztax package
 ./remove_local_package.sh
 
 # check version of conda package
@@ -31,12 +31,13 @@ if [[ $? -eq 0 ]]; then
 fi
 
 # build biztax conda package for this version of Python
-OPTIONS="--old-build-string --python 3.6"
+OPTIONS="--old-build-string --no-anaconda-upload --python 3.6"
 conda build $OPTIONS . 2>&1 | awk '$1~/BUILD/||$1~/TEST/'
 
 # install biztax conda package
-echo "INSTALLATION..."
-conda install biztax=0.0.0 --use-local --yes 2>&1 > /dev/null
+echo "INSTALL..."
+conda install --yes -c PSLmodels taxcalc 2>&1 > /dev/null
+conda install --yes -c local biztax=0.0.0 2>&1 > /dev/null
 
 # clean-up after package build
 echo "CLEAN-UP..."
