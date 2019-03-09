@@ -40,10 +40,10 @@ def test_bm_corp(actual_vs_expect):
     }
     # specify individual-income-tax reform dictionary with no reform provisions
     iitax_refdict = {}
-
+    # calculate results assuming no responses
     bizmod = BusinessModel(citax_refdict, iitax_refdict)
-    bizmod.calc_noresponse()  # calculate results assuming no responses
-
+    bizmod.calc_noresponse()
+    # compare actual and expected results
     dec = 4
     results = (bizmod.corp_base.taxreturn.combined_return).round(dec)
     actual_vs_expect(results, 'bm_corp_base_nresp_expect.csv', precision=dec)
