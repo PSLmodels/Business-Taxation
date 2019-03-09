@@ -119,7 +119,7 @@ def test_asset2():
     asset1.calc_all()
     path1 = copy.deepcopy(asset1.capital_path).round(2)
     # Noncorporate
-    asset2 = Asset(BM1.btax_params_ref, corp=False)
+    asset2 = Asset(BM2.btax_params_ref, corp=False)
     asset2.calc_all()
     path2 = copy.deepcopy(asset2.capital_path).round(2)
     if OVERWRITE:
