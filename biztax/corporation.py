@@ -23,11 +23,7 @@ class Corporation():
             raise ValueError('btax_params must be DataFrame')
         # Create Data object
         self.data = Data()
-    
-    def create_asset(self):
-        """
-        Creates the Asset object for the Corporation.
-        """
+        # Create Asset object and calculate
         self.asset = Asset(self.btax_params, corp=True, data=self.data)
         self.asset.calc_all()
     
@@ -88,7 +84,6 @@ class Corporation():
         """
         Runs the static calculations.
         """
-        self.create_asset()
         self.create_earnings()
         self.create_debt()
         self.file_taxes()
