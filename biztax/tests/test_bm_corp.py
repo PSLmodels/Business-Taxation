@@ -5,20 +5,32 @@ Test corpoate-aspects of BusinessModel class.
 # pycodestyle test_bm_corp.py
 # pylint --disable=locally-disabled test_bm_corp.py
 
+import os
+import filecmp
 import pytest
 # pylint: disable=import-error
 from biztax import BusinessModel
 
 
-@pytest.mark.parametrize('with_responses', [
-    (False),
-    # (True) possibly add test with responses
-])
-def test_bm_corp(with_responses, actual_vs_expect, puf_fullsample):
+@pytest.mark.parametrize('with_response', [(False), (True)])
+def test_bm_corp0(with_response, actual_vs_expect,
+                  puf_fullsample, tests_path):
     """
     Test BusinessModel corporate results under a corporate-income-tax reform
-    with and without responses.
+    using calc_norespone() and calc_withresponse() with zero elasticities,
+    checking that the two sets of results are the same.
     """
+    # ensure that expected results in the two with_response cases are the same
+    assert filecmp.cmp(os.path.join(tests_path,
+                                    'bm_corp0_base_nresp_expect.csv'),
+                       os.path.join(tests_path,
+                                    'bm_corp0_base_wresp_expect.csv'),
+                       shallow=False)
+    assert filecmp.cmp(os.path.join(tests_path,
+                                    'bm_corp0_refm_nresp_expect.csv'),
+                       os.path.join(tests_path,
+                                    'bm_corp0_refm_wresp_expect.csv'),
+                       shallow=False)
     # specify corporate-income-tax reform dictionary with these provisions:
     # - apply a 28% corporate tax rate
     # - eliminate bonus depreciation
@@ -50,23 +62,18 @@ def test_bm_corp(with_responses, actual_vs_expect, puf_fullsample):
     iitax_refdict = {}
     bizmod = BusinessModel(citax_refdict, iitax_refdict,
                            investor_data=puf_fullsample)
-    # calculate results depending on value of with_responses
-    if with_responses:
-        # specify investment and debt responses
-        elasticities = {
-            'inv_usercost_c': -1.0,
-            'inv_usercost_nc': -0.5,
-            'debt_taxshield_c': 0.4,
-            'debt_taxshield_nc': 0.2,
-            'first_year_response': 2018
-        }
-        bizmod.update_elasticities(elasticities)
+    # calculate results in different ways depending on value of with_response
+    if with_response:
+        bizmod.update_elasticities({})  # all elasticities are zero
         bizmod.calc_withresponse()
     else:
         bizmod.calc_noresponse()
     # compare actual and expected results
+    resp = 'wresp' if with_response else 'nresp'
     dec = 4
-    results = (bizmod.corp_base.taxreturn.combined_return).round(dec)
-    actual_vs_expect(results, 'bm_corp_base_nresp_expect.csv', precision=dec)
-    results = (bizmod.corp_ref.taxreturn.combined_return).round(dec)
-    actual_vs_expect(results, 'bm_corp_refm_nresp_expect.csv', precision=dec)
+    results = bizmod.corp_base.taxreturn.combined_return.round(dec)
+    fname = 'bm_corp0_base_{}_expect.csv'.format(resp)
+    actual_vs_expect(results, fname, precision=dec)
+    results = bizmod.corp_ref.taxreturn.combined_return.round(dec)
+    fname = 'bm_corp0_refm_{}_expect.csv'.format(resp)
+    actual_vs_expect(results, fname, precision=dec)
