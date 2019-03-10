@@ -32,16 +32,17 @@ class BusinessModel():
         elast_dict: dictionary of elasticities for firm responses
     """
     
-    def __init__(self, btax_refdict, iit_refdict, btax_basedict={}, 
-                 iit_basedict={}, elast_dict=None):
+    def __init__(self, btax_refdict, iit_refdict,
+                 btax_basedict={}, iit_basedict={},
+                 elast_dict=None, investor_data='puf.csv'):
         # Set default policy parameters for later use
         self.btax_defaults = Data().btax_defaults
         # Create the baseline and reform parameter storing forms
         self.btax_params_base = self.update_btax_params(btax_basedict)
         self.btax_params_ref = self.update_btax_params(btax_refdict)
         # Create Investors
-        self.investor_base = Investor(iit_basedict)
-        self.investor_ref = Investor(iit_refdict)
+        self.investor_base = Investor(iit_basedict, investor_data)
+        self.investor_ref = Investor(iit_refdict, investor_data)
         # Create Corporations
         self.corp_base = Corporation(self.btax_params_base)
         self.corp_ref = Corporation(self.btax_params_ref)
