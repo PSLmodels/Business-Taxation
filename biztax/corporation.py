@@ -26,6 +26,8 @@ class Corporation():
         # Create Asset object and calculate
         self.asset = Asset(self.btax_params, corp=True, data=self.data)
         self.asset.calc_all()
+        # Create earnings forecast
+        self.create_earnings()
     
     def create_debt(self):
         """
@@ -84,7 +86,6 @@ class Corporation():
         """
         Runs the static calculations.
         """
-        self.create_earnings()
         self.create_debt()
         self.file_taxes()
         self.real_activity()

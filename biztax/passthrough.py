@@ -46,6 +46,8 @@ class PassThrough():
         # Create Asset object and calculate
         self.asset = Asset(self.btax_params, corp=False, data=self.data)
         self.asset.calc_all()
+        # Create earnings forecast
+        self.create_earnings()
     
     def create_earnings(self):
         """
@@ -193,7 +195,6 @@ class PassThrough():
         """
         Runs the static calculations
         """
-        self.create_earnings()
         self.create_debt()
         self.real_activity()
         self.calc_netinc()
