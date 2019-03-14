@@ -12,10 +12,8 @@ help:
 	@echo "help       : show help message"
 	@echo "clean      : remove .pyc files and local package"
 	@echo "package    : build and install local package"
-	@echo "pytest-few : generate report for and cleanup after"
-	@echo "             pytest -m 'not requires_pufcsv and not pre_release'"
 	@echo "pytest     : generate report for and cleanup after"
-	@echo "             pytest -m 'not pre_release'"
+	@echo "             pytest -m 'not requires_pufcsv'"
 	@echo "pytest-all : generate report for and cleanup after"
 	@echo "             pytest -m ''"
 	@echo "cstest     : generate coding-style errors using the"
@@ -40,14 +38,9 @@ rm -f df-??-#-*
 rm -f tmp??????-??-#-tmp*
 endef
 
-.PHONY=pytest-few
-pytest-few:
-	@cd taxcalc ; pytest -n4 -m "not requires_pufcsv and not pre_release"
-	@$(pytest-cleanup)
-
 .PHONY=pytest
 pytest:
-	@cd biztax ; pytest -n4 -m "not pre_release"
+	@cd biztax ; pytest -n4 -m "not requires_pufcsv"
 	@$(pytest-cleanup)
 
 .PHONY=pytest-all
@@ -69,7 +62,7 @@ define coverage-cleanup
 rm -f .coverage htmlcov/*
 endef
 
-COVMARK = "not pre_release"
+COVMARK = "not requires_pufcsv"
 
 OS := $(shell uname -s)
 
