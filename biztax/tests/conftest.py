@@ -103,6 +103,12 @@ def reforms():
 
 
 @pytest.fixture(scope='session')
+def default_btax_params(tests_path):
+    fname = os.path.join(tests_path, '..', 'mini_params_btax.csv')
+    return pandas.read_csv(fname)
+
+
+@pytest.fixture(scope='session')
 def actual_vs_expect():
     """
     Code template for comparing actual DataFrame with expected DataFrame
