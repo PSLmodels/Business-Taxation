@@ -54,7 +54,7 @@ class Asset():
         else:
             raise ValueError('corp must be True or False')
         if response is not None and isinstance(response, pd.DataFrame):
-            raise ValueError('response must be DataFrame or or None')
+            raise ValueError('response must be DataFrame or None')
         self.response = response
         if corp:
             self.adjustments = {'bonus': 0.60290131, 'sec179': 0.016687178,
