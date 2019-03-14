@@ -168,11 +168,11 @@ class Data():
         taxdep1.reset_index(drop=True, inplace=True)
         return taxdep1.merge(right=self.econ_depr_df(), how='outer', on='Asset')
     
-    def update_rescaling(self, corplist, ncorplist):
+    def update_rescaling(self, corparray, ncorparray):
         """
-        Updates the rescaling factors associated with the DataFrame
+        Updates the rescaling factors associated with the Data class object
         """
-        assert len(corplist) == 14
-        assert len(ncorplist) == 14
-        self.rescale_corp = corplist
-        self.rescale_noncorp = ncorplist
+        assert len(corparray) == 14
+        assert len(ncorparray) == 14
+        self.rescale_corp = corparray
+        self.rescale_noncorp = ncorparray
