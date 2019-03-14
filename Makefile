@@ -17,7 +17,7 @@ help:
 	@echo "pytest-all : generate report for and cleanup after"
 	@echo "             pytest -m ''"
 	@echo "cstest     : generate coding-style errors using the"
-	@echo "             pycodestyle (nee pep8) and pylint tools"
+	@echo "             pycodestyle (nee pep8) tool"
 	@echo "coverage   : generate test coverage report"
 	@echo "git-sync   : synchronize local, origin, and upstream Git repos"
 	@echo "git-pr N=n : create local pr-n branch containing upstream PR"
@@ -49,14 +49,11 @@ pytest-all:
 	@$(pytest-cleanup)
 
 JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)
-PYLINT_FILES := $(shell grep -rl --include="*py" disable=locally-disabled .)
-PYLINT_OPTIONS = --disable=locally-disabled --score=no --jobs=4
 
 .PHONY=cstest
 cstest:
 	-pycodestyle biztax
-	@-pycodestyle --ignore=E501,E121  $(JSON_FILES)
-#	@-pylint $(PYLINT_OPTIONS) $(PYLINT_FILES)
+	-pycodestyle --ignore=E501,E121  $(JSON_FILES)
 
 define coverage-cleanup
 rm -f .coverage htmlcov/*
