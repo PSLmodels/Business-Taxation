@@ -8,7 +8,7 @@ Test Asset class.
 import pandas as pd
 import pytest
 # pylint: disable=import-error
-from biztax import Asset
+from biztax import Asset, BusinessModel, Response
 
 
 @pytest.mark.parametrize('reform_number, corporate',
@@ -71,15 +71,28 @@ def test_build_inv_matrix(has_response, default_btax_params):
     else:
         assert asset.response is None
 
-@pytest.mark.xfail
-def test_calc_depreciation_allyears(default_btax_params):
+@pytest.mark.requires_pufcsv
+def test_calc_depreciation_allyears(puf_subsample, default_btax_params):
     """
     Test calcDep_allyears method
     """
-    asset = Asset(default_btax_params)
-    asset.get_ccr_data()
-    asset.build_inv_matrix()
-    asset.build_deprLaw_matrices()
+    bizmod = BusinessModel({}, {}, investor_data=puf_subsample)
+    bizmod.update_mtrlists()
+    response_elasticities = {
+        'inv_usercost_c': -1.0,
+        'inv_usercost_nc': -0.5,
+        'inv_eatr_c': 0.0,
+        'inv_eatr_nc': 0.0,
+        'debt_taxshield_c': 0.4,
+        'debt_taxshield_nc': 0.2,
+        'mne_share_c': 0.0,
+        'mne_share_nc': 0.0,
+        'first_year_response': 2018
+    }
+    bizmod.response = Response(response_elasticities, {}, {})
+    bizmod.response.calc_all()
+    asset = Asset(default_btax_params,
+                  response=bizmod.response.investment_response)
     asset.calcDep_allyears()
 
 @pytest.mark.xfail
