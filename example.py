@@ -1,8 +1,8 @@
 """
 Using the Business-Taxation model: An example
 
-This file provides an example of how to use the B-T model and
-walks through the process of creating a business model and getting the results.
+This file provides an example of how to use the B-T model and walks through
+the process of creating a business model and getting the results.
 
 The example here includes 3 changes to policy:
     Apply a 28% corporate tax rate
