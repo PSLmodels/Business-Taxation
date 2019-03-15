@@ -34,8 +34,6 @@ package:
 
 define pytest-cleanup
 find . -name *cache -maxdepth 1 -exec rm -r {} \;
-rm -f df-??-#-*
-rm -f tmp??????-??-#-tmp*
 endef
 
 .PHONY=pytest
@@ -52,8 +50,8 @@ JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)
 
 .PHONY=cstest
 cstest:
-	-pycodestyle biztax
-	-pycodestyle --ignore=E501,E121  $(JSON_FILES)
+	@-pycodestyle biztax
+	@-pycodestyle --ignore=E501,E121  $(JSON_FILES)
 
 define coverage-cleanup
 rm -f .coverage htmlcov/*

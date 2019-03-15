@@ -21,9 +21,9 @@ class Debt():
     
     Parameters:
         corp: True for corporate, False for noncorporate
-        btax_params: dict of business tax policy parameters
+        btax_params: DataFrame of business tax policy parameters
         asset_forecast: list of nonfinancial asset amounts
-        response: list of percent changes in optimal debt-asset ratios
+        response: array of percent changes in optimal debt-asset ratios
         eta: debt retirement rate
     """
     

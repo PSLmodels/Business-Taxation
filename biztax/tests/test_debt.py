@@ -5,9 +5,10 @@ Test Debt class.
 # pycodestyle test_debt.py
 # pylint --disable=locally-disabled test_debt.py
 
+import numpy as np
 import pytest
 # pylint: disable=import-error
-from biztax import Asset, Debt
+from biztax import Debt, Asset, Data
 
 
 @pytest.mark.parametrize('reform_number, corporate',
@@ -31,3 +32,45 @@ def test_debt_interest_path(reform_number, corporate,
     fname = 'debt_ref{}_{}_expect.csv'.format(reform_number,
                                               'corp' if corporate else 'nonc')
     actual_vs_expect(interest_path, fname, precision=decimals)
+
+
+def test_incorrect_instantiation(default_btax_params):
+    """
+    Test incorrect Debt instantiation
+    """
+    good_btax_params = default_btax_params
+    bad_btax_params = list()
+    good_asset_forecast = np.ones(14)
+    bad_asset_forecast = np.ones(13)
+    good_data = Data()
+    bad_data = list()
+    good_response = np.zeros(14)
+    bad_response = np.zeros(13)
+    with pytest.raises(ValueError):
+        Debt(bad_btax_params, good_asset_forecast)
+    with pytest.raises(ValueError):
+        Debt(good_btax_params, bad_asset_forecast)
+    Debt(good_btax_params, good_asset_forecast, data=good_data)
+    Debt(good_btax_params, good_asset_forecast, data=bad_data)
+    with pytest.raises(ValueError):
+        Debt(good_btax_params, good_asset_forecast, corp=list())
+    Debt(good_btax_params, good_asset_forecast, corp=False)
+    with pytest.raises(ValueError):
+        Debt(good_btax_params, good_asset_forecast, eta=-0.2)
+    Debt(good_btax_params, good_asset_forecast, response=good_response)
+    with pytest.raises(ValueError):
+        Debt(good_btax_params, good_asset_forecast, response=bad_response)
+
+
+def test_constrain_history(default_btax_params):
+    """
+    Test constrain_history method
+    """
+    good_asset_forecast = np.ones(14)
+    debt = Debt(default_btax_params, good_asset_forecast)
+    debt.get_haircuts() 
+    debt.build_level_history() 
+    debt.build_flow_history() 
+    debt.originations[0] = -9.9  # triggers constrain_history logic
+    debt.constrain_history() 
+    assert min(debt.originations) == 0.0
