@@ -10,7 +10,7 @@ import pytest
 # pylint: disable=import-error
 from biztax import BtaxMini
 
-@pytest.mark.one
+
 def test_run_btax_mini(default_btax_params):
     """
     Test run_btax_mini method
