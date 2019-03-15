@@ -8,7 +8,7 @@ Test Asset class.
 import pandas as pd
 import pytest
 # pylint: disable=import-error
-from biztax import Asset, BusinessModel, Response
+from biztax import Asset, Response
 
 
 @pytest.mark.parametrize('reform_number, corporate',
@@ -52,26 +52,20 @@ def test_update_response(default_btax_params):
     asset.update_response(response_df)
     assert isinstance(asset.response, pd.DataFrame)
 
-
-@pytest.mark.parametrize('has_response', [(False), (True)])
-def test_build_inv_matrix(has_response, default_btax_params):
+@pytest.mark.skip
+def test_build_inv_matrix(default_btax_params):
     """
-    Test build_inv_matrix method
+    Test build_inv_matrix method with response
     """
-    if has_response:
-        resp = None  # TODO: what to put here?
-    else:
-        resp = None
-    asset = Asset(default_btax_params, response=resp)
+    resp_elasticities = {'inv_usercost_c': -1.0, 'inv_usercost_nc': -0.5}
+    resp = Response(resp_elasticities, default_btax_params, default_bax_params)
+    resp.calc_inv_response()
+    asset = Asset(default_btax_params, response=resp.investment_response)
     asset.get_ccr_data()
     asset.build_inv_matrix()
-    if has_response:
-        # TODO: assert isinstance(asset.response, pd.DataFrame)
-        assert asset.response is None
-    else:
-        assert asset.response is None
+    assert isinstance(asset.investment_history, pd.DataFrame)
 
-@pytest.mark.requires_pufcsv
+@pytest.mark.skip
 def test_calc_depreciation_allyears(puf_subsample, default_btax_params):
     """
     Test calcDep_allyears method
@@ -95,7 +89,7 @@ def test_calc_depreciation_allyears(puf_subsample, default_btax_params):
                   response=bizmod.response.investment_response)
     asset.calcDep_allyears()
 
-@pytest.mark.xfail
+@pytest.mark.skip
 def test_calc_depreciation_budget(default_btax_params):
     """
     Test calcDep_budget method
