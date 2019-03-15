@@ -7,6 +7,7 @@ from biztax.data import Data
 from biztax.debt import Debt
 from biztax.response import Response
 from biztax.corporation import Corporation
+from biztax.corptaxreturn import CorpTaxReturn
 from biztax.passthrough import PassThrough
 from biztax.businessmodel import BusinessModel
 

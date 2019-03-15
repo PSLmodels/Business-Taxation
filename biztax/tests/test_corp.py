@@ -32,3 +32,11 @@ def test_corporation_results(reform_number, real_not_taxr_results,
     res = 'real' if real_not_taxr_results else 'taxr'
     fname = 'corp_ref{}_{}_expect.csv'.format(reform_number, res)
     actual_vs_expect(results, fname, precision=decimals)
+
+
+def test_incorrect_instantiation(default_btax_params):
+    """
+    Test incorrect Corporation instantiation
+    """
+    with pytest.raises(ValueError):
+        Corporation(list())

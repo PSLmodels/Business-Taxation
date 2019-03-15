@@ -38,3 +38,11 @@ def test_passthrough_results(reform_number, results_type,
         assert results_type == 'illegal passthrough results type'
     fname = 'pthru_ref{}_{}_expect.csv'.format(reform_number, results_type)
     actual_vs_expect(results, fname, precision=decimals)
+
+
+def test_incorrect_instantiation():
+    """
+    Test incorrect PassThrough instantiation
+    """
+    with pytest.raises(ValueError):
+        PassThrough(list())

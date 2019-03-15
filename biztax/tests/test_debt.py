@@ -34,9 +34,9 @@ def test_debt_interest_path(reform_number, corporate,
     actual_vs_expect(interest_path, fname, precision=decimals)
 
 
-def test_incorrect_instantiation(default_btax_params):
+def test_instantiation(default_btax_params):
     """
-    Test incorrect Debt instantiation
+    Test (in)correct Debt instantiation
     """
     good_btax_params = default_btax_params
     bad_btax_params = list()
