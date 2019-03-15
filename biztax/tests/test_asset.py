@@ -40,6 +40,8 @@ def test_incorrect_instantiation():
         Asset(list())
     with pytest.raises(ValueError):
         Asset(pd.DataFrame(), corp=list())
+    with pytest.raises(ValueError):
+        Asset(pd.DataFrame(), response=list())
 
 
 def test_update_response(default_btax_params):
