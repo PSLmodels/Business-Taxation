@@ -58,6 +58,11 @@ output_df.to_csv('example_results/nresp_base.csv', index=False)
 output_df = BM.corp_ref.taxreturn.combined_return.round(4)
 output_df.to_csv('example_results/nresp_refm.csv', index=False)
 
+# Look at differences in real effects on corporations without any responses
+corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
+corp_diff['year'] = BM.corp_base.real_results['year']
+corp_diff.to_csv('example_results/nresp_corp_diff.csv', index=False)
+
 # Execute the with-response calculations assuming
 # only investment and debt responses to tax reform
 BM.update_elasticities({'inv_usercost_c': -1.0,
@@ -67,15 +72,15 @@ BM.update_elasticities({'inv_usercost_c': -1.0,
                         'first_year_response': 2018})
 BM.calc_withresponse()
 
+# Look at the changes in total corporate and individual income tax liability
+output_df = BM.ModelResults.round(3)
+output_df.to_csv('example_results/wresp_model_results.csv', index=False)
+
 # Take a closer look at corporate tax items under baseline and reform policy
 output_df = BM.corp_base.taxreturn.combined_return.round(4)
 output_df.to_csv('example_results/wresp_base.csv', index=False)
 output_df = BM.corp_ref.taxreturn.combined_return.round(4)
 output_df.to_csv('example_results/wresp_refm.csv', index=False)
-
-# Look at the changes in total corporate and individual income tax liability
-output_df = BM.ModelResults.round(3)
-output_df.to_csv('example_results/wresp_model_results.csv', index=False)
 
 # Look at differences in real effects on corporations given the responses
 corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
