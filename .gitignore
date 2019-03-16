@@ -1,3 +1,5 @@
 .ipynb*
 puf.csv
 __pycache__/
+.coverage
+htmlcov/

@@ -12,6 +12,7 @@ import pytest
 from biztax import BusinessModel
 
 
+@pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('with_response', [(False), (True)])
 def test_bm_corp0(with_response, actual_vs_expect,
                   puf_fullsample, tests_path):
