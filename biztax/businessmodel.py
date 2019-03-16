@@ -11,18 +11,21 @@ from biztax.response import Response
 class BusinessModel():
     """
     Constructor for the BusinessModel class. This class must include
-    baseline objects and reform objects, in order to correctly estimate the
-    effects of changing policy parameters.
+    baseline policy objects and reform policy objects, in order to
+    correctly estimate the effects of changing tax policy parameters.
     For each policy set (baseline and reform), the following objects are
     created:
         Corporation
         PassThrough
         Investor
-    Furthermore, the BusinessModel may also create a Response object.
+    Furthermore, the BusinessModel uses a Response object whenever the
+    calc_withresponse method is called.
+
     It is important to note that the inclusion of both a baseline and a reform
-    scenario is important: the necessity of both comes into play when
-    calculating the Response and when distributing the changes in corporate
-    income and business income to tax units.
+    policy scenario in the constructor is important: the necessity of both
+    comes into play when calculating the responses to a reform and when
+    distributing the changes in corporate income and business income to
+    individual tax units.
 
     Parameters:
         btax_refdict: main business policy reform dictionary
@@ -133,7 +136,7 @@ class BusinessModel():
 
     def calc_noresponse(self):
         """
-        Executes all calculations, with no Response
+        Executes all calculations, with no response
         """
         # Run static calculations for corporations
         self.corp_base.calc_static()
@@ -153,7 +156,7 @@ class BusinessModel():
     def update_mtrlists(self):
         """
         Calls Investors to calculate MTRs on noncorporate business equity
-        and on corporate equity, and updates these in the Response object.
+        and on corporate equity, and updates these in the Investor objects.
         """
         # Generate MTRs for baseline investor
         self.investor_base.gen_mtr_lists()
