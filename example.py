@@ -4,14 +4,21 @@ Using the Business-Taxation model: An example
 This file provides an example of how to use the B-T model and walks through
 the process of creating a business model and getting the results.
 
-The example here includes 3 changes to policy:
-    Apply a 28% corporate tax rate
-    Eliminate bonus depreciation
-    50% haircut on the deductibility of interest on new debt
+Executing this example (by entering "python example.py" without the
+quotes at the operating-system command prompt) should produce the same
+results as stored in the example_results directory.  Note that to
+execute this example a copy of the Tax-Calculator puf.csv micro-data
+input file is required to be in the same directory as this file.
+
+The example here includes 3 changes to policy beginning in 2018:
+  - Apply 28% corporate tax rate
+  - Eliminate bonus depreciation
+  - Impose 50% haircut on the deductibility of interest on new debt
 """
+
 from biztax import BusinessModel
 
-# Create the main reform dictionary
+# Create a business-tax policy reform dictionary
 btax_refdict = {2018: {'tau_c': 0.28,
                        'depr_3yr_bonus': 0.0,
                        'depr_5yr_bonus': 0.0,
@@ -32,28 +39,32 @@ btax_refdict = {2018: {'tau_c': 0.28,
                        'oldIntPaid_noncorp_hc': 1.0,
                        'oldIntPaid_noncorp_hcyear': 2018}}
 
+# Create an individual-tax policy reform dictionary with no reform
+iitax_refdict = dict()
 
-# Create the (empty) reform dictionary for the individual income tax (taxcalc)
-iitax_refdict = {}
-
-# Create the BusinessModel object
+# Create a BusinessModel object
 BM = BusinessModel(btax_refdict, iitax_refdict)
 
-# Run the static calculations
+# Execute the no-response calculations
 BM.calc_noresponse()
 
 # Look at the changes in total corporate and individual income tax liability
-BM.ModelResults
+output_df = BM.ModelResults.round(3)
+output_df.to_csv('example_results/nresp_model_results.csv', index=False)
 
-# Take a closer look at corporate tax items
-# Baseline
-output_df = BM.corp_base.taxreturn.combined_return.round(4)
-output_df.to_csv('example_results/ex_out1.csv', index=False)
-# Reform
-output_df = BM.corp_ref.taxreturn.combined_return.round(4)
-output_df.to_csv('example_results/ex_out2.csv', index=False)
+# Take a closer look at corporate tax items under baseline and reform policy
+output_df = BM.corp_base.taxreturn.combined_return.round(3)
+output_df.to_csv('example_results/nresp_base.csv', index=False)
+output_df = BM.corp_ref.taxreturn.combined_return.round(3)
+output_df.to_csv('example_results/nresp_refm.csv', index=False)
 
-# Add investment and debt responses
+# Look at differences in real effects on corporations without any responses
+corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
+corp_diff['year'] = BM.corp_base.real_results['year']
+corp_diff.to_csv('example_results/nresp_corp_diff.csv', index=False)
+
+# Execute the with-response calculations assuming
+# only investment and debt responses to tax reform
 BM.update_elasticities({'inv_usercost_c': -1.0,
                         'inv_usercost_nc': -0.5,
                         'debt_taxshield_c': 0.4,
@@ -62,7 +73,16 @@ BM.update_elasticities({'inv_usercost_c': -1.0,
 BM.calc_withresponse()
 
 # Look at the changes in total corporate and individual income tax liability
-BM.ModelResults
+output_df = BM.ModelResults.round(3)
+output_df.to_csv('example_results/wresp_model_results.csv', index=False)
 
-# Compare real effects on corporations
-BM.corp_ref.real_results - BM.corp_base.real_results
+# Take a closer look at corporate tax items under baseline and reform policy
+output_df = BM.corp_base.taxreturn.combined_return.round(3)
+output_df.to_csv('example_results/wresp_base.csv', index=False)
+output_df = BM.corp_ref.taxreturn.combined_return.round(3)
+output_df.to_csv('example_results/wresp_refm.csv', index=False)
+
+# Look at differences in real effects on corporations given the responses
+corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
+corp_diff['year'] = BM.corp_base.real_results['year']
+corp_diff.to_csv('example_results/wresp_corp_diff.csv', index=False)

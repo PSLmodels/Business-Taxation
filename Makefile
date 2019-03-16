@@ -12,14 +12,12 @@ help:
 	@echo "help       : show help message"
 	@echo "clean      : remove .pyc files and local package"
 	@echo "package    : build and install local package"
-	@echo "pytest-few : generate report for and cleanup after"
-	@echo "             pytest -m 'not requires_pufcsv and not pre_release'"
 	@echo "pytest     : generate report for and cleanup after"
-	@echo "             pytest -m 'not pre_release'"
+	@echo "             pytest -m 'not requires_pufcsv'"
 	@echo "pytest-all : generate report for and cleanup after"
 	@echo "             pytest -m ''"
 	@echo "cstest     : generate coding-style errors using the"
-	@echo "             pycodestyle (nee pep8) and pylint tools"
+	@echo "             pycodestyle (nee pep8) tool"
 	@echo "coverage   : generate test coverage report"
 	@echo "git-sync   : synchronize local, origin, and upstream Git repos"
 	@echo "git-pr N=n : create local pr-n branch containing upstream PR"
@@ -36,18 +34,11 @@ package:
 
 define pytest-cleanup
 find . -name *cache -maxdepth 1 -exec rm -r {} \;
-rm -f df-??-#-*
-rm -f tmp??????-??-#-tmp*
 endef
-
-.PHONY=pytest-few
-pytest-few:
-	@cd taxcalc ; pytest -n4 -m "not requires_pufcsv and not pre_release"
-	@$(pytest-cleanup)
 
 .PHONY=pytest
 pytest:
-	@cd biztax ; pytest -n4 -m "not pre_release"
+	@cd biztax ; pytest -n4 -m "not requires_pufcsv"
 	@$(pytest-cleanup)
 
 .PHONY=pytest-all
@@ -56,20 +47,17 @@ pytest-all:
 	@$(pytest-cleanup)
 
 JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)
-PYLINT_FILES := $(shell grep -rl --include="*py" disable=locally-disabled .)
-PYLINT_OPTIONS = --disable=locally-disabled --score=no --jobs=4
 
 .PHONY=cstest
 cstest:
-	-pycodestyle biztax
+	@-pycodestyle biztax
 	@-pycodestyle --ignore=E501,E121  $(JSON_FILES)
-#	@-pylint $(PYLINT_OPTIONS) $(PYLINT_FILES)
 
 define coverage-cleanup
 rm -f .coverage htmlcov/*
 endef
 
-COVMARK = "not pre_release"
+COVMARK = "not requires_pufcsv"
 
 OS := $(shell uname -s)
 

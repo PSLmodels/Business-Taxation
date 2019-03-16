@@ -1,0 +1,5 @@
+[run]
+omit =
+    example.py
+    biztax/*json
+    biztax/tests/*
