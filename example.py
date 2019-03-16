@@ -53,9 +53,9 @@ output_df = BM.ModelResults.round(3)
 output_df.to_csv('example_results/nresp_model_results.csv', index=False)
 
 # Take a closer look at corporate tax items under baseline and reform policy
-output_df = BM.corp_base.taxreturn.combined_return.round(4)
+output_df = BM.corp_base.taxreturn.combined_return.round(3)
 output_df.to_csv('example_results/nresp_base.csv', index=False)
-output_df = BM.corp_ref.taxreturn.combined_return.round(4)
+output_df = BM.corp_ref.taxreturn.combined_return.round(3)
 output_df.to_csv('example_results/nresp_refm.csv', index=False)
 
 # Look at differences in real effects on corporations without any responses
@@ -77,9 +77,9 @@ output_df = BM.ModelResults.round(3)
 output_df.to_csv('example_results/wresp_model_results.csv', index=False)
 
 # Take a closer look at corporate tax items under baseline and reform policy
-output_df = BM.corp_base.taxreturn.combined_return.round(4)
+output_df = BM.corp_base.taxreturn.combined_return.round(3)
 output_df.to_csv('example_results/wresp_base.csv', index=False)
-output_df = BM.corp_ref.taxreturn.combined_return.round(4)
+output_df = BM.corp_ref.taxreturn.combined_return.round(3)
 output_df.to_csv('example_results/wresp_refm.csv', index=False)
 
 # Look at differences in real effects on corporations given the responses
