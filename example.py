@@ -16,7 +16,7 @@ The example here includes 3 changes to policy beginning in 2018:
   - Impose 50% haircut on the deductibility of interest on new debt
 """
 
-from biztax import BusinessModel
+from biztax import BusinessModel, Response
 
 # Create a business-tax policy reform dictionary
 btax_refdict = {2018: {'tau_c': 0.28,
@@ -65,12 +65,13 @@ corp_diff.to_csv('example_results/nresp_corp_diff.csv', index=False)
 
 # Execute the with-response calculations assuming
 # only investment and debt responses to tax reform
-BM.update_elasticities({'inv_usercost_c': -1.0,
-                        'inv_usercost_nc': -0.5,
-                        'debt_taxshield_c': 0.4,
-                        'debt_taxshield_nc': 0.2,
-                        'first_year_response': 2018})
-BM.calc_withresponse()
+response = Response()
+response.update_elasticities({'inv_usercost_c': -1.0,
+                              'inv_usercost_nc': -0.5,
+                              'debt_taxshield_c': 0.4,
+                              'debt_taxshield_nc': 0.2,
+                              'first_year_response': 2018})
+BM.calc_withresponse(response)
 
 # Look at the changes in total corporate and individual income tax liability
 output_df = BM.ModelResults.round(3)

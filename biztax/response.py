@@ -15,7 +15,7 @@ class Response():
         legal response: to tax differential across business forms
 
     Parameters:
-        elast_dict: dict of response elasticities/semi-elasticities
+        none
 
     Associated objects (results):
         investment_response: DataFrame of investment responses and MPKs
