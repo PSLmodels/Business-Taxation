@@ -11,9 +11,9 @@ execute this example a copy of the Tax-Calculator puf.csv micro-data
 input file is required to be in the same directory as this file.
 
 The example here includes 3 changes to policy beginning in 2018:
-    Apply 28% corporate tax rate
-    Eliminate bonus depreciation
-    Impose 50% haircut on the deductibility of interest on new debt
+  - Apply 28% corporate tax rate
+  - Eliminate bonus depreciation
+  - Impose 50% haircut on the deductibility of interest on new debt
 """
 
 from biztax import BusinessModel
@@ -39,7 +39,7 @@ btax_refdict = {2018: {'tau_c': 0.28,
                        'oldIntPaid_noncorp_hc': 1.0,
                        'oldIntPaid_noncorp_hcyear': 2018}}
 
-# Create an empty individual-tax policy reform dictionary
+# Create an individual-tax policy reform dictionary with no reform
 iitax_refdict = dict()
 
 # Create a BusinessModel object
@@ -59,7 +59,7 @@ output_df = BM.corp_ref.taxreturn.combined_return.round(4)
 output_df.to_csv('example_results/nresp_refm.csv', index=False)
 
 # Execute the with-response calculations assuming
-# just investment and debt responses to tax reform
+# only investment and debt responses to tax reform
 BM.update_elasticities({'inv_usercost_c': -1.0,
                         'inv_usercost_nc': -0.5,
                         'debt_taxshield_c': 0.4,
@@ -79,4 +79,5 @@ output_df.to_csv('example_results/wresp_model_results.csv', index=False)
 
 # Look at differences in real effects on corporations given the responses
 corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
+corp_diff['year'] = BM.corp_base.real_results['year']
 corp_diff.to_csv('example_results/wresp_corp_diff.csv', index=False)
