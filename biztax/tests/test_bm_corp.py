@@ -9,7 +9,7 @@ import os
 import filecmp
 import pytest
 # pylint: disable=import-error
-from biztax import BusinessModel
+from biztax import BusinessModel, Response
 
 
 @pytest.mark.parametrize('with_response', [(False), (True)])
@@ -60,13 +60,16 @@ def test_bm_corp0(with_response, actual_vs_expect,
     }
     # specify individual-income-tax reform dictionary with no reform provisions
     iitax_refdict = {}
-    bizmod = BusinessModel(citax_refdict, iitax_refdict,
-                           investor_data=puf_fullsample)
     # calculate results in different ways depending on value of with_response
     if with_response:
-        bizmod.update_elasticities({})  # all elasticities are zero
-        bizmod.calc_withresponse()
+        response = Response()
+        response.update_elasticities({})  # all elasticities are zero
+        bizmod = BusinessModel(citax_refdict, iitax_refdict,
+                               investor_data=puf_fullsample)
+        bizmod.calc_withresponse(response)
     else:
+        bizmod = BusinessModel(citax_refdict, iitax_refdict,
+                               investor_data=puf_fullsample)
         bizmod.calc_noresponse()
     # compare actual and expected results
     resp = 'wresp' if with_response else 'nresp'

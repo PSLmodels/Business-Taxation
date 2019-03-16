@@ -1,6 +1,6 @@
+import copy
 import numpy as np
 import pandas as pd
-import copy
 from biztax.data import Data
 from biztax.corporation import Corporation
 from biztax.passthrough import PassThrough
@@ -10,31 +10,31 @@ from biztax.response import Response
 
 class BusinessModel():
     """
-    Constructor for the BusinessModel class. This class must include 
-    baseline objects and reform objects, in order to correctly estimate the 
+    Constructor for the BusinessModel class. This class must include
+    baseline objects and reform objects, in order to correctly estimate the
     effects of changing policy parameters.
     For each policy set (baseline and reform), the following objects are
     created:
         Corporation
         PassThrough
         Investor
-    Furthermore, the BusinessModel may also create a Response object. 
+    Furthermore, the BusinessModel may also create a Response object.
     It is important to note that the inclusion of both a baseline and a reform
     scenario is important: the necessity of both comes into play when
     calculating the Response and when distributing the changes in corporate
-    income and business income to tax units. 
-    
+    income and business income to tax units.
+
     Parameters:
         btax_refdict: main business policy reform dictionary
         iit_refdict: individual policy reform dictionary (for taxcalc)
         btax_basedict: business policy baseline dictionary (default none)
         iit_basedict: individual policy baseline dictionary (default none)
-        elast_dict: dictionary of elasticities for firm responses
+        investor_data: filename or DataFrame containing individual sample
     """
-    
+
     def __init__(self, btax_refdict, iit_refdict,
                  btax_basedict={}, iit_basedict={},
-                 elast_dict=None, investor_data='puf.csv'):
+                 investor_data='puf.csv'):
         # Set default policy parameters for later use
         self.btax_defaults = Data().btax_defaults
         # Create the baseline and reform parameter storing forms
@@ -49,13 +49,10 @@ class BusinessModel():
         # Create PassThroughs
         self.passthru_base = PassThrough(self.btax_params_base)
         self.passthru_ref = PassThrough(self.btax_params_ref)
-        # Save the elasticity dictionary
-        if elast_dict is not None:
-            self.check_elast_dict(elast_dict)
-            self.elast_dict = elast_dict
-        else:
-            self.elast_dict = Data().elast_defaults
-    
+        # Declare calculated results objects
+        self.multipliers = None
+        self.ModelResults = None
+
     def check_btax_reform(self, paramdict):
         """
         Checks that the btax_param dictionary are acceptable
@@ -68,7 +65,7 @@ class BusinessModel():
             assert key2 in range(2014, 2027)
             for param in paramdict[key]:
                 assert param in paramnames
-    
+
     def update_btax_params(self, param_dict):
         """
         Updates btax_params
@@ -89,7 +86,7 @@ class BusinessModel():
                 paramlist1[years >= int(year)] = param_dict[year][param]
                 params_df[param] = paramlist1
         return params_df
-    
+
     def produce_multipliers(self):
         # Get corporate net after-tax incomes
         netinc_corp_base = self.corp_base.get_netinc()
@@ -115,12 +112,12 @@ class BusinessModel():
         multipliers['rescale_noncorp'] = self.corp_ref.data.rescale_noncorp / self.corp_base.data.rescale_noncorp
         # Save multipliers
         self.multipliers = multipliers
-    
+
     def calc_revenue_changes(self):
         """
-        Calculates the change in corporate tax revenue, the change in 
-        individual income tax/payroll tax revenue, and the combination. Saves 
-        these changes in a DataFrame.
+        Calculates the change in corporate tax revenue, the change in
+        individual income tax/payroll tax revenue, and the combination.
+        Saves these changes in a DataFrame.
         """
         corprev_base = self.corp_base.get_taxrev()
         corprev_ref = self.corp_ref.get_taxrev()
@@ -129,11 +126,11 @@ class BusinessModel():
         indivrev_ref = self.investor_ref.get_revenue_withdistribution()
         indivrev_change = indivrev_ref - indivrev_base
         alltax_change = corprev_change + indivrev_change
-        self.ModelResults = pd.DataFrame({'year': range(2014,2028),
+        self.ModelResults = pd.DataFrame({'year': range(2014, 2028),
                                           'CTax_change': corprev_change,
                                           'ITax_change': indivrev_change,
                                           'AllTax_change': alltax_change})
-        
+
     def calc_noresponse(self):
         """
         Executes all calculations, with no Response
@@ -152,42 +149,7 @@ class BusinessModel():
         self.investor_base.undistributed_revenue()
         # Calculate and save total revenue changes
         self.calc_revenue_changes()
-    
-    def check_elast_dict(self, elast_params):
-        """
-        Checks the elasticities for the responses to ensure that it includes
-        all relevant elasticities and that these have reasonable values.
-        """            
-        # check that all necessary terms included or defined
-        for key in ['inv_usercost_c', 'inv_usercost_nc', 'inv_eatr_c',
-                    'inv_eatr_nc', 'mne_share_c', 'mne_share_nc',
-                    'debt_taxshield_c', 'debt_taxshield_nc',
-                    'legalform_ratediff', 'first_year_response']:
-            assert key in elast_params
-        # test that values are correct
-        assert elast_params['inv_usercost_c'] <= 0.0
-        assert elast_params['inv_usercost_nc'] <= 0.0
-        assert elast_params['inv_eatr_c'] <= 0.0
-        assert elast_params['inv_eatr_nc'] <= 0.0
-        assert elast_params['mne_share_c'] >= 0.0
-        assert elast_params['mne_share_c'] <= 1.0
-        assert elast_params['mne_share_nc'] >= 0.0
-        assert elast_params['mne_share_nc'] <= 1.0
-        assert elast_params['debt_taxshield_c'] >= 0.0
-        assert elast_params['debt_taxshield_nc'] >= 0.0
-        assert elast_params['legalform_ratediff'] <= 0.0
-        assert elast_params['first_year_response'] in range(2014, 2028)
-    
-    def update_elasticities(self, dict2):
-        """
-        Updates the elast_dict object
-        """
-        elast_dict2 = copy.deepcopy(self.elast_dict)
-        for key in dict2:
-            elast_dict2[key] = dict2[key]
-        self.check_elast_dict(elast_dict2)
-        self.elast_dict = elast_dict2
-    
+
     def update_mtrlists(self):
         """
         Calls Investors to calculate MTRs on noncorporate business equity
@@ -201,21 +163,19 @@ class BusinessModel():
         self.investor_ref.gen_mtr_lists()
         self.btax_params_ref['tau_nc'] = self.investor_ref.get_tauNClist()
         self.btax_params_ref['tau_e'] = self.investor_ref.get_tauElist()
-    
-    def calc_withresponse(self):
+
+    def calc_withresponse(self, response):
+        assert isinstance(response, Response)
         # Calculate MTRs and update all policy DataFrames (btax_params)
         self.update_mtrlists()
-        # Create Response object and execute all responses
-        self.response = Response(self.elast_dict,
-                                 self.btax_params_base,
-                                 self.btax_params_ref)
-        self.response.calc_all()
+        # Calculate all responses
+        response.calc_all(self.btax_params_base, self.btax_params_ref)
         # Run calculations for corporations
         self.corp_base.calc_static()
-        self.corp_ref.apply_responses(self.response)
+        self.corp_ref.apply_responses(response)
         # Run calculations for pass-throughs
         self.passthru_base.calc_static()
-        self.passthru_ref.apply_responses(self.response)
+        self.passthru_ref.apply_responses(response)
         # Compare corporations and pass-throughs to get income changes
         self.produce_multipliers()
         # Distribute changes to reform investor
