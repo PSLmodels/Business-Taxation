@@ -71,7 +71,17 @@ class Response():
         assert self.elasticities['legalform_ratediff'] <= 0.0
         assert self.elasticities['first_year_response'] in range(2014, 2028)
 
-    def calc_investment_response(self, btax_params_base, btax_params_ref):
+    def calc_all(self, btax_params_base, btax_params_ref):
+        """
+        Executes all response calculations
+        """
+        self._calc_investment_response(btax_params_base, btax_params_ref)
+        self._calc_debt_responses(btax_params_base, btax_params_ref)
+        self._calc_legal_response(btax_params_base, btax_params_ref)
+
+    # ----- begin private methods of Release class -----
+
+    def _calc_investment_response(self, btax_params_base, btax_params_ref):
         """
         Calculates percent change in investment & marginal product of capital,
         for each asset type, for each year, corporate and noncorporate.
@@ -111,7 +121,7 @@ class Response():
         # Save the responses
         self.investment_response = copy.deepcopy(maindata)
 
-    def calc_debt_response_corp(self, btax_params_base, btax_params_ref):
+    def _calc_debt_response_corp(self, btax_params_base, btax_params_ref):
         """
         Calculates corporate debt response.
         """
@@ -131,7 +141,7 @@ class Response():
         pctch_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1)
         return pctch_delta
 
-    def calc_debt_response_noncorp(self, btax_params_base, btax_params_ref):
+    def _calc_debt_response_noncorp(self, btax_params_base, btax_params_ref):
         """
         Calculates noncorporate debt response
         """
@@ -149,21 +159,21 @@ class Response():
         pctch_delta = (taxshield_ref / taxshield_base - 1) * elast_debt_list
         return pctch_delta
 
-    def calc_debt_responses(self, btax_params_base, btax_params_ref):
+    def _calc_debt_responses(self, btax_params_base, btax_params_ref):
         """
         Calls the functions to calculate debt responses and saves them in
         a DataFrame.
         """
-        debtresp_c = self.calc_debt_response_corp(btax_params_base,
-                                                  btax_params_ref)
-        debtresp_nc = self.calc_debt_response_noncorp(btax_params_base,
-                                                      btax_params_ref)
+        debtresp_c = self._calc_debt_response_corp(btax_params_base,
+                                                   btax_params_ref)
+        debtresp_nc = self._calc_debt_response_noncorp(btax_params_base,
+                                                       btax_params_ref)
         debtresp_df = pd.DataFrame({'year': range(2014, 2028),
                                     'pchDelta_corp': debtresp_c,
                                     'pchDelta_noncorp': debtresp_nc})
         self.debt_response = debtresp_df
 
-    def calc_legal_response(self, btax_params_base, btax_params_ref):
+    def _calc_legal_response(self, btax_params_base, btax_params_ref):
         """
         Reallocation of business activity between corporate and noncorporate
         sections, achieved by modifying the rescaling factors. For now,
@@ -205,11 +215,3 @@ class Response():
         self.rescale_corp = scale_c
         self.rescale_noncorp = scale_nc
         """
-
-    def calc_all(self, btax_params_base, btax_params_ref):
-        """
-        Executes all response calculations
-        """
-        self.calc_investment_response(btax_params_base, btax_params_ref)
-        self.calc_debt_responses(btax_params_base, btax_params_ref)
-        self.calc_legal_response(btax_params_base, btax_params_ref)
