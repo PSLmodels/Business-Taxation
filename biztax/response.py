@@ -55,8 +55,7 @@ class Response():
             if key not in self.elasticities:
                 msg = '{} is not a valid elasticity name'
                 raise ValueError(msg.format(key))
-            else:
-                self.elasticities[key] = new_elasticity_values[key]
+            self.elasticities[key] = new_elasticity_values[key]
         # test that elasticity values are valid
         assert self.elasticities['inv_usercost_c'] <= 0.0
         assert self.elasticities['inv_usercost_nc'] <= 0.0
