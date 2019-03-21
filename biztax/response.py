@@ -50,14 +50,15 @@ class Response():
         self.rescale_corp = None
         self.rescale_noncorp = None
 
-    def needs_calc_all(self):
+    def calc_all_already_called(self):
         """
-        Returns True if any response result is None; otherwise returns False
+        Returns True if any response result is not None;
+        otherwise returns False
         """
-        return (self.investment_response is None or
-                self.debt_response is None or
-                self.rescale_corp is None or
-                self.rescale_noncorp is None)
+        return (self.investment_response is not None or
+                self.debt_response is not None or
+                self.rescale_corp is not None or
+                self.rescale_noncorp is not None)
 
     def update_elasticities(self, new_elasticity_values):
         """
