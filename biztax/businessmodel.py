@@ -108,9 +108,12 @@ class BusinessModel():
         else:
             # Run calculations for reform with response
             assert isinstance(response, Response)
-            self.update_mtrlists()
-            if response.needs_calc_all():
-                response.calc_all(self.btax_params_base, self.btax_params_ref)
+            if not response.needs_calc_all():
+                msg = ('cannot call response.calc_all before '
+                       'using it as BusinessModel.calc_all argument')
+                raise ValueError(msg)
+            self.update_mtrlists()  # do this before doing response.calc_all
+            response.calc_all(self.btax_params_base, self.btax_params_ref)
             self.corp_ref.apply_responses(response)
             self.passthru_ref.apply_responses(response)
         # Compare corporations and pass-throughs to get income changes
