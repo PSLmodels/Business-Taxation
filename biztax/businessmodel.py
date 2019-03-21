@@ -19,7 +19,7 @@ class BusinessModel():
         PassThrough
         Investor
     Furthermore, the BusinessModel uses a Response object whenever the
-    calc method is called with a Response object as an argument.
+    calc_all method is called with a Response object as an argument.
 
     It is important to note that the inclusion of both a baseline and a reform
     policy scenario in the constructor is important: the necessity of both
@@ -108,10 +108,9 @@ class BusinessModel():
         else:
             # Run calculations for reform with response
             assert isinstance(response, Response)
+            self.update_mtrlists()
             if response.needs_calc_all():
                 response.calc_all(self.btax_params_base, self.btax_params_ref)
-            # Calculate MTRs and update all policy DataFrames (btax_params)
-            self.update_mtrlists()
             self.corp_ref.apply_responses(response)
             self.passthru_ref.apply_responses(response)
         # Compare corporations and pass-throughs to get income changes
