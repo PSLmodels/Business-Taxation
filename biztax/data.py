@@ -28,8 +28,8 @@ class Data():
     Constructor for the Data object.
     The purpose of this object is to read and contain all of the necessary
     datasets to run the analyses in BRC. This also provides a central
-    mechanism for updating and improving the underlying data. One of the 
-    important features of the Data object is that it should not be changed 
+    mechanism for updating and improving the underlying data. One of the
+    important features of the Data object is that it should not be changed
     by any other objects in BRC.
     """
 
@@ -80,17 +80,6 @@ class Data():
             os.path.join(CURRENT_PATH, 'mini_params_btax.csv'))
         self.econ_defaults = read_csv(
             os.path.join(CURRENT_PATH, 'mini_params_econ.csv'))
-        self.elast_defaults = {'inv_usercost_c': 0.0,
-                               'inv_usercost_nc': 0.0,
-                               'inv_eatr_c': 0.0,
-                               'inv_eatr_nc': 0.0,
-                               'mne_share_c': 0.0,
-                               'mne_share_nc': 0.0,
-                               'debt_taxshield_c': 0.0,
-                               'debt_taxshield_nc': 0.0,
-                               'legalform_ratediff': 0.0,
-                               'first_year_response': 2017}
-        # Rescaling factors (defaults, in case legal_response not run)
         self.rescale_corp = np.ones(14)
         self.rescale_noncorp = np.ones(14)
         # Read in adjustment factors
@@ -121,7 +110,7 @@ class Data():
         self.intshare_sp_neginc = passthru_factors['int_sp_neg'].values[0]
         self.intshare_partner_posinc = passthru_factors['int_part_pos'].values[0]
         self.intshare_partner_neginc = passthru_factors['int_part_neg'].values[0]
-    
+
     def assets_data(self):
         """
         Retrieves the DataFrame with asset dames and amounts
@@ -130,7 +119,7 @@ class Data():
         asset_data.drop([3, 21, 32, 91], axis=0, inplace=True)
         asset_data.reset_index(drop=True, inplace=True)
         return asset_data
-    
+
     def econ_depr_df(self):
         """
         Retrieves the DataFrame with economic depreciation rates
@@ -147,7 +136,7 @@ class Data():
         df_econdepr.drop([56, 89, 90], axis=0, inplace=True)
         df_econdepr.reset_index(drop=True, inplace=True)
         return df_econdepr
-    
+
     def taxdep_info_gross(self):
         """
         Retrieves the basic DataFrame with tax depreciation information
@@ -167,7 +156,7 @@ class Data():
         taxdep1.drop([56, 89, 90], axis=0, inplace=True)
         taxdep1.reset_index(drop=True, inplace=True)
         return taxdep1.merge(right=self.econ_depr_df(), how='outer', on='Asset')
-    
+
     def update_rescaling(self, corparray, ncorparray):
         """
         Updates the rescaling factors associated with the Data class object
