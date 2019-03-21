@@ -108,7 +108,7 @@ class BusinessModel():
         else:
             # Run calculations for reform with response
             assert isinstance(response, Response)
-            if not response.needs_calc_all():
+            if response.calc_all_already_called():
                 msg = ('cannot call response.calc_all before '
                        'using it as BusinessModel.calc_all argument')
                 raise ValueError(msg)

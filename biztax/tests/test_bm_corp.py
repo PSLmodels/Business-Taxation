@@ -88,12 +88,9 @@ def test_incorrect_calc_all(puf_subsample):
     Test incorrect call of calc_all method.
     """
     # Do quick simulation of executing response.calc_all(...) by setting
-    # all calculated responses to anything other than None
+    # one calculated response to anything other than None
     pre_calc_response = Response()
     pre_calc_response.investment_response = 9.99
-    pre_calc_response.debt_response = 9.99
-    pre_calc_response.rescale_corp = 9.99
-    pre_calc_response.rescale_noncorp = 9.99
     # Try to use pre_calc_response as argument to BusinessModel.calc_all method
     bizmod = BusinessModel({}, {}, investor_data=puf_subsample)
     with pytest.raises(ValueError):
