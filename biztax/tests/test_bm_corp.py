@@ -63,15 +63,15 @@ def test_bm_corp0(with_response, actual_vs_expect,
     iitax_refdict = {}
     # calculate results in different ways depending on value of with_response
     if with_response:
-        response = Response()
-        response.update_elasticities({})  # all elasticities are zero
+        zero_elast_response = Response()
+        zero_elast_response.update_elasticities({})  # all zero elasticities
         bizmod = BusinessModel(citax_refdict, iitax_refdict,
                                investor_data=puf_fullsample)
-        bizmod.calc_withresponse(response)
+        bizmod.calc_all(response=zero_elast_response)
     else:
         bizmod = BusinessModel(citax_refdict, iitax_refdict,
                                investor_data=puf_fullsample)
-        bizmod.calc_noresponse()
+        bizmod.calc_all(response=None)
     # compare actual and expected results
     resp = 'wresp' if with_response else 'nresp'
     dec = 4

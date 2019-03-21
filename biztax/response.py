@@ -11,8 +11,8 @@ from biztax.btaxmini import BtaxMini
 class Response():
     """
     Constructor for the Response class.
-    This class manages all business responses to tax policy. Currently, these
-    include:
+    This class manages all business responses to tax policy.
+    Currently, these include:
         investment responses: to cost of capital and EATR
         debt responses: to tax shield from debt
         legal response: to tax differential across business forms
@@ -42,11 +42,22 @@ class Response():
     }
 
     def __init__(self):
+        # Specify default elasticity values
         self.elasticities = Response.DEFAULT_ELASTICITIES
+        # Set response results to None
         self.investment_response = None
         self.debt_response = None
         self.rescale_corp = None
         self.rescale_noncorp = None
+
+    def needs_calc_all(self):
+        """
+        Returns True if any response results are None; otherwise returns False
+        """
+        return (self.investment_response is None or
+                self.debt_response is None or
+                self.rescale_corp is None or
+                self.rescale_noncorp is None)
 
     def update_elasticities(self, new_elasticity_values):
         """

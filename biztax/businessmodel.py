@@ -19,7 +19,7 @@ class BusinessModel():
         PassThrough
         Investor
     Furthermore, the BusinessModel uses a Response object whenever the
-    calc_withresponse method is called.
+    calc method is called with a Response object as an argument.
 
     It is important to note that the inclusion of both a baseline and a reform
     policy scenario in the constructor is important: the necessity of both
@@ -90,6 +90,39 @@ class BusinessModel():
                 params_df[param] = paramlist1
         return params_df
 
+    def calc_all(self, response=None):
+        """
+        Executes all BusinessModel calculations.
+
+        Parameters:
+          response: must be either None (for no-response calculations) or
+                    a Response object (for with-response calculations).
+        """
+        # Run static calculations for baseline
+        self.corp_base.calc_static()
+        self.passthru_base.calc_static()
+        if response is None:
+            # Run calculations for reform with no response
+            self.corp_ref.calc_static()
+            self.passthru_ref.calc_static()
+        else:
+            # Run calculations for reform with response
+            assert isinstance(response, Response)
+            if response.needs_calc_all():
+                response.calc_all(self.btax_params_base, self.btax_params_ref)
+            # Calculate MTRs and update all policy DataFrames (btax_params)
+            self.update_mtrlists()
+            self.corp_ref.apply_responses(response)
+            self.passthru_ref.apply_responses(response)
+        # Compare corporations and pass-throughs to get income changes
+        self.produce_multipliers()
+        # Distribute changes to reform investor
+        self.investor_ref.distribute_results(self.multipliers)
+        # Calculate baseline investor without distributing
+        self.investor_base.undistributed_revenue()
+        # Calculate and save total revenue changes
+        self.calc_revenue_changes()
+
     def produce_multipliers(self):
         # Get corporate net after-tax incomes
         netinc_corp_base = self.corp_base.get_netinc()
@@ -134,25 +167,6 @@ class BusinessModel():
                                           'ITax_change': indivrev_change,
                                           'AllTax_change': alltax_change})
 
-    def calc_noresponse(self):
-        """
-        Executes all calculations, with no response
-        """
-        # Run static calculations for corporations
-        self.corp_base.calc_static()
-        self.corp_ref.calc_static()
-        # Run static calculations for pass-throughs
-        self.passthru_base.calc_static()
-        self.passthru_ref.calc_static()
-        # Compare corporations and pass-throughs to get income changes
-        self.produce_multipliers()
-        # Distribute changes to reform investor
-        self.investor_ref.distribute_results(self.multipliers)
-        # Calculate baseline investor without distributing
-        self.investor_base.undistributed_revenue()
-        # Calculate and save total revenue changes
-        self.calc_revenue_changes()
-
     def update_mtrlists(self):
         """
         Calls Investors to calculate MTRs on noncorporate business equity
@@ -166,24 +180,3 @@ class BusinessModel():
         self.investor_ref.gen_mtr_lists()
         self.btax_params_ref['tau_nc'] = self.investor_ref.get_tauNClist()
         self.btax_params_ref['tau_e'] = self.investor_ref.get_tauElist()
-
-    def calc_withresponse(self, response):
-        assert isinstance(response, Response)
-        # Calculate MTRs and update all policy DataFrames (btax_params)
-        self.update_mtrlists()
-        # Calculate all responses
-        response.calc_all(self.btax_params_base, self.btax_params_ref)
-        # Run calculations for corporations
-        self.corp_base.calc_static()
-        self.corp_ref.apply_responses(response)
-        # Run calculations for pass-throughs
-        self.passthru_base.calc_static()
-        self.passthru_ref.apply_responses(response)
-        # Compare corporations and pass-throughs to get income changes
-        self.produce_multipliers()
-        # Distribute changes to reform investor
-        self.investor_ref.distribute_results(self.multipliers)
-        # Calculate baseline investor without distributing
-        self.investor_base.undistributed_revenue()
-        # Calculate and save total revenue changes
-        self.calc_revenue_changes()

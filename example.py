@@ -42,11 +42,9 @@ btax_refdict = {2018: {'tau_c': 0.28,
 # Create an individual-tax policy reform dictionary with no reform
 iitax_refdict = dict()
 
-# Create a BusinessModel object
+# Execute BusinessModel calculations with no response
 BM = BusinessModel(btax_refdict, iitax_refdict)
-
-# Execute the no-response calculations
-BM.calc_noresponse()
+BM.calc_all(response=None)
 
 # Look at the changes in total corporate and individual income tax liability
 output_df = BM.ModelResults.round(3)
@@ -63,15 +61,19 @@ corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
 corp_diff['year'] = BM.corp_base.real_results['year']
 corp_diff.to_csv('example_results/nresp_corp_diff.csv', index=False)
 
-# Execute the with-response calculations assuming
-# only investment and debt responses to tax reform
-response = Response()
-response.update_elasticities({'inv_usercost_c': -1.0,
-                              'inv_usercost_nc': -0.5,
-                              'debt_taxshield_c': 0.4,
-                              'debt_taxshield_nc': 0.2,
-                              'first_year_response': 2018})
-BM.calc_withresponse(response)
+# Delete the BusinessModel object
+del BM
+
+# Execute BusinessModel calculations assuming responses just
+# investment and debt responses to business tax reform
+BM = BusinessModel(btax_refdict, iitax_refdict)
+partial_response = Response()
+partial_response.update_elasticities({'inv_usercost_c': -1.0,
+                                      'inv_usercost_nc': -0.5,
+                                      'debt_taxshield_c': 0.4,
+                                      'debt_taxshield_nc': 0.2,
+                                      'first_year_response': 2018})
+BM.calc_all(response=partial_response)
 
 # Look at the changes in total corporate and individual income tax liability
 output_df = BM.ModelResults.round(3)
@@ -87,3 +89,6 @@ output_df.to_csv('example_results/wresp_refm.csv', index=False)
 corp_diff = (BM.corp_ref.real_results - BM.corp_base.real_results).round(3)
 corp_diff['year'] = BM.corp_base.real_results['year']
 corp_diff.to_csv('example_results/wresp_corp_diff.csv', index=False)
+
+# Delete the BusinessModel object
+del BM
