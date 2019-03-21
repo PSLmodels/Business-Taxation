@@ -11,12 +11,12 @@ import pytest
 from biztax import Response
 
 
-def test_needs_calc_all():
+def test_calc_all_already_called():
     """
-    Test needs_calc_all method
+    Test calc_all_already_called method
     """
     response = Response()
-    assert response.needs_calc_all()
+    assert not response.calc_all_already_called()
 
 
 def test_update_elasticities():
