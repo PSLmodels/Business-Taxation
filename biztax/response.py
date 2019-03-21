@@ -52,7 +52,7 @@ class Response():
 
     def needs_calc_all(self):
         """
-        Returns True if any response results are None; otherwise returns False
+        Returns True if any response result is None; otherwise returns False
         """
         return (self.investment_response is None or
                 self.debt_response is None or

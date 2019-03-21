@@ -11,6 +11,14 @@ import pytest
 from biztax import Response
 
 
+def test_needs_calc_all():
+    """
+    Test needs_calc_all method
+    """
+    response = Response()
+    assert response.needs_calc_all()
+
+
 def test_update_elasticities():
     """
     Test (in)correct use of update_elasticities method
