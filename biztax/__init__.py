@@ -2,6 +2,7 @@
 Specify what is available to import from the biztax package.
 """
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
+from biztax.policy import Policy
 from biztax.asset import Asset
 from biztax.btaxmini import BtaxMini
 from biztax.data import Data
