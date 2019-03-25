@@ -5,6 +5,7 @@ import os
 import numpy
 import pandas
 import pytest
+import taxcalc as itax
 from biztax import Policy, Data, START_YEAR, END_YEAR, NUM_YEARS
 
 
@@ -119,3 +120,8 @@ def test_policy_values(tests_path):
         if not allclose:
             params_with_diff.append(pname)
     assert not params_with_diff
+    # create itax.Policy object to make sure Policy object didn't interfer
+    ipolicy = itax.Policy()
+    ipolicy.implement_reform({2020: {'_II_em': [2000]}})
+    assert ipolicy.start_year == itax.Policy.JSON_START_YEAR
+    assert ipolicy.end_year == itax.Policy.LAST_BUDGET_YEAR
