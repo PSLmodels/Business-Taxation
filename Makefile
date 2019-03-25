@@ -43,14 +43,15 @@ pytest:
 
 .PHONY=pytest-all
 pytest-all:
-	@cd biztax ; pytest -n4 -m ""
+	@cd biztax ; pytest -n4
 	@$(pytest-cleanup)
 
 JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)
 
 .PHONY=cstest
 cstest:
-	@-pycodestyle biztax
+	@-pycodestyle --ignore=E501 biztax
+	@-pycodestyle --ignore=E501 biztax/tests
 	@-pycodestyle --ignore=E501,E121  $(JSON_FILES)
 
 define coverage-cleanup
