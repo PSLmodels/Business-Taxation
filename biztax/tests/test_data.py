@@ -1,13 +1,8 @@
 """
 Test Data class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_data.py
-# pylint --disable=locally-disabled test_data.py
-
-import pytest
 import numpy as np
-# pylint: disable=import-error
+import pytest
 from biztax import Data
 
 

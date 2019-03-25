@@ -1,14 +1,9 @@
 """
-Test corpoate-aspects of BusinessModel class.
+Test corporate-aspects of BusinessModel class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_bm_corp.py
-# pylint --disable=locally-disabled test_bm_corp.py
-
 import os
 import filecmp
 import pytest
-# pylint: disable=import-error
 from biztax import BusinessModel, Response
 
 

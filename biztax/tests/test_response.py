@@ -1,13 +1,8 @@
 """
 Test Response class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_response.py
-# pylint --disable=locally-disabled test_response.py
-
 import numpy as np
 import pytest
-# pylint: disable=import-error
 from biztax import Response
 
 

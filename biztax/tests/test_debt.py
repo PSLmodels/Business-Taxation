@@ -1,13 +1,8 @@
 """
 Test Debt class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_debt.py
-# pylint --disable=locally-disabled test_debt.py
-
 import numpy as np
 import pytest
-# pylint: disable=import-error
 from biztax import Debt, Asset, Data
 
 

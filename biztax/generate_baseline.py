@@ -1,18 +1,19 @@
 """
 The code in this file calculates and saves the various adjustment factors
-and DataFrames necessary for the calculations in BRC. 
+and DataFrames necessary for the calculations in Business-Taxation.
 
 We need to produce the following objects:
     adjfactors.csv
     pass-through shares
 """
+import copy
 import numpy as np
 import pandas as pd
-import copy
 import scipy.optimize
 from data import Data
 from asset import Asset
 from debt import Debt
+
 
 # Specify single Data object (for convenience)
 data1 = Data()
@@ -21,6 +22,7 @@ data1 = Data()
 """
 Section 1. Calculation of the adjustment parameters
 """
+
 
 def calcAMTparams2():
     """
@@ -41,11 +43,13 @@ def calcAMTparams2():
     eta = sum([pymtc[i] / stock[i] for i in range(16)]) / 16.
     A_over_TI = sum([amt[i] / taxinc[i] for i in range(16)]) / 16.
     # Calculate solution to AMT parameter
+
     def amterr(lam):
         # Squared difference between actual AMT/TaxInc ratio vs. predicted
         ATI_pred = tau_a / lam * np.exp(-lam * (tau_c / tau_a - 1))
         err = (ATI_pred - A_over_TI)**2
         return err
+
     lamf = scipy.optimize.minimize_scalar(amterr,
                                           bounds=(0.001, 100),
                                           method='bounded').x
@@ -55,6 +59,7 @@ def calcAMTparams2():
     gamma = eta * (1 - alpha + beta) / (1 - alpha - eta * alpha + eta * beta)
     stock2014 = stock[15] + amt[15] - pymtc[15]
     return (lamf, theta, eta, gamma, alpha, beta, stock2014)
+
 
 def calcWAvgTaxRate(year):
     """
@@ -71,6 +76,7 @@ def calcWAvgTaxRate(year):
     avgrate = sum(taxrate_list2 * gdp_list2) / sum(gdp_list2)
     return avgrate
 
+
 def calcFTCAdjustment():
     """
     Calculates the adjustment factor for the FTC.
@@ -85,6 +91,7 @@ def calcFTCAdjustment():
     ftc_gross = profits_f * tax_f / 100.
     adjfactor = sum(ftc_actual / ftc_gross) / 19.
     return adjfactor
+
 
 def calcDepAdjustment(corp):
     """
@@ -111,10 +118,11 @@ def calcDepAdjustment(corp):
                   len(depreciation_data['scale']))
     return adj_factor
 
+
 def calcIDAdjustment(Corp, eta=0.4):
     """
-    Calculates the adjustment factors for the corporate and noncorporate debt
-    and interest. 
+    Calculates the adjustment factors for the corporate and noncorporate
+    debt and interest.
     eta: retirement rate of existing debt
     """
     # Create Asset object
@@ -137,6 +145,7 @@ def calcIDAdjustment(Corp, eta=0.4):
     NID_scale = sum(NID_irs / NID_gross) / 16.
     return NID_scale
 
+
 # Calculate the adjustment and dynamic parameters for AMT & PYMTC
 all_amt_params = calcAMTparams2()
 # Calculate the FTC adjustment parameters
@@ -149,57 +158,61 @@ adjfactor_int_corp = calcIDAdjustment(True)
 adjfactor_int_noncorp = calcIDAdjustment(False)
 
 
-
 """
 Section 2. Calculation of pass-through shares
 Note: All shares are estimated for 2013.
 """
+
+
 # Total depreciation
 totaldep = (data1.partner_data['dep_total'][19] +
             data1.Scorp_data['dep_total'][18] +
             data1.sp_data['dep_total'][16])
 # Depreciation shares for S corporations (by income status)
 depshare_scorp_posinc = data1.Scorp_data['dep_posinc'][18] / totaldep
-depshare_scorp_neginc = (data1.Scorp_data['dep_total'][18] / totaldep -
-                         depshare_scorp_posinc)
+depshare_scorp_neginc = (data1.Scorp_data['dep_total'][18] / totaldep
+                         - depshare_scorp_posinc)
 # Depreciation shares for sole proprietorships (by income status)
 depshare_sp_posinc = data1.sp_data['dep_posinc'][16] / totaldep
-depshare_sp_neginc = data1.sp_data['dep_total'][16] / totaldep - depshare_sp_posinc
+depshare_sp_neginc = (data1.sp_data['dep_total'][16] / totaldep
+                      - depshare_sp_posinc)
 # Depreciation shares for partnerships (by income status)
 depshare_partner_posinc = data1.partner_data['dep_posinc'][19] / totaldep
-depshare_partner_neginc = (data1.partner_data['dep_total'][19] / totaldep -
-                           depshare_partner_posinc)
+depshare_partner_neginc = (data1.partner_data['dep_total'][19] / totaldep
+                           - depshare_partner_posinc)
 # Total net interest deduction, excluding finance sector and holding companies
-totalint_exfin = (data1.partner_data['intpaid_total'][19] +
-                  data1.Scorp_data['intpaid_total'][18] +
-                  data1.sp_data['mortintpaid'][16] +
-                  data1.sp_data['otherintpaid'][16] -
-                  data1.partner_data['intpaid_fin_total'][19] -
-                  data1.Scorp_data['intpaid_fin'][18] -
-                  data1.sp_data['mortintpaid_fin'][16] -
-                  data1.sp_data['otherintpaid_fin'][16])
+totalint_exfin = (data1.partner_data['intpaid_total'][19]
+                  + data1.Scorp_data['intpaid_total'][18]
+                  + data1.sp_data['mortintpaid'][16]
+                  + data1.sp_data['otherintpaid'][16]
+                  - data1.partner_data['intpaid_fin_total'][19]
+                  - data1.Scorp_data['intpaid_fin'][18]
+                  - data1.sp_data['mortintpaid_fin'][16]
+                  - data1.sp_data['otherintpaid_fin'][16])
 # Net interest share for S corporations (by income status)
-intshare_scorp_posinc = (data1.Scorp_data['intpaid_posinc'][18] -
-                         data1.Scorp_data['intpaid_fin_posinc'][18]) / totalint_exfin
-intshare_scorp_neginc = ((data1.Scorp_data['intpaid_total'][18] -
-                          data1.Scorp_data['intpaid_fin'][18]) /
-                         totalint_exfin - intshare_scorp_posinc)
+intshare_scorp_posinc = ((data1.Scorp_data['intpaid_posinc'][18]
+                          - data1.Scorp_data['intpaid_fin_posinc'][18])
+                         / totalint_exfin)
+intshare_scorp_neginc = ((data1.Scorp_data['intpaid_total'][18]
+                          - data1.Scorp_data['intpaid_fin'][18])
+                         / totalint_exfin - intshare_scorp_posinc)
 # Net interest share for sole proprietorships (by income status)
-intshare_sp_posinc = (data1.sp_data['mortintpaid_posinc'][16] +
-                      data1.sp_data['otherintpaid_posinc'][16] -
-                      data1.sp_data['mortintpaid_fin_posinc'][16] -
-                      data1.sp_data['otherintpaid_fin_posinc'][16]) / totalint_exfin
-intshare_sp_neginc = ((data1.sp_data['mortintpaid'][16] +
-                       data1.sp_data['otherintpaid'][16] -
-                       data1.sp_data['mortintpaid_fin'][16] -
-                       data1.sp_data['otherintpaid_fin'][16]) /
+intshare_sp_posinc = ((data1.sp_data['mortintpaid_posinc'][16]
+                       + data1.sp_data['otherintpaid_posinc'][16]
+                       - data1.sp_data['mortintpaid_fin_posinc'][16]
+                       - data1.sp_data['otherintpaid_fin_posinc'][16])
+                      / totalint_exfin)
+intshare_sp_neginc = ((data1.sp_data['mortintpaid'][16]
+                       + data1.sp_data['otherintpaid'][16]
+                       - data1.sp_data['mortintpaid_fin'][16]
+                       - data1.sp_data['otherintpaid_fin'][16]) /
                       totalint_exfin - intshare_sp_posinc)
-intshare_partner_posinc = ((data1.partner_data['intpaid_posinc'][19] -
-                            data1.partner_data['intpaid_fin_posinc'][19]) /
-                           totalint_exfin)
-intshare_partner_neginc = ((data1.partner_data['intpaid_total'][19] -
-                            data1.partner_data['intpaid_fin_total'][19]) /
-                           totalint_exfin - intshare_partner_posinc)
+intshare_partner_posinc = ((data1.partner_data['intpaid_posinc'][19]
+                            - data1.partner_data['intpaid_fin_posinc'][19])
+                           / totalint_exfin)
+intshare_partner_neginc = ((data1.partner_data['intpaid_total'][19]
+                            - data1.partner_data['intpaid_fin_total'][19])
+                           / totalint_exfin - intshare_partner_posinc)
 
 # Save the adjustment factors and pass-through shares
 adj_factors = {'param_amt': all_amt_params[0],
