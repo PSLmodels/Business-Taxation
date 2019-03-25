@@ -27,5 +27,3 @@ def test_update_elasticities():
     with pytest.raises(ValueError):
         response.update_elasticities({'unknown_elasticity_name': 0.0})
     response.update_elasticities({'inv_eatr_c': -0.8})
-
-    
