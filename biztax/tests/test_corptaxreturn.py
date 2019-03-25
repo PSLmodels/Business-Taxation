@@ -50,4 +50,4 @@ def test_instantiation_and_update_methods(default_btax_params):
     ctr.update_debts(good_debts)
     with pytest.raises(ValueError):
         ctr.update_debts(bad_debts)
-    ctr.update_earnings(good_earnings)        
+    ctr.update_earnings(good_earnings)
