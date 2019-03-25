@@ -68,9 +68,9 @@ def test_constrain_history(default_btax_params):
     """
     good_asset_forecast = np.ones(14)
     debt = Debt(default_btax_params, good_asset_forecast)
-    debt.get_haircuts() 
-    debt.build_level_history() 
-    debt.build_flow_history() 
+    debt.get_haircuts()
+    debt.build_level_history()
+    debt.build_flow_history()
     debt.originations[0] = -9.9  # triggers constrain_history logic
-    debt.constrain_history() 
+    debt.constrain_history()
     assert min(debt.originations) == 0.0
