@@ -50,8 +50,7 @@ JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)
 
 .PHONY=cstest
 cstest:
-	@-pycodestyle --ignore=E501 biztax
-	@-pycodestyle --ignore=E501 biztax/tests
+	@-pycodestyle biztax
 	@-pycodestyle --ignore=E501,E121  $(JSON_FILES)
 
 define coverage-cleanup

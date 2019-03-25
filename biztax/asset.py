@@ -1,6 +1,10 @@
+"""
+Business-Taxation Asset class.
+"""
+import copy
 import numpy as np
 import pandas as pd
-import copy
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 
 btax_data_path = 'btax_data/'
@@ -8,15 +12,15 @@ btax_data_path = 'btax_data/'
 
 class Asset():
     """
-    Constructor for the Asset class. 
+    Constructor for the Asset class.
     This class includes several objects related to assets and depreciation:
         For internal class use:
-            investment_history: 
+            investment_history:
                 array of investment amounts
                 asset type (96) x year investment made (75)
             capital_history:
                 array of asset amounts
-                asset type (96) x years in the budget window (14)
+                asset type (96) x years in the budget window (NUM_YEARS)
             system_history:
                 array of depreciation systems (GDS or ADS)
                 asset type (96) x year investment made (75)
@@ -34,14 +38,13 @@ class Asset():
                 asset type (96), 2017 only
             capital_path:
                 DataFrame of asset information totals in the budget window
-        
+
     Parameters:
         corp: True for corporate, False for noncorporate
         btax_params: dict of business tax policy parameters
         response: DataFrame of investment responses
-        
     """
-    
+
     def __init__(self, btax_params, corp=True, data=None, response=None):
         # Create an associated Data object
         if isinstance(data, Data):
@@ -69,21 +72,22 @@ class Asset():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        
+
     def update_response(self, response):
         """
         Updates the response DataFrame.
-        Note: The response is the investment response DataFrame, not a 
+        Note: The response is the investment response DataFrame, not a
               Response object.
         """
         assert isinstance(response, pd.DataFrame)
         self.response = response
-    
+
     def get_ccr_data(self):
         assets2017 = copy.deepcopy(self.data.assets_data())
-        ccrdata = assets2017.merge(right=self.data.econ_depr_df(), how='outer', on='Asset')
+        ccrdata = assets2017.merge(right=self.data.econ_depr_df(),
+                                   how='outer', on='Asset')
         self.ccr_data = ccrdata
-    
+
     def build_inv_matrix(self):
         """
         Builds investment array by asset type and by year made
@@ -91,28 +95,39 @@ class Asset():
         inv_mat1 = np.zeros((96, 75))
         # Build historical portion
         for j in range(57):
+            ystr = str(j + 1960)
             if self.corp:
-                inv_mat1[:, j] = (self.data.investmentrate_data['i' + str(j + 1960)] *
-                                  self.data.investmentshare_data['c_share'][j])
+                inv_mat1[:, j] = (
+                    self.data.investmentrate_data['i' + ystr]
+                    * self.data.investmentshare_data['c_share'][j]
+                )
             else:
-                inv_mat1[:, j] = (self.data.investmentrate_data['i' + str(j + 1960)] *
-                                  (1 - self.data.investmentshare_data['c_share'][j]))
+                inv_mat1[:, j] = (
+                    self.data.investmentrate_data['i' + ystr]
+                    * (1 - self.data.investmentshare_data['c_share'][j])
+                )
         # Extend investment using NGDP (growth factors from CBO forecast)
         for j in range(57, 75):
-            inv_mat1[:, j] = (inv_mat1[:, 56] *
-                              self.data.investmentGfactors_data['ngdp'][j] /
-                              self.data.investmentGfactors_data['ngdp'][56])
+            inv_mat1[:, j] = (
+                inv_mat1[:, 56]
+                * self.data.investmentGfactors_data['ngdp'][j]
+                / self.data.investmentGfactors_data['ngdp'][56]
+            )
         # Investment forecast for 2017
         if self.corp:
-            inv2017 = np.asarray(self.ccr_data['assets_c'] *
-                                 (self.data.investmentGfactors_data['ngdp'][57] /
-                                  self.data.investmentGfactors_data['ngdp'][56] - 1 +
-                                  self.ccr_data['delta']))
+            inv2017 = np.asarray(
+                self.ccr_data['assets_c']
+                * (self.data.investmentGfactors_data['ngdp'][57]
+                   / self.data.investmentGfactors_data['ngdp'][56]
+                   - 1 + self.ccr_data['delta'])
+            )
         else:
-            inv2017 = np.asarray(self.ccr_data['assets_nc'] *
-                                 (self.data.investmentGfactors_data['ngdp'][57] /
-                                  self.data.investmentGfactors_data['ngdp'][56] - 1 +
-                                  self.ccr_data['delta']))
+            inv2017 = np.asarray(
+                self.ccr_data['assets_nc']
+                * (self.data.investmentGfactors_data['ngdp'][57]
+                   / self.data.investmentGfactors_data['ngdp'][56]
+                   - 1 + self.ccr_data['delta'])
+            )
         # Rescale to match B-Tax data for 2017
         inv_mat2 = np.zeros((96, 75))
         l1 = list(range(96))
@@ -129,10 +144,11 @@ class Asset():
                 deltaIkey = 'deltaInc'
             for i in range(96):
                 for j in range(57, 68):
-                    deltaI = self.response[deltaIkey + str(j + 1960)].tolist()[i]
+                    ystr = str(j + 1960)
+                    deltaI = self.response[deltaIkey + ystr].tolist()[i]
                     inv_mat3[i, j] = inv_mat2[i, j] * (1 + deltaI)
         self.investment_history = inv_mat3
-    
+
     def build_deprLaw_matrices(self):
         """
         Builds the arrays for tax depreciation laws
@@ -140,7 +156,7 @@ class Asset():
         def taxdep_final(depr_methods, depr_bonuses):
             """
             Constructs the DataFrame of information for tax depreciation.
-            Only relevant for years beginning with 2014.
+            Only relevant for years beginning with START_YEAR.
             Returns a DataFrame with:
                 depreciation method,
                 tax depreciation life,
@@ -170,14 +186,14 @@ class Asset():
             for cl, cl_bonus in depr_bonuses.items():
                 bonus[class_life == cl] = cl_bonus
             taxdep['bonus'] = bonus
-            taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
+            taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'],
+                        axis=1, inplace=True)
             return taxdep
-        
-        
+
         def taxdep_preset(year):
             """
             Constructs the DataFrame of information for tax depreciation.
-            Only relevant for years before 2014.
+            Only relevant for years before START_YEAR.
             Returns a DataFrame with:
                 depreciation method,
                 tax depreciation life,
@@ -192,24 +208,25 @@ class Asset():
                 s = "bonus{}".format(y if y != 27.5 else 27)
                 bonus[class_life == y] = self.data.bonus_data[s][year - 1960]
             taxdep['bonus'] = bonus
-            taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'], axis=1, inplace=True)
+            taxdep.drop(['L_gds', 'L_ads', 'GDS Class Life'],
+                        axis=1, inplace=True)
             return taxdep
-        
-        
+
         def get_btax_params_oneyear(btax_params, year):
             """
             Extracts tax depreciation parameters and
             calls the functions to build the tax depreciation
             DataFrames.
             """
-            if year >= 2014:
-                year = min(year, 2027)
+            if year >= START_YEAR:
+                year = min(year, END_YEAR)
+                iyr = year - START_YEAR
                 depr_methods = {}
                 depr_bonuses = {}
                 for y in [3, 5, 7, 10, 15, 20, 25, 27.5, 39]:
                     s = "depr_{}yr_".format(y if y != 27.5 else 275)
-                    depr_methods[y] = btax_params[s + 'method'][year - 2014]
-                    depr_bonuses[y] = btax_params[s + 'bonus'][year - 2014]
+                    depr_methods[y] = btax_params[s + 'method'][iyr]
+                    depr_bonuses[y] = btax_params[s + 'bonus'][iyr]
                 taxdep = taxdep_final(depr_methods, depr_bonuses)
             else:
                 taxdep = taxdep_preset(year)
@@ -218,17 +235,18 @@ class Asset():
         Create arrays and store depreciation rules in them
         """
         method_history = [[]] * 75
-        life_history = np.zeros((96,75))
-        bonus_history = np.zeros((96,75))
+        life_history = np.zeros((96, 75))
+        bonus_history = np.zeros((96, 75))
         for year in range(1960, 2035):
+            iyr = year - 1960
             params_oneyear = get_btax_params_oneyear(self.btax_params, year)
-            method_history[year-1960] = params_oneyear['Method']
-            life_history[:,year-1960] = params_oneyear['L']
-            bonus_history[:,year-1960] = params_oneyear['bonus']
+            method_history[iyr] = params_oneyear['Method']
+            life_history[:, iyr] = params_oneyear['L']
+            bonus_history[:, iyr] = params_oneyear['bonus']
         self.method_history = method_history
         self.life_history = life_history
         self.bonus_history = bonus_history
-    
+
     def calcDep_oneyear(self, year):
         """
         Calculates total depreciation deductions taken in the year.
@@ -270,7 +288,7 @@ class Asset():
                     else:
                         annual_change = ((pi_temp * np.exp(delta) - 1) /
                                          (np.log(pi_temp) - delta))
-        
+
                 if year_deduction < year_investment:
                     sval = 0
                     deduction = 0
@@ -290,7 +308,7 @@ class Asset():
                     N = 1.5
                 elif method == 'SL':
                     N = 1
-        
+
             # DB or SL depreciation, half-year convention
                 t0 = year_investment + 0.5
                 t1 = t0 + L * (1 - 1 / N)
@@ -314,7 +332,7 @@ class Asset():
                                                 np.exp(-N / L * (t1 - t0)) +
                                                 N / L * np.exp(1 - N) * (s2 - t1)))
             return deduction
-        
+
         """
         Calculate depreciation deductions for each year
         """
@@ -323,49 +341,56 @@ class Asset():
             # Iterate over asset types
             for j in range(75):
                 # Iterate over investment years
-                bonus1 = min(self.bonus_history[i,j] * self.adjustments['bonus'] + self.adjustments['sec179'], 1.0)
-                unitDep_arr[i,j] = depreciationDeduction(j, year-1960, self.method_history[j][i], self.life_history[i,j], self.ccr_data['delta'][i], bonus1)
+                bonus1 = min((self.bonus_history[i, j]
+                              * self.adjustments['bonus']
+                              + self.adjustments['sec179']), 1.0)
+                unitDep_arr[i, j] = depreciationDeduction(
+                    j, year - 1960, self.method_history[j][i],
+                    self.life_history[i, j], self.ccr_data['delta'][i], bonus1
+                )
         Dep_arr = self.investment_history * unitDep_arr
         # Apply the haircut on undepreciated basis
+        iyr = year - START_YEAR
         if self.corp:
-            hc_undep_year = np.array(self.btax_params['undepBasis_corp_hcyear'])[year-2014]
-            hc_undep = np.array(self.btax_params['undepBasis_corp_hc'])[year-2014]
+            hc_undep_year = np.array(self.btax_params['undepBasis_corp_hcyear'])[iyr]
+            hc_undep = np.array(self.btax_params['undepBasis_corp_hc'])[iyr]
         else:
-            hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[year-2014]
-            hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[year-2014]
+            hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[iyr]
+            hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[iyr]
         if year >= hc_undep_year:
             for j in range(75):
                 if j < hc_undep_year:
-                    Dep_arr[:,j] = Dep_arr[:,j] * (1 - hc_undep)
+                    Dep_arr[:, j] = Dep_arr[:, j] * (1 - hc_undep)
         # Calculate the total deduction
         total_depded = Dep_arr.sum().sum()
         return total_depded
-    
+
     def calcDep_allyears(self):
         """
         Calculates total depreciation deductions taken for all years
-        1960-2035. 
+        1960-2035.
         """
         dep_deductions = np.zeros(75)
-        for year in range(1960,2035):
-            dep_deductions[year-1960] = self.calcDep_oneyear(year)
+        for year in range(1960, 2035):
+            dep_deductions[year - 1960] = self.calcDep_oneyear(year)
         return dep_deductions
-    
+
     def calcDep_budget(self):
         """
-        Calculates total depreciation deductions taken for 2014 - 2027. 
+        Calculates total depreciation deductions taken for START_ to END_YEAR.
         """
-        dep_deductions = np.zeros(14)
-        for year in range(2014, 2028):
-            dep_deductions[year-2014] = self.calcDep_oneyear(year)
+        dep_deductions = np.zeros(NUM_YEARS)
+        for iyr in range(0, NUM_YEARS):
+            year = iyr + START_YEAR
+            dep_deductions[iyr] = self.calcDep_oneyear(year)
         return dep_deductions
-    
+
     def build_capital_history(self):
         """
         Builds capital history array using investment_history and ccr_data
         """
-        Kstock = np.zeros((96, 15))
-        trueDep = np.zeros((96, 14))
+        Kstock = np.zeros((96, NUM_YEARS + 1))
+        trueDep = np.zeros((96, NUM_YEARS))
         pcelist = np.asarray(self.data.investmentGfactors_data['pce'])
         deltalist = np.asarray(self.ccr_data['delta'])
         for i in range(96):
@@ -388,31 +413,35 @@ class Asset():
                                      pcelist[j + 1] / pcelist[j])
         self.capital_history = Kstock
         self.trueDep = trueDep
-    
+
     def build_capital_path(self):
         """
         Builds the DataFrame of asset amount, investment and depreciation
         totals for each year in the budget window.
         """
         # Sum across assets and put into new dataset
-        Kstock_total = np.zeros(14)
-        fixedK_total = np.zeros(14)
-        trueDep_total = np.zeros(14)
-        inv_total = np.zeros(14)
-        fixedInv_total = np.zeros(14)
-        Mdep_total = np.zeros(14)
-        for j in range(14):
-            adjfactor = self.adjustments['overall'] * self.adjustments['rescalar'][j]
-            Kstock_total[j] = sum(self.capital_history[:, j]) * adjfactor
-            fixedK_total[j] = ((sum(self.capital_history[:, j]) -
-                                self.capital_history[31, j] -
-                                self.capital_history[32, j]) * adjfactor)
-            trueDep_total[j] = sum(self.trueDep[:, j]) * adjfactor
-            inv_total[j] = (sum(self.investment_history[:, j + 54]) * adjfactor)
-            fixedInv_total[j] = ((sum(self.investment_history[:, j + 54]) -
-                                 self.investment_history[31, j + 54]) * adjfactor)
-            Mdep_total[j] = self.calcDep_oneyear(j + 2014) * adjfactor
-        cap_result = pd.DataFrame({'year': range(2014, 2028),
+        Kstock_total = np.zeros(NUM_YEARS)
+        fixedK_total = np.zeros(NUM_YEARS)
+        trueDep_total = np.zeros(NUM_YEARS)
+        inv_total = np.zeros(NUM_YEARS)
+        fixedInv_total = np.zeros(NUM_YEARS)
+        Mdep_total = np.zeros(NUM_YEARS)
+        for iyr in range(NUM_YEARS):
+            adjfactor = (self.adjustments['overall']
+                         * self.adjustments['rescalar'][iyr])
+            Kstock_total[iyr] = sum(self.capital_history[:, iyr]) * adjfactor
+            fixedK_total[iyr] = ((sum(self.capital_history[:, iyr])
+                                  - self.capital_history[31, iyr]
+                                  - self.capital_history[32, iyr]) * adjfactor)
+            trueDep_total[iyr] = sum(self.trueDep[:, iyr]) * adjfactor
+            inv_total[iyr] = (sum(self.investment_history[:, iyr + 54])
+                              * adjfactor)
+            fixedInv_total[iyr] = (((sum(self.investment_history[:, iyr + 54])
+                                     - self.investment_history[31, iyr + 54])
+                                    * adjfactor))
+            year = iyr + START_YEAR
+            Mdep_total[iyr] = self.calcDep_oneyear(year) * adjfactor
+        cap_result = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                    'Kstock': Kstock_total,
                                    'Investment': inv_total,
                                    'FixedInv': fixedInv_total,
@@ -420,7 +449,7 @@ class Asset():
                                    'taxDep': Mdep_total,
                                    'FixedK': fixedK_total})
         self.capital_path = cap_result
-    
+
     def calc_all(self):
         """
         Executes all calculations for Asset object.
@@ -431,34 +460,32 @@ class Asset():
         self.build_capital_history()
         self.build_capital_path()
         return None
-    
+
     def get_forecast(self):
         """
-        Returns an array of the capital stock for 2014-2027
+        Returns an array of the capital stock for [START_YEAR, END_YEAR]
         """
         forecast = np.array(self.capital_path['Kstock'])
         return forecast
-    
+
     def get_taxdep(self):
         """
-        Returns an array of tax depreciation deductions for 2014-2027
+        Returns an array of tax depreciation deductions for
+        [START_YEAR, END_YEAR]
         """
         taxdep = np.array(self.capital_path['taxDep'])
         return taxdep
-    
+
     def get_investment(self):
         """
-        Returns an array of total investment for 2014-2027
+        Returns an array of total investment for [START_YEAR, END_YEAR]
         """
         inv1 = np.array(self.capital_path['Investment'])
         return inv1
-    
+
     def get_truedep(self):
         """
-        Returns an array of true depreciation for 2014-2027
+        Returns an array of true depreciation for [START_YEAR, END_YEAR]
         """
-        truedep =np.array(self.capital_path['trueDep'])
+        truedep = np.array(self.capital_path['trueDep'])
         return truedep
-    
-    
-    
