@@ -1,6 +1,10 @@
+"""
+Business-Taxation BtaxMini class.
+"""
+import copy
 import numpy as np
 import pandas as pd
-import copy
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 from biztax.asset import Asset
 
@@ -10,86 +14,86 @@ class BtaxMini():
     Constructor for the BtaxMini class. This class functions similarly to
     the B-Tax model, with several modifications, such as the use of different
     equations and allowing for nonconstant tax rates, as well as producing
-    somewhat different final measures. 
-    
+    somewhat different final measures.
+
     Parameters
     ----------
     btax_params: DataFrame of regular tax parameters
-    
+
     Returns
     -------
     DataFrame of user cost of capital and EATR for each year and asset type
     """
-    
+
     def __init__(self, btax_params):
         self.econ_params = copy.deepcopy(Data().econ_defaults)
         self.btax_params = btax_params
         self.asset_c = Asset(btax_params, corp=True)
         self.asset_c.build_deprLaw_matrices()
-    
+
     def make_tdict_c(self, start_year):
         """
         Produces a dictionary of tax rates and changes to those rates,
         for use when calculating rho and EATR, for corporations.
-        Assumes no changes after 2027.
+        Assumes no changes after END_YEAR.
         """
         assert start_year >= 2017
         assert type(start_year) == int
-        if start_year >= 2027:
+        if start_year >= END_YEAR:
             tdict = {'0': self.btax_params['tau_c'][10]}
         else:
-            tdict = {'0': self.btax_params['tau_c'][start_year-2014]}
+            tdict = {'0': self.btax_params['tau_c'][start_year-START_YEAR]}
             for i in range(start_year - 2016, len(self.btax_params['year']) - 3):
                 if self.btax_params['tau_c'][i+3] != self.btax_params['tau_c'][i+2]:
                     tdict[str(i - (start_year-2017))] = self.btax_params['tau_c'][i+3]
         return tdict
-    
+
     def make_tdict_nc(self, start_year):
         """
         Produces a dictionary of tax rates and changes to those rates,
         for use when calculating rho and EATR, for noncorporate businesses.
-        Assumes no changes after 2027.
+        Assumes no changes after END_YEAR.
         """
         assert start_year >= 2017
         assert type(start_year) == int
-        if start_year >= 2027:
+        if start_year >= END_YEAR:
             tdict = {'0': self.btax_params['tau_nc'][13]}
         else:
-            tdict = {'0': self.btax_params['tau_nc'][start_year-2014]}
+            tdict = {'0': self.btax_params['tau_nc'][start_year-START_YEAR]}
             for i in range(start_year - 2016, len(self.btax_params['year']) - 3):
                 tdict[str(i - (start_year-2017))] = self.btax_params['tau_nc'][i+3]
         return tdict
-    
-    
+
     def get_econ_params_oneyear(self, year):
         """
         Extracts the economic parameters to use for calculations in each year.
         """
-        r_d = self.econ_params['r_d'][year-2014]
-        r_e_c = self.econ_params['r_e_c'][year-2014]
-        r_e_nc = self.econ_params['r_e_nc'][year-2014]
-        pi = self.econ_params['pi'][year-2014]
-        f_c = self.econ_params['f_c'][year-2014]
-        f_nc = self.econ_params['f_nc'][year-2014]
+        r_d = self.econ_params['r_d'][year-START_YEAR]
+        r_e_c = self.econ_params['r_e_c'][year-START_YEAR]
+        r_e_nc = self.econ_params['r_e_nc'][year-START_YEAR]
+        pi = self.econ_params['pi'][year-START_YEAR]
+        f_c = self.econ_params['f_c'][year-START_YEAR]
+        f_nc = self.econ_params['f_nc'][year-START_YEAR]
         r_c = f_c * r_d + (1 - f_c) * r_e_c
         r_nc = f_nc * r_d + (1 - f_nc) * r_e_nc
         return(r_c, r_nc, r_d, pi, f_c, f_nc)
-    
+
     def calc_frac_ded(self, year):
         """
         Calculates the fraction of interest deductible for the given year,
         for corporate and noncorporate.
         """
+        iyr = year - START_YEAR
         # Extract the corporate interest haircuts
-        hc_nid_c = np.array(self.btax_params['netIntPaid_corp_hc'])[year-2014]
-        hc_id_new_year_c = np.array(self.btax_params['newIntPaid_corp_hcyear'])[year-2014]
-        hc_id_new_c = np.array(self.btax_params['newIntPaid_corp_hc'])[year-2014]
+        hc_nid_c = np.array(self.btax_params['netIntPaid_corp_hc'])[iyr]
+        hc_id_new_year_c = np.array(self.btax_params['newIntPaid_corp_hcyear'])[iyr]
+        hc_id_new_c = np.array(self.btax_params['newIntPaid_corp_hc'])[iyr]
         # Find haircut for corporations
         fracdedc = 1.0 - hc_nid_c
         if year >= hc_id_new_year_c:
             fracdedc = min(fracdedc, 1.0 - hc_id_new_c)
-        hc_id_new_year_nc = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])[year-2014]
-        hc_id_new_nc = np.array(self.btax_params['newIntPaid_noncorp_hc'])[year-2014]
+        hc_id_new_year_nc = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])[iyr]
+        hc_id_new_nc = np.array(self.btax_params['newIntPaid_noncorp_hc'])[iyr]
         # Find haircut for noncorporate businesses
         if year < hc_id_new_year_nc:
             # If not subject to haircut
@@ -98,13 +102,13 @@ class BtaxMini():
             # If subject to haircut
             fracdedn = 1.0 - hc_id_new_nc
         return (fracdedc, fracdedn)
-    
+
     def calc_I(self, delta, r, a, b):
         """
         Calculates present value of income occuring during the period [a,b]
             delta: depreciation rate
             r: discount rate
-        Note: this is based on unit incone amount
+        Note: this is based on unit income amount
         """
         if r + delta == 0:
             I = b - a
@@ -112,7 +116,7 @@ class BtaxMini():
             I = (1 / (r + delta) * np.exp(-(r + delta) * a) *
                  (1 - np.exp(-(r + delta) * (b - a))))
         return I
-    
+
     def calc_Ilist(self, delta, r, length=50):
         """
         Calculates present value of income unit over lifetime
@@ -128,7 +132,7 @@ class BtaxMini():
         # Calculate from final period to infinity
         Ilist.append(self.calc_I(delta, r, length-1-0.5, 9e99))
         return Ilist
-    
+
     def calc_F(self, f, r, i, delta, fracded, a, b):
         """
         Calculates present value of interest deduction during period [a,b]
@@ -141,7 +145,7 @@ class BtaxMini():
         F = (f * i / (r + delta) * fracded * np.exp(-(r + delta) * a) *
              (1 - np.exp(-(r + delta) * (b - a))))
         return F
-    
+
     def calc_Flist(self, f, r, i, delta, fracded, length=50):
         """
         Calculates present value of interest deduction over lifetime
@@ -159,7 +163,7 @@ class BtaxMini():
         # Calculate from final period to infinity
         Flist.append(self.calc_F(f, r, i, delta, fracded, length-1-0.5, 9e99))
         return Flist
-    
+
     def calc_Dlist_exp(self, length=50):
         """
         Calculates depreciation deduction vector for expensing
@@ -168,11 +172,11 @@ class BtaxMini():
         Dlist = np.zeros(length)
         Dlist[0] = 1
         return Dlist
-    
+
     def calc_D_econ(self, delta, r, a, b):
         """
         Calculates PV of depreciation deduction during [a,b] using economic
-        depreciation method. 
+        depreciation method.
             delta: depreciation rate
             r: discount rate
         """
@@ -182,12 +186,11 @@ class BtaxMini():
             D = (delta / (r + delta) * np.exp(-(r + delta) * a) *
                  (1 - np.exp(-(r + delta) * (b - a))))
         return D
-    
-    
+
     def calc_Dlist_econ(self, delta, r, bonus, length=50):
         """
         Calculates present value of depreciation deductions over lifetime
-        for economic depreciation. 
+        for economic depreciation.
             delta: depreciation rate
             r: discount rate
             bonus: bonus depreciation rate
@@ -199,8 +202,7 @@ class BtaxMini():
         # Calculate from last period to infinity
         Dlist.append((1 - bonus) * self.calc_D_econ(delta, r, length-1-0.5, 9e99))
         return Dlist
-    
-    
+
     def calc_D_dbsl(self, N, L, r, pi, a, b):
         """
         Calculates PV of depreciation deductions during [a,b] for declining
@@ -258,8 +260,7 @@ class BtaxMini():
                 # If period occurs entirely after tax life has ended
                 D = 0
         return D
-    
-    
+
     def calc_Dlist_dbsl(self, N, L, bonus, r, pi, length=50):
         """
         Calculates present value of depreciation deductions over lifetime
@@ -273,11 +274,13 @@ class BtaxMini():
             pi: inflation rate
             length: number of periods to use
         """
-        Dlist = [bonus + (1 - bonus) * self.calc_D_dbsl(N, L, r, pi, 0, 0.5)]
+        Dlist = [bonus + (1 - bonus) * self.calc_D_dbsl(N, L, r,
+                                                        pi, 0, 0.5)]
         for j in range(1, length):
-            Dlist.append((1 - bonus) * self.calc_D_dbsl(N, L, r, pi, j-0.5, j+0.5))
+            Dlist.append((1 - bonus) * self.calc_D_dbsl(N, L, r,
+                                                        pi, j-0.5, j+0.5))
         return Dlist
-    
+
     def calc_Dlist(self, method, life, delta, r, pi, bonus, length=50):
         """
         Calculates present value of depreciation deductions over lifetime.
@@ -315,7 +318,7 @@ class BtaxMini():
             # No depreciation
             Dlist = np.zeros(length)
         return Dlist
-    
+
     def calc_Tlist(self, tdict, length=50):
         """
         Builds list of statutory tax rates for each period in lifetime
@@ -352,8 +355,7 @@ class BtaxMini():
                     rateind = rateind + 1
                     Tlist.append(ratelist[rateind])
         return Tlist
-    
-    
+
     def calc_rho(self, r, pi, delta, method, life, bonus, f, rd, fracded,
                  tdict, length=50):
         """
@@ -375,7 +377,8 @@ class BtaxMini():
         # Get income rates for all periods
         Nlist = np.asarray(self.calc_Ilist(delta, r, length))
         # Get depreciation deductions for all periods
-        Dlist = np.asarray(self.calc_Dlist(method, life, delta, r, pi, bonus, length))
+        Dlist = np.asarray(self.calc_Dlist(method, life, delta,
+                                           r, pi, bonus, length))
         # Get interest deductions for all periods
         Flist = np.asarray(self.calc_Flist(f, r, rd, delta, fracded, length))
         # Present value of tax shield from depreciation
@@ -386,7 +389,7 @@ class BtaxMini():
         N = sum(Nlist * (1 - Tlist))
         rho = (1 - A - F) / N - delta
         return rho
-    
+
     def calc_rho_inv(self, r, pi, inv_method, hold, tdict):
         """
         Calculates the cost of capital for inventories
@@ -416,7 +419,7 @@ class BtaxMini():
             # Mix of 50% FIFO and 50% LIFO
             rho_inv = 0.5 * (rho_fifo + rho_lifo)
         return rho_inv
-    
+
     def calc_eatr(self, p, r, pi, delta, method, life, bonus, f, rd, fracded,
                   tdict, length=50):
         """
@@ -454,7 +457,7 @@ class BtaxMini():
         R = -(1 - A - F) + (p + delta) * N
         eatr = (Rstar - R) / P
         return eatr
-    
+
     def calc_usercost(self, r, pi, delta, method, life, bonus, f, rd, fracded,
                       tdict, length=50):
         """
@@ -476,7 +479,7 @@ class BtaxMini():
                             tdict, length)
         ucoc = coc + delta
         return ucoc
-    
+
     def calc_oneyear(self, year):
         """
         In the given year, calculates EATR and user cost of capital for each
@@ -487,9 +490,10 @@ class BtaxMini():
         # Extract economic parameters
         [r_c, r_nc, r_d, pi, f_c, f_nc] = self.get_econ_params_oneyear(year)
         # Extract tax depreciation information
-        Method = self.asset_c.method_history[year-1960]
-        Life = self.asset_c.life_history[:,year-1960]
-        Bonus = self.asset_c.bonus_history[:,year-1960]
+        iyr = year - 1960
+        Method = self.asset_c.method_history[iyr]
+        Life = self.asset_c.life_history[:, iyr]
+        Bonus = self.asset_c.bonus_history[:, iyr]
         # Make tax rate dictionaries
         tdict_c = self.make_tdict_c(year)
         tdict_nc = self.make_tdict_nc(year)
@@ -499,20 +503,32 @@ class BtaxMini():
         # Get deductible fractions of interest paid
         (fracded_c, fracded_nc) = self.calc_frac_ded(year)
         # Get inventory method
-        inv_method = self.btax_params['inventory_method'][year-2014]
+        inv_method = self.btax_params['inventory_method'][year-START_YEAR]
         assets = np.asarray(asset_data['Asset'])
         uc_c = np.zeros(len(assets))
         uc_nc = np.zeros(len(assets))
         eatr_c = np.zeros(len(assets))
         eatr_nc = np.zeros(len(assets))
         for j in range(len(asset_data)):
-            uc_c[j] = self.calc_usercost(r_c, pi, Delta[j], Method[j], Life[j], Bonus[j], f_c, r_d, fracded_c, tdict_c, 50)
-            uc_nc[j] = self.calc_usercost(r_nc, pi, Delta[j], Method[j], Life[j], Bonus[j], f_nc, r_d, fracded_nc, tdict_nc, 50)
-            eatr_c[j] = self.calc_eatr(0.2, r_c, pi, Delta[j], Method[j], Life[j], Bonus[j], f_c, r_d, fracded_c, tdict_c, length=50)
-            eatr_nc[j] = self.calc_eatr(0.2, r_nc, pi, Delta[j], Method[j], Life[j], Bonus[j], f_nc, r_d, fracded_nc, tdict_nc, length=50)
+            uc_c[j] = self.calc_usercost(r_c, pi, Delta[j], Method[j],
+                                         Life[j], Bonus[j], f_c, r_d,
+                                         fracded_c, tdict_c, 50)
+            uc_nc[j] = self.calc_usercost(r_nc, pi, Delta[j], Method[j],
+                                          Life[j], Bonus[j], f_nc, r_d,
+                                          fracded_nc, tdict_nc, 50)
+            eatr_c[j] = self.calc_eatr(0.2, r_c, pi, Delta[j], Method[j],
+                                       Life[j], Bonus[j], f_c, r_d,
+                                       fracded_c, tdict_c, length=50)
+            eatr_nc[j] = self.calc_eatr(0.2, r_nc, pi, Delta[j], Method[j],
+                                        Life[j], Bonus[j], f_nc, r_d,
+                                        fracded_nc, tdict_nc, length=50)
         # Special cost of capital calculations for inventories
-        uc_c[assets == 'Inventories'] = self.calc_rho_inv(r_c, pi, inv_method, 0.5, tdict_c)
-        uc_nc[assets == 'Inventories'] = self.calc_rho_inv(r_nc, pi, inv_method, 0.5, tdict_nc)
+        uc_c[assets == 'Inventories'] = self.calc_rho_inv(r_c, pi,
+                                                          inv_method, 0.5,
+                                                          tdict_c)
+        uc_nc[assets == 'Inventories'] = self.calc_rho_inv(r_nc, pi,
+                                                           inv_method, 0.5,
+                                                           tdict_nc)
         # EATR for inventories and land with no supernormal returns
         eatr_c[assets == 'Inventories'] = (uc_c[assets == 'Inventories'] - r_c) / uc_c[assets == 'Inventories']
         eatr_nc[assets == 'Inventories'] = (uc_nc[assets == 'Inventories'] - r_nc) / uc_nc[assets == 'Inventories']
@@ -525,7 +541,7 @@ class BtaxMini():
         asset_data['eatr_nc'] = eatr_nc
         asset_data.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
         return asset_data
-    
+
     def run_btax_mini(self, yearlist):
         """
         Runs the code to compute the user cost and EATR
@@ -540,14 +556,9 @@ class BtaxMini():
                                             'uc_nc': 'u_nc' + str(year),
                                             'eatr_c': 'eatr_c' + str(year),
                                             'eatr_nc': 'eatr_nc' + str(year)},
-                                            inplace=True)
+                                   inplace=True)
             # Merge year's results into combined DataFrame
-            basedata = basedata.merge(right=results_oneyear, how='outer', on='Asset')
+            basedata = basedata.merge(right=results_oneyear,
+                                      how='outer', on='Asset')
         basedata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
         return basedata
-    
-    
-    
-
-    
-    

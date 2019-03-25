@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import pandas as pd
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 from biztax.corporation import Corporation
 from biztax.passthrough import PassThrough

@@ -1,6 +1,7 @@
+import copy
 import numpy as np
 import pandas as pd
-import copy
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 
 class Debt():

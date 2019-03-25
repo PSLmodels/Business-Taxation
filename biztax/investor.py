@@ -1,7 +1,8 @@
+import copy
 import numpy as np
 import pandas as pd
-import copy
-from taxcalc import Policy, Records, Calculator
+import taxcalc as itax
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 
 class Investor():
@@ -13,8 +14,8 @@ class Investor():
     and pass-through business net income.
     
     Parameters:
-        refdict: individual-income-tax reform dict for taxcalc.Policy class
-        data: investor data for taxcalc.Records class
+        refdict: individual-income-tax reform dict for itax.Policy class
+        data: investor data for itax.Records class
     """
     
     def __init__(self, refdict=None, data='puf.csv'):
@@ -38,13 +39,13 @@ class Investor():
         """
         Creates an intial version of the taxcalc.Calculator object for 2014
         """
-        policy1 = Policy()
-        records1 = Records(data=self.records_data)
+        policy = itax.Policy()
+        records = itax.Records(data=self.records_data)
         if self.refdict != {}:
-            policy1.implement_reform(self.refdict)
-        calc1 = Calculator(records=records1, policy=policy1, verbose=False)
-        calc1.advance_to_year(2014)
-        calc1.calc_all()
+            policy.implement_reform(self.refdict)
+        calc = itax.Calculator( policy=policy, records=records, verbose=False)
+        calc.advance_to_year(2014)
+        calc.calc_all()
         return(calc1)
     
     def calc_tauNC(self, mtrdict, incdict):

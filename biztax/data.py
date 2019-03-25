@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from taxcalc import read_egg_csv
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 
 
 CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
