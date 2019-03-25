@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import pandas as pd
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 from biztax.corporation import Corporation
 from biztax.passthrough import PassThrough
@@ -65,7 +66,7 @@ class BusinessModel():
         paramnames.remove('year')
         for key in paramdict:
             key2 = int(key)
-            assert key2 in range(2014, 2027)
+            assert key2 in range(START_YEAR, END_YEAR)
             for param in paramdict[key]:
                 assert param in paramnames
 
@@ -73,7 +74,7 @@ class BusinessModel():
         """
         Updates btax_params
         param_dict is a year: {param: value} dictionary.
-        Acceptable years are 2017-2027. Ex:
+        Acceptable years are 2017-END_YEAR. Ex:
             {'2018': {'tau_c': 0.3}}
         """
         self.check_btax_reform(param_dict)
@@ -132,7 +133,7 @@ class BusinessModel():
         # Calculate multiplier for equity income
         equity_multiplier = netinc_corp_ref / netinc_corp_base
         # Save into DataFrame
-        multipliers = pd.DataFrame({'year': range(2014, 2028),
+        multipliers = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                     'equity': equity_multiplier})
         # Get net income results for the pass-throughs
         netinc_ptbase = copy.deepcopy(self.passthru_base.netinc_results)
@@ -164,7 +165,8 @@ class BusinessModel():
         indivrev_ref = self.investor_ref.get_revenue_withdistribution()
         indivrev_change = indivrev_ref - indivrev_base
         alltax_change = corprev_change + indivrev_change
-        self.ModelResults = pd.DataFrame({'year': range(2014, 2028),
+        self.ModelResults = pd.DataFrame({'year': range(START_YEAR,
+                                                        END_YEAR + 1),
                                           'CTax_change': corprev_change,
                                           'ITax_change': indivrev_change,
                                           'AllTax_change': alltax_change})

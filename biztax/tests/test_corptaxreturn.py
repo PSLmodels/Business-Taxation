@@ -1,13 +1,8 @@
 """
 Test CorpTaxReturn class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_corptaxreturn.py
-# pylint --disable=locally-disabled test_corptaxreturn.py
-
 import numpy as np
 import pytest
-# pylint: disable=import-error
 from biztax import CorpTaxReturn, Data, Asset, Debt
 
 
@@ -50,4 +45,4 @@ def test_instantiation_and_update_methods(default_btax_params):
     ctr.update_debts(good_debts)
     with pytest.raises(ValueError):
         ctr.update_debts(bad_debts)
-    ctr.update_earnings(good_earnings)        
+    ctr.update_earnings(good_earnings)

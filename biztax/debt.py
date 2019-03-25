@@ -1,14 +1,16 @@
+import copy
 import numpy as np
 import pandas as pd
-import copy
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
+
 
 class Debt():
     """
     Constructor for the Debt class.
     This class includes several objects related to debt:
         debt history:
-            record from 1960 - 2027 of debt-related measures:
+            record from 1960 - END_YEAR of debt-related measures:
                 K_fa: assets (financial accounts)
                 A: debt assets
                 L: debt liabilities
@@ -18,7 +20,7 @@ class Debt():
             debt_totals: aggregate debt amounts
             interest_real: interest received and paid
             interest_tax: taxable interest income and interest deductions
-    
+
     Parameters:
         corp: True for corporate, False for noncorporate
         btax_params: DataFrame of business tax policy parameters
@@ -26,9 +28,9 @@ class Debt():
         response: array of percent changes in optimal debt-asset ratios
         eta: debt retirement rate
     """
-    
+
     def __init__(self, btax_params, asset_forecast,
-                 data=None, response=None, eta = 0.4, corp=True):
+                 data=None, response=None, eta=0.4, corp=True):
         # Create an associated Data object
         if isinstance(data, Data):
             self.data = data
@@ -42,18 +44,20 @@ class Debt():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
-        if response is not None:
-            if len(response) == 14:
+        if response is None:
+            self.response = np.zeros(NUM_YEARS)
+        else:
+            if len(response) == NUM_YEARS:
                 self.response = response
             else:
                 raise ValueError('Wrong response')
-        else:
-            self.response = np.zeros(14)
         if corp:
-            self.delta = np.array(self.data.econ_defaults['f_c']) * (1 + self.response)
+            self.delta = (np.array(self.data.econ_defaults['f_c'])
+                          * (1 + self.response))
         else:
-            self.delta = np.array(self.data.econ_defaults['f_nc']) * (1 + self.response)
-        if len(asset_forecast) == 14:
+            self.delta = (np.array(self.data.econ_defaults['f_nc'])
+                          * (1 + self.response))
+        if len(asset_forecast) == NUM_YEARS:
             self.asset_forecast = asset_forecast
         else:
             raise ValueError('Wrong length for asset forecast')
@@ -61,7 +65,7 @@ class Debt():
             self.eta = eta
         else:
             raise ValueError('Value of eta inappropriate')
-    
+
     def get_haircuts(self):
         if self.corp:
             hc_nids = np.array(self.btax_params['netIntPaid_corp_hc'])
@@ -70,22 +74,22 @@ class Debt():
             hc_id_new_years = np.array(self.btax_params['newIntPaid_corp_hcyear'])
             hc_id_news = np.array(self.btax_params['newIntPaid_corp_hc'])
         else:
-            hc_nids =np.zeros(14)
+            hc_nids = np.zeros(NUM_YEARS)
             hc_id_old_years = np.array(self.btax_params['oldIntPaid_noncorp_hcyear'])
             hc_id_olds = np.array(self.btax_params['oldIntPaid_noncorp_hc'])
             hc_id_new_years = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])
             hc_id_news = np.array(self.btax_params['newIntPaid_noncorp_hc'])
         haircuts = {}
-        haircuts['nid_hc']= hc_nids
+        haircuts['nid_hc'] = hc_nids
         haircuts['id_hc_oldyear'] = hc_id_old_years
         haircuts['id_hc_old'] = hc_id_olds
         haircuts['id_hc_newyear'] = hc_id_new_years
         haircuts['id_hc_new'] = hc_id_news
         self.haircuts = haircuts
-    
+
     def build_level_history(self):
         """
-        Constructs the debt level history from 1960 to 2016. 
+        Constructs the debt level history from 1960 to 2016.
         """
         # Grab historical records for 1960-2016
         if self.corp:
@@ -107,7 +111,8 @@ class Debt():
             K_fa.append(K_fa[56] * self.asset_forecast[i-54] /
                         self.asset_forecast[2])
             A.append(A[56] * K_fa[i] / K_fa[56])
-            D.append(D[56] * K_fa[i] / K_fa[56] * self.delta[i-54] / self.delta[2])
+            D.append(D[56] * K_fa[i] / K_fa[56] *
+                     self.delta[i-54] / self.delta[2])
             L.append(D[i] + A[i])
         # Save level histories
         self.net_debt_history = D
@@ -115,22 +120,22 @@ class Debt():
         self.debt_liab_history = L
         self.i_a = [x / 100. for x in i_t]
         self.i_l = [(i_t[i] + i_pr[i]) / 100. for i in range(len(i_t))]
-    
+
     def build_flow_history(self):
         """
-        Constructs originations. 
+        Constructs originations.
         """
         O = np.zeros(68)
-        for i in range(1,68):
+        for i in range(1, 68):
             O[i] = (self.debt_liab_history[i] -
                     self.debt_liab_history[i-1] * (1 - self.eta))
         self.originations = O
-    
+
     def constrain_history(self):
         """
         Recalculates level and flow histories subject to the constraint that
-        originations must be nonnegative. 
-        
+        originations must be nonnegative.
+
         Note: This is not binding in general, only in the cases of either
               large changes to the optimal debt-to-asset ratio or for very low
               values of eta.
@@ -141,13 +146,13 @@ class Debt():
             L = np.zeros(68)
             L[0] = L_opt[0]
             O = np.zeros(68)
-            for i in range(1,68):
+            for i in range(1, 68):
                 O[i] = max(L_opt[i] - L[i-1] * (1 - self.eta), 0.)
                 L[i] = L[i-1] * (1 - self.eta) + O[i]
             self.debt_liab_history = L
             self.originations = O
             self.net_debt_history = L + A
-    
+
     def calc_real_interest(self):
         """
         Calculates interest income, interest paid and net interest paid.
@@ -159,7 +164,7 @@ class Debt():
                 int_expense[i] += (self.originations[j] *
                                    (1 - self.eta)**(i - j) * self.i_l[j])
         self.int_expense = int_expense
-    
+
     def calc_tax_interest(self):
         """
         Calculates taxable interest income, deductible interest and the
@@ -191,14 +196,14 @@ class Debt():
         NID = NID_gross * (1 - nid_hc)
         self.int_expded = int_expded
         self.NID = NID
-    
+
     def build_interest_path(self):
         """
         Builds a DataFrame wit relevant debt information for the budget window:
             debt: net debt totals
             nip: net interest paid
             nid: net interest deduction
-            
+
         WARNING: May need to include rescale_corp and rescale_noncorp
         """
         if self.corp:
@@ -206,12 +211,16 @@ class Debt():
         else:
             adjfactor = self.data.adjfactor_int_noncorp
         debt = np.array(self.net_debt_history[54:68]) * adjfactor
-        nip = np.array(self.int_expense[54:68] - self.int_income[54:68]) * adjfactor
-        nid = np.array(self.int_expded[54:68] - self.int_income[54:68]) * adjfactor
-        NID_results = pd.DataFrame({'year': range(2014, 2028), 'nid': nid,
-                                    'nip': nip, 'debt': debt})
+        nip = np.array(self.int_expense[54:68]
+                       - self.int_income[54:68]) * adjfactor
+        nid = np.array(self.int_expded[54:68]
+                       - self.int_income[54:68]) * adjfactor
+        NID_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
+                                    'nid': nid,
+                                    'nip': nip,
+                                    'debt': debt})
         self.interest_path = NID_results
-    
+
     def calc_all(self):
         """
         Executes all calculations for Debt object.
@@ -224,27 +233,24 @@ class Debt():
         self.calc_tax_interest()
         self.build_interest_path()
         return None
-    
+
     def get_nid(self):
         """
-        Returns the net interest deductions for 2014-2027
+        Returns the net interest deductions for [START_YEAR, END_YEAR]
         """
         nid = np.array(self.interest_path['nid'])
         return nid
-    
+
     def get_nip(self):
         """
-        Returns the net interest paid for 2014-2027
+        Returns the net interest paid for [START_YEAR, END_YEAR]
         """
         nip = np.array(self.interest_path['nip'])
         return nip
-    
+
     def get_debt(self):
         """
-        Returns the net debtfor 2014-2027
+        Returns the net debtfor [START_YEAR, END_YEAR]
         """
-        debt1 = np.array(self.interest_path['debt'])
-        return debt1
-    
-    
-    
+        debt = np.array(self.interest_path['debt'])
+        return debt

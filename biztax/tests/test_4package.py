@@ -1,10 +1,6 @@
 """
 Tests for package existence and dependencies consistency.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_4package.py
-# pylint --disable=locally-disabled test_4package.py
-
 import os
 import re
 import subprocess

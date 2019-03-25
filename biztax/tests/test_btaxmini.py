@@ -1,13 +1,8 @@
 """
 Test BtaxMini class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_btaxmini.py
-# pylint --disable=locally-disabled test_btaxmini.py
-
 import pandas as pd
 import pytest
-# pylint: disable=import-error
 from biztax import BtaxMini
 
 

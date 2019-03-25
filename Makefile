@@ -43,7 +43,7 @@ pytest:
 
 .PHONY=pytest-all
 pytest-all:
-	@cd biztax ; pytest -n4 -m ""
+	@cd biztax ; pytest -n4
 	@$(pytest-cleanup)
 
 JSON_FILES := $(shell find . -name "*json" | grep -v htmlcov)

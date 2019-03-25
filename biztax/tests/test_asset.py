@@ -1,13 +1,8 @@
 """
 Test Asset class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_asset.py
-# pylint --disable=locally-disabled test_asset.py
-
 import pandas as pd
 import pytest
-# pylint: disable=import-error
 from biztax import Asset, Response
 
 
@@ -54,6 +49,7 @@ def test_update_response(default_btax_params):
     asset.update_response(response_df)
     assert isinstance(asset.response, pd.DataFrame)
 
+
 @pytest.mark.skip
 def test_build_inv_matrix(default_btax_params):
     """
@@ -66,6 +62,7 @@ def test_build_inv_matrix(default_btax_params):
     asset.get_ccr_data()
     asset.build_inv_matrix()
     assert isinstance(asset.investment_history, pd.DataFrame)
+
 
 @pytest.mark.skip
 def test_calc_depreciation_allyears(puf_subsample, default_btax_params):
@@ -90,6 +87,7 @@ def test_calc_depreciation_allyears(puf_subsample, default_btax_params):
     asset = Asset(default_btax_params,
                   response=bizmod.response.investment_response)
     asset.calcDep_allyears()
+
 
 @pytest.mark.skip
 def test_calc_depreciation_budget(default_btax_params):

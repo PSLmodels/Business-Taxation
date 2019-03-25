@@ -1,12 +1,7 @@
 """
 Test Corporation class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_corp.py
-# pylint --disable=locally-disabled test_corp.py
-
 import pytest
-# pylint: disable=import-error
 from biztax import Corporation
 
 

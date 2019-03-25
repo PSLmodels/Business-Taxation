@@ -1,12 +1,7 @@
 """
 Test PassThrough class.
 """
-# CODING-STYLE CHECKS:
-# pycodestyle test_pthru.py
-# pylint --disable=locally-disabled test_pthru.py
-
 import pytest
-# pylint: disable=import-error
 from biztax import PassThrough
 
 

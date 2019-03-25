@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from taxcalc import read_egg_csv
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 
 
 CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -80,8 +81,8 @@ class Data():
             os.path.join(CURRENT_PATH, 'mini_params_btax.csv'))
         self.econ_defaults = read_csv(
             os.path.join(CURRENT_PATH, 'mini_params_econ.csv'))
-        self.rescale_corp = np.ones(14)
-        self.rescale_noncorp = np.ones(14)
+        self.rescale_corp = np.ones(NUM_YEARS)
+        self.rescale_noncorp = np.ones(NUM_YEARS)
         # Read in adjustment factors
         adj_factors = read_csv('adjfactors.csv')
         self.param_amt = adj_factors['param_amt'].values[0]
@@ -161,7 +162,7 @@ class Data():
         """
         Updates the rescaling factors associated with the Data class object
         """
-        assert len(corparray) == 14
-        assert len(ncorparray) == 14
+        assert len(corparray) == NUM_YEARS
+        assert len(ncorparray) == NUM_YEARS
         self.rescale_corp = corparray
         self.rescale_noncorp = ncorparray
