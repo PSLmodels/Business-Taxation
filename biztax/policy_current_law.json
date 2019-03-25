@@ -682,7 +682,7 @@
         "invalid_minmsg": "",
         "invalid_maxmsg": "",
         "invalid_action": "stop"
-        },
+    },
 
     "_undepBasis_noncorp_hc": {
         "long_name": "Non-corporate undepreciated basis haircut",
@@ -913,8 +913,8 @@
         "invalid_minmsg": "",
         "invalid_maxmsg": "",
         "invalid_action": "stop"
-        },
-    
+    },
+
     "_newIntPaid_noncorp_hc": {
         "long_name": "Non-corporate new-interest-paid haircut",
         "description": "Non-corporate new-interest-paid haircut",
@@ -955,5 +955,5 @@
         "invalid_minmsg": "",
         "invalid_maxmsg": "",
         "invalid_action": "stop"
-        }
+    }
 }

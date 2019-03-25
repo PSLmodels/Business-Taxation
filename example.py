@@ -15,39 +15,45 @@ The example here includes 3 changes to policy beginning in 2018:
   - Eliminate bonus depreciation
   - Impose 50% haircut on the deductibility of interest on new debt
 """
+import taxcalc as itax  # capabilities of individual Tax-Calculator
+from biztax import Policy, BusinessModel, Response
 
-from biztax import BusinessModel, Response
+# Create a business-tax Policy object with the following reform
+btax_reform_dict = {
+    2018: {
+        '_tau_c': [0.28],
+        '_depr_3yr_bonus': [0.0],
+        '_depr_5yr_bonus': [0.0],
+        '_depr_7yr_bonus': [0.0],
+        '_depr_10yr_bonus': [0.0],
+        '_depr_15yr_bonus': [0.0],
+        '_depr_20yr_bonus': [0.0],
+        '_depr_25yr_bonus': [0.0],
+        '_depr_275yr_bonus': [0.0],
+        '_depr_39yr_bonus': [0.0],
+        '_pymtc_status': [1],
+        '_newIntPaid_corp_hc': [1.0],
+        '_newIntPaid_corp_hcyear': [2018],
+        '_oldIntPaid_corp_hc': [1.0],
+        '_oldIntPaid_corp_hcyear': [2018],
+        '_newIntPaid_noncorp_hc': [1.0],
+        '_newIntPaid_noncorp_hcyear': [2018],
+        '_oldIntPaid_noncorp_hc': [1.0],
+        '_oldIntPaid_noncorp_hcyear': [2018]
+    }
+}
+btax_policy_reform = Policy()
+btax_policy_reform.implement_reform(btax_reform_dict)
 
-# Create a business-tax policy reform dictionary
-btax_refdict = {2018: {'tau_c': 0.28,
-                       'depr_3yr_bonus': 0.0,
-                       'depr_5yr_bonus': 0.0,
-                       'depr_7yr_bonus': 0.0,
-                       'depr_10yr_bonus': 0.0,
-                       'depr_15yr_bonus': 0.0,
-                       'depr_20yr_bonus': 0.0,
-                       'depr_25yr_bonus': 0.0,
-                       'depr_275yr_bonus': 0.0,
-                       'depr_39yr_bonus': 0.0,
-                       'pymtc_status': 1,
-                       'newIntPaid_corp_hc': 1.0,
-                       'newIntPaid_corp_hcyear': 2018,
-                       'oldIntPaid_corp_hc': 1.0,
-                       'oldIntPaid_corp_hcyear': 2018,
-                       'newIntPaid_noncorp_hc': 1.0,
-                       'newIntPaid_noncorp_hcyear': 2018,
-                       'oldIntPaid_noncorp_hc': 1.0,
-                       'oldIntPaid_noncorp_hcyear': 2018}}
-
-# Create an individual-tax policy reform dictionary with no reform
-iitax_refdict = dict()
+# Create an individual-tax itax.Policy object with no reform
+itax_policy_noreform = itax.Policy()
 
 # Execute BusinessModel calculations with no response
-BM = BusinessModel(btax_refdict, iitax_refdict)
+BM = BusinessModel(btax_policy_reform, itax_policy_noreform)
 BM.calc_all(response=None)
 
 # Look at the changes in total corporate and individual income tax liability
-output_df = BM.ModelResults.round(3)
+output_df = BM.model_results.round(3)
 output_df.to_csv('example_results/nresp_model_results.csv', index=False)
 
 # Take a closer look at corporate tax items under baseline and reform policy
@@ -66,7 +72,7 @@ del BM
 
 # Execute BusinessModel calculations assuming responses just
 # investment and debt responses to business tax reform
-BM = BusinessModel(btax_refdict, iitax_refdict)
+BM = BusinessModel(btax_policy_reform, itax_policy_noreform)
 partial_response = Response()
 partial_response.update_elasticities({'inv_usercost_c': -1.0,
                                       'inv_usercost_nc': -0.5,
@@ -76,7 +82,7 @@ partial_response.update_elasticities({'inv_usercost_c': -1.0,
 BM.calc_all(response=partial_response)
 
 # Look at the changes in total corporate and individual income tax liability
-output_df = BM.ModelResults.round(3)
+output_df = BM.model_results.round(3)
 output_df.to_csv('example_results/wresp_model_results.csv', index=False)
 
 # Take a closer look at corporate tax items under baseline and reform policy

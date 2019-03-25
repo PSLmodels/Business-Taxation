@@ -1,11 +1,12 @@
 import copy
 import numpy as np
 import pandas as pd
+import taxcalc as itax
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
-from biztax.data import Data
+from biztax.policy import Policy
+from biztax.investor import Investor
 from biztax.corporation import Corporation
 from biztax.passthrough import PassThrough
-from biztax.investor import Investor
 from biztax.response import Response
 
 
@@ -19,34 +20,38 @@ class BusinessModel():
         Corporation
         PassThrough
         Investor
-    Furthermore, the BusinessModel uses a Response object whenever the
+    Furthermore, the BusinessModel uses a Response object when the
     calc_all method is called with a Response object as an argument.
 
-    It is important to note that the inclusion of both a baseline and a reform
-    policy scenario in the constructor is important: the necessity of both
+    It is important to note that the inclusion of both baseline and reform
+    Policy objects in the constructor is important: the necessity of both
     comes into play when calculating the responses to a reform and when
     distributing the changes in corporate income and business income to
     individual tax units.
 
     Parameters:
-        btax_refdict: main business policy reform dictionary
-        iit_refdict: individual policy reform dictionary (for taxcalc)
-        btax_basedict: business policy baseline dictionary (default none)
-        iit_basedict: individual policy baseline dictionary (default none)
+        btax_policy_ref: Business-Taxation Policy object for btax reform
+        itax_policy_ref: Tax-Calculator Policy object for itax reform
+        btax_policy_base: Business-Taxation Policy object for btax baseline
+        itax_policy_base: Tax-Calculator Policy object for itax baseline
         investor_data: filename or DataFrame containing individual sample
     """
 
-    def __init__(self, btax_refdict, iit_refdict,
-                 btax_basedict={}, iit_basedict={},
+    def __init__(self, btax_policy_ref, itax_policy_ref,
+                 # baseline defaults are current-law policy
+                 btax_policy_base=Policy(), itax_policy_base=itax.Policy(),
                  investor_data='puf.csv'):
-        # Set default policy parameters for later use
-        self.btax_defaults = Data().btax_defaults
-        # Create the baseline and reform parameter storing forms
-        self.btax_params_base = self.update_btax_params(btax_basedict)
-        self.btax_params_ref = self.update_btax_params(btax_refdict)
-        # Create Investors
-        self.investor_base = Investor(iit_basedict, investor_data)
-        self.investor_ref = Investor(iit_refdict, investor_data)
+        # Check policy argument types
+        assert isinstance(btax_policy_ref, Policy)
+        assert isinstance(itax_policy_ref, itax.Policy)
+        assert isinstance(btax_policy_base, Policy)
+        assert isinstance(itax_policy_base, itax.Policy)
+        # Create Investor objects incorporating itax policy and investor data
+        self.investor_base = Investor(itax_policy_base, investor_data)
+        self.investor_ref = Investor(itax_policy_ref, investor_data)
+        # Create btax policy parameters DataFrame objects
+        self.btax_params_base = btax_policy_base.parameters_dataframe()
+        self.btax_params_ref = btax_policy_ref.parameters_dataframe()
         # Create Corporations
         self.corp_base = Corporation(self.btax_params_base)
         self.corp_ref = Corporation(self.btax_params_ref)
@@ -55,7 +60,7 @@ class BusinessModel():
         self.passthru_ref = PassThrough(self.btax_params_ref)
         # Declare calculated results objects
         self.multipliers = None
-        self.ModelResults = None
+        self.model_results = None
 
     def check_btax_reform(self, paramdict):
         """
@@ -74,7 +79,7 @@ class BusinessModel():
         """
         Updates btax_params
         param_dict is a year: {param: value} dictionary.
-        Acceptable years are 2017-END_YEAR. Ex:
+        Acceptable years are 2017-2027. Ex:
             {'2018': {'tau_c': 0.3}}
         """
         self.check_btax_reform(param_dict)
@@ -165,11 +170,11 @@ class BusinessModel():
         indivrev_ref = self.investor_ref.get_revenue_withdistribution()
         indivrev_change = indivrev_ref - indivrev_base
         alltax_change = corprev_change + indivrev_change
-        self.ModelResults = pd.DataFrame({'year': range(START_YEAR,
-                                                        END_YEAR + 1),
-                                          'CTax_change': corprev_change,
-                                          'ITax_change': indivrev_change,
-                                          'AllTax_change': alltax_change})
+        years = list(range(START_YEAR, END_YEAR + 1))
+        self.model_results = pd.DataFrame({'year': years,
+                                           'CTax_change': corprev_change,
+                                           'ITax_change': indivrev_change,
+                                           'AllTax_change': alltax_change})
 
     def update_mtrlists(self):
         """

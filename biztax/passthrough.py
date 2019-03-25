@@ -76,8 +76,8 @@ class PassThrough():
         # Aggregate and save EBITDAs
         total_inc = (sp_posinc + sp_neginc + part_posinc + part_neginc +
                      scorp_posinc + scorp_neginc)
-        earnings_result = pd.DataFrame({'year': range(START_YEAR,
-                                                      END_YEAR + 1),
+        years = list(range(START_YEAR, END_YEAR + 1))
+        earnings_result = pd.DataFrame({'year': years,
                                         'total': total_inc,
                                         'SchC_pos': sp_posinc,
                                         'SchC_neg': sp_neginc,
@@ -188,8 +188,8 @@ class PassThrough():
         self.calc_schC()
         self.calc_partner()
         self.calc_Scorp()
-        netinc_results = pd.DataFrame({'year': range(START_YEAR,
-                                                     END_YEAR + 1)})
+        years = list(range(START_YEAR, END_YEAR + 1))
+        netinc_results = pd.DataFrame({'year': years})
         netinc_results['SchC_pos'] = self.SchC_results['netinc_pos']
         netinc_results['SchC_neg'] = self.SchC_results['netinc_neg']
         netinc_results['partner_pos'] = self.SchC_results['netinc_pos']
