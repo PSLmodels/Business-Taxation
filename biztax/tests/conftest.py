@@ -8,7 +8,8 @@ import os
 import numpy
 import pandas
 import pytest
-from biztax import Data, BusinessModel
+import taxcalc as itax
+from biztax import Policy, Data, BusinessModel
 
 
 # convert all numpy warnings into errors so they can be detected in tests
@@ -40,65 +41,64 @@ def puf_subsample(puf_fullsample):
 def reforms():
     reform_dict = dict()
     # reform 0, the baseline
-    reform_dict[0] = Data().btax_defaults
+    policy0 = Policy()
+    reform_dict[0] = policy0
     # reform 1
-    btax_dict1 = {
+    policy1 = Policy()
+    reform1 = {
         2017: {
-            'tau_c': 0.3,
-            'depr_3yr_method': 'GDS',
-            'depr_3yr_bonus': 0.8,
-            'depr_5yr_method': 'ADS',
-            'depr_5yr_bonus': 0.8,
-            'depr_7yr_method': 'Economic',
-            'depr_7yr_bonus': 0.8,
-            'depr_10yr_method': 'GDS',
-            'depr_10yr_bonus': 0.6,
-            'depr_15yr_method': 'Expensing',
-            'depr_15yr_bonus': 0.6,
-            'depr_20yr_method': 'ADS',
-            'depr_20yr_bonus': 0.4,
-            'depr_25yr_method': 'GDS',  # formerly specified as 'EconomicDS'
-            'depr_25yr_bonus': 0.2,
-            'depr_275yr_method': 'GDS',
-            'depr_275yr_bonus': 0.2,
-            'depr_39yr_method': 'ADS',
-            'depr_39yr_bonus': 0.2,
-            'tau_amt': 0.0,
-            'pymtc_status': 1
+            'tau_c': [0.3],
+            'depr_3yr_method': ['GDS'],
+            'depr_3yr_bonus': [0.8],
+            'depr_5yr_method': ['ADS'],
+            'depr_5yr_bonus': [0.8],
+            'depr_7yr_method': ['Economic'],
+            'depr_7yr_bonus': [0.8],
+            'depr_10yr_method': ['GDS'],
+            'depr_10yr_bonus': [0.6],
+            'depr_15yr_method': ['Expensing'],
+            'depr_15yr_bonus': [0.6],
+            'depr_20yr_method': ['ADS'],
+            'depr_20yr_bonus': [0.4],
+            'depr_25yr_method': ['GDS'],
+            'depr_25yr_bonus': [0.2],
+            'depr_275yr_method': ['GDS'],
+            'depr_275yr_bonus': [0.2],
+            'depr_39yr_method': ['ADS'],
+            'depr_39yr_bonus': [0.2],
+            'tau_amt': [0.0],
+            'pymtc_status': [1]
         },
         2018: {
-            'netIntPaid_corp_hc': 0.5,
-            'sec199_hc': 0.5,
-            'ftc_hc': 0.5
+            'netIntPaid_corp_hc': [0.5],
+            'sec199_hc': [0.5],
+            'ftc_hc': [0.5]
         }
     }
-    bizmod = BusinessModel(btax_dict1, {})
-    reform_dict[1] = bizmod.btax_params_ref
-    del btax_dict1
-    del bizmod
+    policy1.implement_reform(reform1)
+    reform_dict[1] = policy1
     # reform 2
-    btax_dict2 = {
+    policy2 = Policy()
+    reform2 = {
         2017: {
-            'oldIntPaid_corp_hcyear': 2017,
-            'oldIntPaid_corp_hc': 0.5,
-            'newIntPaid_corp_hcyear': 2017,
-            'newIntPaid_corp_hc': 1.0,
-            'oldIntPaid_noncorp_hcyear': 2017,
-            'oldIntPaid_noncorp_hc': 0.5,
-            'newIntPaid_noncorp_hcyear': 2017,
-            'newIntPaid_noncorp_hc': 1.0
+            'oldIntPaid_corp_hcyear': [2017],
+            'oldIntPaid_corp_hc': [0.5],
+            'newIntPaid_corp_hcyear': [2017],
+            'newIntPaid_corp_hc': [1.0],
+            'oldIntPaid_noncorp_hcyear': [2017],
+            'oldIntPaid_noncorp_hc': [0.5],
+            'newIntPaid_noncorp_hcyear': [2017],
+            'newIntPaid_noncorp_hc': [1.0]
         },
         2018: {
-            'undepBasis_corp_hcyear': 2018,
-            'undepBasis_corp_hc': 0.5,
-            'undepBasis_noncorp_hcyear': 2018,
-            'undepBasis_noncorp_hc': 0.5
+            'undepBasis_corp_hcyear': [2018],
+            'undepBasis_corp_hc': [0.5],
+            'undepBasis_noncorp_hcyear': [2018],
+            'undepBasis_noncorp_hc': [0.5]
         }
     }
-    bizmod = BusinessModel(btax_dict2, {})
-    reform_dict[2] = bizmod.btax_params_ref
-    del btax_dict2
-    del bizmod
+    policy2.implement_reform(reform2)
+    reform_dict[2] = policy2
     return reform_dict
 
 
