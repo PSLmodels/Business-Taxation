@@ -46,7 +46,7 @@ class Investor():
         calc = itax.Calculator( policy=policy, records=records, verbose=False)
         calc.advance_to_year(2014)
         calc.calc_all()
-        return(calc1)
+        return calc
     
     def calc_tauNC(self, mtrdict, incdict):
         """
