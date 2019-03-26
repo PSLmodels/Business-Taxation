@@ -1,5 +1,5 @@
 """
-Test corporate-aspects of BusinessModel class.
+Test BusinessModel class.
 """
 import os
 import filecmp
@@ -7,6 +7,22 @@ import pytest
 from biztax import BusinessModel, Response
 
 
+def test_incorrect_calc_all():
+    """
+    Test incorrect call of calc_all method.
+    """
+    # Do a quick "simulation" of executing response.calc_all(...) by setting
+    # one of the calculated responses to anything other than None
+    pre_calc_response = Response()
+    pre_calc_response.investment_response = 9.99
+    # Try to use pre_calc_response as argument to BusinessModel.calc_all method
+    bizmod = BusinessModel({}, {},
+                           investor_data='nodata.csv')
+    with pytest.raises(ValueError):
+        bizmod.calc_all(response=pre_calc_response)
+
+
+@pytest.mark.bizmod
 @pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('with_response', [(False), (True)])
 def test_bm_corp0(with_response, actual_vs_expect,
@@ -14,7 +30,8 @@ def test_bm_corp0(with_response, actual_vs_expect,
     """
     Test BusinessModel corporate results under a corporate-income-tax reform
     using calc_all(response=None) and calc_all(response=zero_elasticities),
-    checking that the two sets of results are the same.
+    checking that the two sets of results are exactly the same, which is what
+    is expected.
     """
     # ensure that expected results in the two with_response cases are the same
     assert filecmp.cmp(os.path.join(tests_path,
@@ -78,15 +95,19 @@ def test_bm_corp0(with_response, actual_vs_expect,
     actual_vs_expect(results, fname, precision=dec)
 
 
-def test_incorrect_calc_all(puf_subsample):
+@pytest.mark.bizmod
+@pytest.mark.requires_pufcsv
+@pytest.mark.parametrize('reform_number', [(0), (1), (2)])
+def test_reforms(reform_number, reforms, puf_subsample, actual_vs_expect):
     """
-    Test incorrect call of calc_all method.
+    Test BusinessModel corporate tax return results under reforms
+    with no response.
     """
-    # Do quick simulation of executing response.calc_all(...) by setting
-    # one calculated response to anything other than None
-    pre_calc_response = Response()
-    pre_calc_response.investment_response = 9.99
-    # Try to use pre_calc_response as argument to BusinessModel.calc_all method
-    bizmod = BusinessModel({}, {}, investor_data=puf_subsample)
-    with pytest.raises(ValueError):
-        bizmod.calc_all(response=pre_calc_response)
+    bizmod = BusinessModel(reforms[reform_number]['dict'], {},
+                           investor_data=puf_subsample)
+    bizmod.calc_all(response=None)
+    # compare actual and expected results
+    dec = 4
+    results = bizmod.corp_ref.taxreturn.combined_return.round(dec)
+    fname = 'bizmod_corp_ref{}_expect.csv'.format(reform_number)
+    actual_vs_expect(results, fname, precision=dec)

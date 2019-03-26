@@ -20,7 +20,7 @@ def test_passthrough_results(reform_number, results_type,
     """
     Test different passthrough results under different reforms.
     """
-    pthru = PassThrough(reforms[reform_number])
+    pthru = PassThrough(reforms[reform_number]['obj'])
     pthru.calc_static()
     decimals = 2
     if results_type == 'schc':

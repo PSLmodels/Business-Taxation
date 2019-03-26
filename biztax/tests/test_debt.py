@@ -18,9 +18,9 @@ def test_debt_interest_path(reform_number, corporate,
     """
     Test corp/non-corp interest path results under different reforms.
     """
-    asset = Asset(reforms[reform_number], corp=corporate)
+    asset = Asset(reforms[reform_number]['obj'], corp=corporate)
     asset.calc_all()
-    debt = Debt(reforms[reform_number], asset.get_forecast())
+    debt = Debt(reforms[reform_number]['obj'], asset.get_forecast())
     debt.calc_all()
     decimals = 2
     interest_path = debt.interest_path.round(decimals)

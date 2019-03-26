@@ -40,7 +40,7 @@ def puf_subsample(puf_fullsample):
 def reforms():
     reform_dict = dict()
     # reform 0, the baseline
-    reform_dict[0] = Data().btax_defaults
+    reform_dict[0] = {'dict': {}, 'obj': Data().btax_defaults}
     # reform 1
     btax_dict1 = {
         2017: {
@@ -73,8 +73,7 @@ def reforms():
         }
     }
     bizmod = BusinessModel(btax_dict1, {})
-    reform_dict[1] = bizmod.btax_params_ref
-    del btax_dict1
+    reform_dict[1] = {'dict': btax_dict1, 'obj': bizmod.btax_params_ref}
     del bizmod
     # reform 2
     btax_dict2 = {
@@ -96,8 +95,7 @@ def reforms():
         }
     }
     bizmod = BusinessModel(btax_dict2, {})
-    reform_dict[2] = bizmod.btax_params_ref
-    del btax_dict2
+    reform_dict[2] = {'dict': btax_dict2, 'obj': bizmod.btax_params_ref}
     del bizmod
     return reform_dict
 

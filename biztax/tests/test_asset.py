@@ -18,7 +18,7 @@ def test_asset_capital_path(reform_number, corporate,
     """
     Test corp/non-corp capital path results under different reforms.
     """
-    asset = Asset(reforms[reform_number], corp=corporate)
+    asset = Asset(reforms[reform_number]['obj'], corp=corporate)
     asset.calc_all()
     decimals = 2
     capital_path = asset.capital_path.round(decimals)

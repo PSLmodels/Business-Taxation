@@ -99,6 +99,13 @@ class BusinessModel():
           response: must be either None (for no-response calculations) or
                     a Response object (for with-response calculations).
         """
+        # Check status of response object
+        if response is not None:
+            assert isinstance(response, Response)
+            if response.calc_all_already_called():
+                msg = ('cannot call response.calc_all before '
+                       'using it as BusinessModel.calc_all argument')
+                raise ValueError(msg)
         # Run static calculations for baseline
         self.corp_base.calc_static()
         self.passthru_base.calc_static()
@@ -108,11 +115,6 @@ class BusinessModel():
             self.passthru_ref.calc_static()
         else:
             # Run calculations for reform with response
-            assert isinstance(response, Response)
-            if response.calc_all_already_called():
-                msg = ('cannot call response.calc_all before '
-                       'using it as BusinessModel.calc_all argument')
-                raise ValueError(msg)
             self.update_mtrlists()  # do this before doing response.calc_all
             response.calc_all(self.btax_params_base, self.btax_params_ref)
             self.corp_ref.apply_responses(response)
