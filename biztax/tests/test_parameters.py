@@ -7,7 +7,7 @@ Test Business-Taxation JSON parameter files.
 import os
 import json
 import pytest
-from biztax import Policy
+from biztax import Policy, START_YEAR
 
 
 @pytest.mark.parametrize("fname",
@@ -25,11 +25,6 @@ def test_json_file_contents(tests_path, fname):
                      'value_type', 'value', 'valid_values']
     valid_value_types = ['boolean', 'integer', 'real', 'string']
     invalid_keys = ['invalid_minmsg', 'invalid_maxmsg', 'invalid_action']
-    first_year = Policy.JSON_START_YEAR
-    last_known_year = Policy.LAST_KNOWN_YEAR  # for indexed parameter values
-    num_known_years = last_known_year - first_year + 1
-    long_params = []
-    long_known_years = 2026 - first_year + 1  # for TCJA-reverting long_params
     # read JSON parameter file into a dictionary
     path = os.path.join(tests_path, '..', fname)
     pfile = open(path, 'r')
@@ -63,9 +58,9 @@ def test_json_file_contents(tests_path, fname):
             assert '{} description'.format(pname) == 'empty string'
         # check that row_var is FLPDYR
         assert param['row_var'] == 'FLPDYR'
-        # check that start_year equals first_year
+        # check that start_year equals START_YEAR
         syr = param['start_year']
-        assert isinstance(syr, int) and syr == first_year
+        assert isinstance(syr, int) and syr == START_YEAR
         # check that cpi_inflatable and cpi_inflated are boolean
         assert isinstance(param['cpi_inflatable'], bool)
         assert isinstance(param['cpi_inflated'], bool)
@@ -100,7 +95,7 @@ def test_json_file_contents(tests_path, fname):
         rowlabel = param['row_label']
         assert isinstance(rowlabel, list)
         # check all row_label values
-        cyr = first_year
+        cyr = START_YEAR
         for rlabel in rowlabel:
             assert int(rlabel) == cyr
             cyr += 1
