@@ -17,7 +17,7 @@ def test_corporation_results(reform_number, real_not_taxr_results,
     """
     Test different corporation results under different reforms.
     """
-    corp = Corporation(reforms[reform_number])
+    corp = Corporation(reforms[reform_number]['pdf'])
     corp.calc_static()
     decimals = 2
     if real_not_taxr_results:

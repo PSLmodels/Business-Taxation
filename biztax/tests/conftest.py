@@ -38,11 +38,23 @@ def puf_subsample(puf_fullsample):
 
 
 @pytest.fixture(scope='session')
+def default_btax_params(tests_path):
+    # TODO: change this to following:
+    # policy = Policy ; return policy.parameters_dataframe()
+    fname = os.path.join(tests_path, '..', 'mini_params_btax.csv')
+    return pandas.read_csv(fname)
+
+
+@pytest.fixture(scope='session')
 def reforms():
     reform_dict = dict()
     # reform 0, the baseline
     policy0 = Policy()
-    reform_dict[0] = policy0.parameters_dataframe()
+    reform_dict[0] = {
+        'dict': dict(),
+        'pdf': policy0.parameters_dataframe(),
+        'obj': policy0
+    }
     # reform 1
     policy1 = Policy()
     reform1 = {
@@ -76,7 +88,11 @@ def reforms():
         }
     }
     policy1.implement_reform(reform1)
-    reform_dict[1] = policy1.parameters_dataframe()
+    reform_dict[1] = {
+        'dict': reform1,
+        'pdf': policy1.parameters_dataframe(),
+        'obj': policy1
+    }
     # reform 2
     policy2 = Policy()
     reform2 = {
@@ -98,14 +114,12 @@ def reforms():
         }
     }
     policy2.implement_reform(reform2)
-    reform_dict[2] = policy2.parameters_dataframe()
+    reform_dict[2] = {
+        'dict': reform2,
+        'pdf': policy2.parameters_dataframe(),
+        'obj': policy2
+    }
     return reform_dict
-
-
-@pytest.fixture(scope='session')
-def default_btax_params(tests_path):
-    fname = os.path.join(tests_path, '..', 'mini_params_btax.csv')
-    return pandas.read_csv(fname)
 
 
 @pytest.fixture(scope='session')

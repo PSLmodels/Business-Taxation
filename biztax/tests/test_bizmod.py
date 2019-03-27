@@ -1,5 +1,5 @@
 """
-Test corporate-aspects of BusinessModel class.
+Test BusinessModel class.
 """
 import os
 import filecmp
@@ -8,6 +8,22 @@ import taxcalc as itax
 from biztax import Policy, BusinessModel, Response
 
 
+def test_incorrect_calc_all():
+    """
+    Test incorrect call of calc_all method.
+    """
+    # Do a quick "simulation" of executing response.calc_all(...) by setting
+    # one of the calculated responses to anything other than None
+    pre_calc_response = Response()
+    pre_calc_response.investment_response = 9.99
+    # Try to use pre_calc_response as argument to BusinessModel.calc_all method
+    bizmod = BusinessModel(Policy(), itax.Policy(),
+                           investor_data='nodata.csv')
+    with pytest.raises(ValueError):
+        bizmod.calc_all(response=pre_calc_response)
+
+
+@pytest.mark.bizmod
 @pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('with_response', [(False), (True)])
 def test_bm_corp0(with_response, actual_vs_expect,
@@ -15,7 +31,8 @@ def test_bm_corp0(with_response, actual_vs_expect,
     """
     Test BusinessModel corporate results under a corporate-income-tax reform
     using calc_all(response=None) and calc_all(response=zero_elasticities),
-    checking that the two sets of results are the same.
+    checking that the two sets of results are exactly the same, which is what
+    is expected.
     """
     # ensure that expected results in the two with_response cases are the same
     assert filecmp.cmp(os.path.join(tests_path,
@@ -34,25 +51,25 @@ def test_bm_corp0(with_response, actual_vs_expect,
     # - establish 50% haircut on the deductibility of interest on new debt
     btax_reform = {
         2018: {
-            'tau_c': [0.28],
-            'depr_3yr_bonus': [0.0],
-            'depr_5yr_bonus': [0.0],
-            'depr_7yr_bonus': [0.0],
-            'depr_10yr_bonus': [0.0],
-            'depr_15yr_bonus': [0.0],
-            'depr_20yr_bonus': [0.0],
-            'depr_25yr_bonus': [0.0],
-            'depr_275yr_bonus': [0.0],
-            'depr_39yr_bonus': [0.0],
-            'pymtc_status': [1],
-            'newIntPaid_corp_hc': [1.0],
-            'newIntPaid_corp_hcyear': [2018],
-            'oldIntPaid_corp_hc': [1.0],
-            'oldIntPaid_corp_hcyear': [2018],
-            'newIntPaid_noncorp_hc': [1.0],
-            'newIntPaid_noncorp_hcyear': [2018],
-            'oldIntPaid_noncorp_hc': [1.0],
-            'oldIntPaid_noncorp_hcyear': [2018]
+            '_tau_c': [0.28],
+            '_depr_3yr_bonus': [0.0],
+            '_depr_5yr_bonus': [0.0],
+            '_depr_7yr_bonus': [0.0],
+            '_depr_10yr_bonus': [0.0],
+            '_depr_15yr_bonus': [0.0],
+            '_depr_20yr_bonus': [0.0],
+            '_depr_25yr_bonus': [0.0],
+            '_depr_275yr_bonus': [0.0],
+            '_depr_39yr_bonus': [0.0],
+            '_pymtc_status': [1],
+            '_newIntPaid_corp_hc': [1.0],
+            '_newIntPaid_corp_hcyear': [2018],
+            '_oldIntPaid_corp_hc': [1.0],
+            '_oldIntPaid_corp_hcyear': [2018],
+            '_newIntPaid_noncorp_hc': [1.0],
+            '_newIntPaid_noncorp_hcyear': [2018],
+            '_oldIntPaid_noncorp_hc': [1.0],
+            '_oldIntPaid_noncorp_hcyear': [2018]
         }
     }
     btax_policy_ref = Policy()
@@ -83,16 +100,19 @@ def test_bm_corp0(with_response, actual_vs_expect,
     actual_vs_expect(results, fname, precision=dec)
 
 
-def test_incorrect_calc_all(puf_subsample):
+@pytest.mark.bizmod
+@pytest.mark.requires_pufcsv
+@pytest.mark.parametrize('reform_number', [(0), (1), (2)])
+def test_reforms(reform_number, reforms, puf_subsample, actual_vs_expect):
     """
-    Test incorrect call of calc_all method.
+    Test BusinessModel corporate tax return results under reforms
+    with no response.
     """
-    # Do quick simulation of executing response.calc_all(...) by setting
-    # one calculated response to anything other than None
-    pre_calc_response = Response()
-    pre_calc_response.investment_response = 9.99
-    # Try to use pre_calc_response as argument to BusinessModel.calc_all method
-    bizmod = BusinessModel(Policy(), itax.Policy(),
+    bizmod = BusinessModel(reforms[reform_number]['obj'], itax.Policy(),
                            investor_data=puf_subsample)
-    with pytest.raises(ValueError):
-        bizmod.calc_all(response=pre_calc_response)
+    bizmod.calc_all(response=None)
+    # compare actual and expected results
+    dec = 4
+    results = bizmod.corp_ref.taxreturn.combined_return.round(dec)
+    fname = 'bizmod_corp_ref{}_expect.csv'.format(reform_number)
+    actual_vs_expect(results, fname, precision=dec)
