@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from biztax import Asset, Response
 
-
+@pytest.mark.one
 @pytest.mark.parametrize('reform_number, corporate',
                          [(0, True),
                           (0, False),
@@ -18,6 +18,8 @@ def test_asset_capital_path(reform_number, corporate,
     """
     Test corp/non-corp capital path results under different reforms.
     """
+    if not (reform_number == 1 and corporate == True):
+        return
     asset = Asset(reforms[reform_number]['pdf'], corp=corporate)
     asset.calc_all()
     decimals = 2
