@@ -20,6 +20,8 @@ def test_asset_capital_path(reform_number, corporate,
     """
     if not (reform_number == 1 and corporate == True):
         return
+    reforms[reform_number]['pdf'].to_csv('tests/ref1-branch.csv',
+                                         float_format='%.3f')
     asset = Asset(reforms[reform_number]['pdf'], corp=corporate)
     asset.calc_all()
     decimals = 2
