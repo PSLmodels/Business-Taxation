@@ -5,7 +5,8 @@ import numpy
 import pytest
 from biztax import BusinessModel, NUM_YEARS, START_YEAR
 
-@pytest.mark.one
+
+@pytest.mark.test_update
 @pytest.mark.parametrize('param',
                          [('depr_25yr_bonus'),
                           ('depr_275yr_bonus'),
