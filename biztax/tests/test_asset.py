@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from biztax import Asset, Response
 
-@pytest.mark.one
+
 @pytest.mark.parametrize('reform_number, corporate',
                          [(0, True),
                           (0, False),

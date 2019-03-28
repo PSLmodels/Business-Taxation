@@ -3,10 +3,9 @@ Test BusinessModel.update_btax_params method.
 """
 import numpy
 import pytest
-from biztax import BusinessModel, NUM_YEARS, START_YEAR
+from biztax import Policy, NUM_YEARS, START_YEAR
 
 
-@pytest.mark.test_update
 @pytest.mark.parametrize('param',
                          [('depr_25yr_bonus'),
                           ('depr_275yr_bonus'),
@@ -21,14 +20,18 @@ from biztax import BusinessModel, NUM_YEARS, START_YEAR
                           ('netIntPaid_corp_hc'),
                           ('oldIntPaid_noncorp_hc'),
                           ('newIntPaid_noncorp_hc')])
-def test_update(param, default_btax_params):
+def test_update(param):
     # check that default value of param is zero in every year
+    default_policy = Policy()
+    default_btax_params = default_policy.parameters_dataframe()
     zeros = numpy.zeros(NUM_YEARS)
     assert numpy.allclose(default_btax_params[param], zeros)
-    # use BusinessModel to implement a reform that makes param 0.5 in 2018+
-    btax_reform = {2018: {param: 0.5}}
-    bizmod = BusinessModel(btax_reform, {}, investor_data='nodata')
-    reform_btax_params = bizmod.btax_params_ref
+    # use Policy to implement a reform that makes param 0.5 in 2018+
+    reform_dict_param_str = '_' + param
+    btax_reform = {2018: {reform_dict_param_str: [0.5]}}
+    reform_policy = Policy()
+    reform_policy.implement_reform(btax_reform)
+    reform_btax_params = reform_policy.parameters_dataframe()
     # check that values of reform_btax_params[param] are not all zero
     if numpy.allclose(reform_btax_params[param], zeros):
         assert 'update_btax_params' == 'FAILS for {}'.format(param)
