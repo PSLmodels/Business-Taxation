@@ -251,8 +251,8 @@ class Asset():
         """
         Calculates total depreciation deductions taken in the year.
         """
-        def depreciationDeduction(year_investment, year_deduction, method, L,
-                                  delta, bonus):
+        def depreciationDeduction(year_investment, year_deduction,
+                                  method, L, delta, bonus):
             """
             Computes the nominal depreciation deduction taken on any
             unit investment in any year with any depreciation method and life.
@@ -264,8 +264,8 @@ class Asset():
                 delta: economic depreciation rate
                 bonus: bonus depreciation rate
             """
-            assert method in ['DB 200%', 'DB 150%', 'SL', 'Expensing', 'Economic',
-                              'None']
+            assert method in ['DB 200%', 'DB 150%', 'SL',
+                              'Expensing', 'Economic', 'None']
             # No depreciation
             if method == 'None':
                 deduction = 0
@@ -277,24 +277,33 @@ class Asset():
                     deduction = 0
             # Economic depreciation
             elif method == 'Economic':
-                pi_temp = (self.data.investmentGfactors_data['pce'][year_deduction + 1] /
-                           self.data.investmentGfactors_data['pce'][year_deduction])
+                yded = year_deduction
+                pi_temp = (
+                    self.data.investmentGfactors_data['pce'][yded + 1]
+                    / self.data.investmentGfactors_data['pce'][yded]
+                )
                 if pi_temp == np.exp(delta):
                     annual_change = 1.0
                 else:
                     if year_deduction == year_investment:
-                        annual_change = (((pi_temp * np.exp(delta / 2)) ** 0.5 - 1) /
-                                         (np.log(pi_temp - delta)))
+                        annual_change = (
+                            ((pi_temp * np.exp(delta / 2)) ** 0.5 - 1)
+                            / (np.log(pi_temp - delta))
+                        )
                     else:
-                        annual_change = ((pi_temp * np.exp(delta) - 1) /
-                                         (np.log(pi_temp) - delta))
+                        annual_change = (
+                            (pi_temp * np.exp(delta) - 1)
+                            / (np.log(pi_temp) - delta)
+                        )
 
                 if year_deduction < year_investment:
                     sval = 0
                     deduction = 0
                 elif year_deduction == year_investment:
                     sval = 1.0
-                    deduction = bonus + (1 - bonus) * delta * sval * annual_change
+                    deduction = (
+                        bonus + (1 - bonus) * delta * sval * annual_change
+                    )
                 else:
                     sval = (np.exp(-delta * (year_deduction - year_investment)) *
                             self.data.investmentGfactors_data['pce'][year_deduction] / 2.0 /
@@ -319,18 +328,27 @@ class Asset():
                 elif year_deduction > year_investment + L:
                     deduction = 0
                 elif year_deduction == year_investment:
-                    deduction = bonus + (1 - bonus) * (1 - np.exp(-N / L * 0.5))
+                    deduction = (
+                        bonus + (1 - bonus) * (1 - np.exp(-N / L * 0.5))
+                    )
                 elif s2 <= t1:
                     deduction = ((1 - bonus) * (np.exp(-N / L * (s1 - t0)) -
                                                 np.exp(-N / L * (s2 - t0))))
                 elif s1 >= t1 and s1 <= t0 + L and s2 > t0 + L:
-                    deduction = (1 - bonus) * (N / L * np.exp(1 - N) * (s2 - s1) * 0.5)
+                    deduction = (
+                        (1 - bonus) * (N / L * np.exp(1 - N)
+                                       * (s2 - s1) * 0.5)
+                    )
                 elif s1 >= t1 and s2 <= t0 + L:
-                    deduction = (1 - bonus) * (N / L * np.exp(1 - N) * (s2 - s1))
+                    deduction = (
+                        (1 - bonus) * (N / L * np.exp(1 - N) * (s2 - s1))
+                    )
                 elif s1 < t1 and s2 > t1:
-                    deduction = ((1 - bonus) * (np.exp(-N / L * (s1 - t0)) -
-                                                np.exp(-N / L * (t1 - t0)) +
-                                                N / L * np.exp(1 - N) * (s2 - t1)))
+                    deduction = (
+                        (1 - bonus) * (np.exp(-N / L * (s1 - t0)) -
+                                       np.exp(-N / L * (t1 - t0)) +
+                                       N / L * np.exp(1 - N) * (s2 - t1))
+                    )
             return deduction
 
         """

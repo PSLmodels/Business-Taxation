@@ -28,3 +28,5 @@ include biztax/brc_data/corp_debt_data.csv
 
 include biztax/btax_data/economic_depreciation_rates.csv
 include biztax/btax_data/tax_depreciation_rates.csv
+
+include biztax/policy_current_law.json

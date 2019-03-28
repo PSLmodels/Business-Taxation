@@ -18,43 +18,43 @@ class Investor():
     and pass-through business net income.
 
     Parameters:
-        refdict: individual-income-tax reform dict for itax.Policy class
+        itax_policy: individual-tax Policy object
         data: investor data for itax.Records class
     """
 
-    def __init__(self, refdict=None, data='puf.csv'):
-        # Specify refdict
-        if refdict is None:
-            self.refdict = {}
-        if isinstance(refdict, dict):
-            self.refdict = refdict
-        else:
-            raise ValueError('refdict must be a dictionary or None')
-        # Specify records_data
-        if isinstance(data, str) or isinstance(data, pd.DataFrame):
-            self.records_data = data
-        else:
+    def __init__(self, itax_policy, data='puf.csv'):
+        # Check argument types
+        if not isinstance(itax_policy, itax.Policy):
+            raise ValueError('itax_policy must be an itax.Policy object')
+        if not isinstance(data, (str, pd.DataFrame)):
             raise ValueError('data must be a string or a Pandas DataFrame')
-        # MTRs needed for calculating tax rates on business equity
+        # Save policy and records needed to create itax.Calculator object
+        self.itax_policy = itax_policy
+        self.records_data = data
+        # Specify MTRs needed for calculating tax rates on business equity
         self.needed_mtr_list = ['e00900p', 'e26270', 'e02000', 'e01700',
                                 'e00650', 'p22250', 'p23250']
+        # Declare results calculated by Investor class
+        self.mtrlist_nc = None
+        self.mtrlist_e = None
+        self.revenue_predistribution = None
+        self.revenue_postdistribution = None
 
-    def initiate_calculator(self):
+    def initiate_itax_calculator(self):
         """
-        Creates an intial version of the itax.Calculator object for START_YEAR
+        Creates and calculates an itax.Calculator object for START_YEAR
         """
-        policy = itax.Policy()
-        records = itax.Records(data=self.records_data)
-        if self.refdict != {}:
-            policy.implement_reform(self.refdict)
-        calc = itax.Calculator(policy=policy, records=records, verbose=False)
+        calc = itax.Calculator(policy=self.itax_policy,
+                               records=itax.Records(data=self.records_data),
+                               verbose=False)
         calc.advance_to_year(START_YEAR)
         calc.calc_all()
         return calc
 
-    def calc_tauNC(self, mtrdict, incdict):
+    @staticmethod
+    def calc_tauNC(mtrdict, incdict):
         """
-        Calculate the effective marginal tax rate on noncorporate business income.
+        Calculate effective marginal tax rate on noncorporate business income.
         """
         # Shares of noncorporate equity in fully taxable and tax-deferred form.
         alpha_nc_ft = 0.763
@@ -75,7 +75,8 @@ class Investor():
         mtr_nc = alpha_nc_ft * mtr_ft + alpha_nc_td * mtr_td
         return mtr_nc
 
-    def calc_tauE(self, mtrdict, incdict, year):
+    @staticmethod
+    def calc_tauE(mtrdict, incdict, year):
         """
         Calculate the effective marginal tax rate on equity income in year.
         """
@@ -114,13 +115,15 @@ class Investor():
         # accrual effective mtr on stcg
         tau_scg1 = (sum(mtr_scg * inc_scg * posti * wgt) /
                     sum(inc_scg * posti * wgt))
-        tau_scg = 1 - (np.log(np.exp(m * E * h_scg) * (1 - tau_scg1) + tau_scg1) /
-                       (m * E * h_scg))
+        tau_scg = (1 - (np.log(np.exp(m * E * h_scg)
+                               * (1 - tau_scg1) + tau_scg1)
+                        / (m * E * h_scg)))
         # accrual effective mtr on ltcg
-        tau_lcg1 = (sum(mtr_lcg * inc_lcg * posti * wgt) /
-                    sum(inc_lcg * posti * wgt))
-        tau_lcg = 1 - (np.log(np.exp(m * E * h_lcg)
-                              * (1 - tau_lcg1) + tau_lcg1) / (m * E * h_lcg))
+        tau_lcg1 = (sum(mtr_lcg * inc_lcg * posti * wgt)
+                    / sum(inc_lcg * posti * wgt))
+        tau_lcg = (1 - (np.log(np.exp(m * E * h_lcg)
+                               * (1 - tau_lcg1) + tau_lcg1)
+                        / (m * E * h_lcg)))
         # mtr on capital gains held until death
         tau_xcg = 0.0
         tau_cg = (omega_scg * tau_scg
@@ -129,37 +132,41 @@ class Investor():
         tau_ft = (1 - m) * tau_d + m * tau_cg
         tau_td1 = (sum(mtr_td * inc_td * posti * wgt)
                    / sum(inc_td * posti * wgt))
-        tau_td = 1 - (np.log(np.exp(E * h_td) * (1 - tau_td1) + tau_td1) /
-                      (E * h_td))
+        tau_td = (1 - (np.log(np.exp(E * h_td) * (1 - tau_td1) + tau_td1)
+                       / (E * h_td)))
         tau_e = alpha_ft * tau_ft + alpha_td * tau_td + alpha_nt * 0.0
         return tau_e
 
     def gen_mtr_lists(self):
-        # Calculate the EMTR on income from corporate equity
-        # and non-corporate business.
+        """
+        Calculate the EMTR on income from corporate equity
+        and non-corporate business.
+        """
         mtrlist_nc = np.zeros(NUM_YEARS)
         mtrlist_e = np.zeros(NUM_YEARS)
-        calc1 = self.initiate_calculator()
-        for year in range(START_YEAR, END_YEAR + 1):
-            calc1.advance_to_year(year)
-            calc1.calc_all()
+        icalc = self.initiate_itax_calculator()
+        for iyr in range(0, NUM_YEARS):
+            year = iyr + START_YEAR
+            icalc.advance_to_year(year)
+            icalc.calc_all()
             # Get individual MTRs on each income type
             mtr1 = dict()
             for var in self.needed_mtr_list:
-                _, _, mtr1[var] = calc1.mtr(var, calc_all_already_called=True)
+                _, _, mtr1[var] = icalc.mtr(var, calc_all_already_called=True)
             # Get relevant income measures
             inc1 = dict()
-            inc1['SchC'] = calc1.array('e00900')
-            inc1['SchEactive'] = calc1.array('e26270')
-            inc1['SchEpassive'] = calc1.array('e02000') - calc1.array('e26270')
-            inc1['definc'] = calc1.array('e01700')
-            inc1['div'] = calc1.array('e00650')
-            inc1['stcg'] = calc1.array('p22250')
-            inc1['ltcg'] = calc1.array('p23250')
-            inc1['wgt'] = calc1.array('s006')
-            inc1['taxinc'] = calc1.array('c04800')
+            inc1['SchC'] = icalc.array('e00900')
+            inc1['SchEactive'] = icalc.array('e26270')
+            inc1['SchEpassive'] = icalc.array('e02000') - icalc.array('e26270')
+            inc1['definc'] = icalc.array('e01700')
+            inc1['div'] = icalc.array('e00650')
+            inc1['stcg'] = icalc.array('p22250')
+            inc1['ltcg'] = icalc.array('p23250')
+            inc1['wgt'] = icalc.array('s006')
+            inc1['taxinc'] = icalc.array('c04800')
             # Calculate and save overall MTRs
-            iyr = year - START_YEAR
+            mtrlist_nc[iyr] = self.calc_tauNC(mtr1, inc1)
+            mtrlist_e[iyr] = self.calc_tauE(mtr1, inc1, year)
             mtrlist_nc[iyr] = self.calc_tauNC(mtr1, inc1)
             mtrlist_e[iyr] = self.calc_tauE(mtr1, inc1, year)
         self.mtrlist_nc = mtrlist_nc
@@ -184,52 +191,58 @@ class Investor():
         Adjusts noncorporate business credits based on rescaling factors from
         legal shifting response.
         """
-        calc1 = self.initiate_calculator()
+        icalc = self.initiate_itax_calculator()
         indiv_revenue = np.zeros(NUM_YEARS)
         for iyr in range(0, NUM_YEARS):
             year = iyr + START_YEAR
-            calc2 = copy.deepcopy(calc1)
+            icalc2 = copy.deepcopy(icalc)
             # Change Sch C business income
-            ref2_e00900p = calc2.array('e00900p')
-            ref2_e00900s = calc2.array('e00900s')
-            ref2_e00900 = calc2.array('e00900')
+            ref2_e00900p = icalc2.array('e00900p')
+            ref2_e00900s = icalc2.array('e00900s')
+            ref2_e00900 = icalc2.array('e00900')
+            mult_schc_pos = multipliers['SchC_pos'][iyr]
+            mult_schc_neg = multipliers['SchC_neg'][iyr]
             ref3_e00900p = np.where(ref2_e00900p >= 0,
-                                    ref2_e00900p * multipliers['SchC_pos'][iyr],
-                                    ref2_e00900p * multipliers['SchC_neg'][iyr])
+                                    ref2_e00900p * mult_schc_pos,
+                                    ref2_e00900p * mult_schc_neg)
             ref3_e00900s = np.where(ref2_e00900s >= 0,
-                                    ref2_e00900s * multipliers['SchC_pos'][iyr],
-                                    ref2_e00900s * multipliers['SchC_neg'][iyr])
+                                    ref2_e00900s * mult_schc_pos,
+                                    ref2_e00900s * mult_schc_neg)
             ref3_e00900 = np.where(ref2_e00900 >= 0,
-                                   ref2_e00900 * multipliers['SchC_pos'][iyr],
-                                   ref2_e00900 * multipliers['SchC_neg'][iyr])
-            calc2.array('e00900p', ref3_e00900p)
-            calc2.array('e00900s', ref3_e00900s)
-            calc2.array('e00900', ref3_e00900)
+                                   ref2_e00900 * mult_schc_pos,
+                                   ref2_e00900 * mult_schc_neg)
+            icalc2.array('e00900p', ref3_e00900p)
+            icalc2.array('e00900s', ref3_e00900s)
+            icalc2.array('e00900', ref3_e00900)
             # Change Sch E business income
-            ref2_e26270 = calc2.array('e26270')
+            ref2_e26270 = icalc2.array('e26270')
+            mult_e26270_pos = multipliers['e26270_pos'][iyr]
+            mult_e26270_neg = multipliers['e26270_neg'][iyr]
             change_e26270 = np.where(ref2_e26270 >= 0,
-                                     ref2_e26270 * (multipliers['e26270_pos'][iyr] - 1),
-                                     ref2_e26270 * (multipliers['e26270_neg'][iyr] - 1))
+                                     ref2_e26270 * (mult_e26270_pos - 1),
+                                     ref2_e26270 * (mult_e26270_neg - 1))
             ref3_e26270 = ref2_e26270 + change_e26270
-            ref3_e02000 = calc2.array('e02000') + change_e26270
-            calc2.array('e26270', ref3_e26270)
-            calc2.array('e02000', ref3_e02000)
+            ref3_e02000 = icalc2.array('e02000') + change_e26270
+            icalc2.array('e26270', ref3_e26270)
+            icalc2.array('e02000', ref3_e02000)
             # Change investment income
-            calc2.array('e00600', calc2.array('e00600') * multipliers['equity'][iyr])
-            calc2.array('e00650', calc2.array('e00650') * multipliers['equity'][iyr])
-            calc2.array('p22250', calc2.array('p22250') * multipliers['equity'][iyr])
-            calc2.array('p23250', calc2.array('p23250') * multipliers['equity'][iyr])
+            mult_eq = multipliers['equity'][iyr]
+            icalc2.array('e00600', icalc2.array('e00600') * mult_eq)
+            icalc2.array('e00650', icalc2.array('e00650') * mult_eq)
+            icalc2.array('p22250', icalc2.array('p22250') * mult_eq)
+            icalc2.array('p23250', icalc2.array('p23250') * mult_eq)
             # Change noncorporate business credits
-            calc2.array('e07300', calc2.array('e07300') * multipliers['rescale_noncorp'][iyr])
-            calc2.array('e07400', calc2.array('e07400') * multipliers['rescale_noncorp'][iyr])
-            calc2.array('e07600', calc2.array('e07600') * multipliers['rescale_noncorp'][iyr])
-            calc2.calc_all()
+            mult_rescale_ncorp = multipliers['rescale_noncorp'][iyr]
+            icalc2.array('e07300', icalc2.array('e07300') * mult_rescale_ncorp)
+            icalc2.array('e07400', icalc2.array('e07400') * mult_rescale_ncorp)
+            icalc2.array('e07600', icalc2.array('e07600') * mult_rescale_ncorp)
+            icalc2.calc_all()
             # Calculate total individual income and payroll tax revenue
-            indiv_revenue[iyr] = calc2.weighted_total('combined') * 1e-9
-            # Advance calc1 to the next year and recalculate
-            if year < END_YEAR:
-                calc1.increment_year()
-                calc1.calc_all()
+            indiv_revenue[iyr] = icalc2.weighted_total('combined') * 1e-9
+            # Advance icalc to the next year and recalculate
+            if iyr < NUM_YEARS:
+                icalc.increment_year()
+                icalc.calc_all()
         self.revenue_postdistribution = indiv_revenue
 
     def undistributed_revenue(self):
@@ -237,14 +250,13 @@ class Investor():
         Calculates individual income tax revenue for each year without
         distributing any tax changes.
         """
-        calc1 = self.initiate_calculator()
+        icalc = self.initiate_itax_calculator()
         indiv_revenue = np.zeros(NUM_YEARS)
         for iyr in range(0, NUM_YEARS):
-            year = iyr + START_YEAR
-            indiv_revenue[iyr] = calc1.weighted_total('combined') * 1e-9
-            if year < END_YEAR:
-                calc1.increment_year()
-                calc1.calc_all()
+            indiv_revenue[iyr] = icalc.weighted_total('combined') * 1e-9
+            if iyr < NUM_YEARS:
+                icalc.increment_year()
+                icalc.calc_all()
         self.revenue_predistribution = indiv_revenue
 
     def get_revenue_withdistribution(self):

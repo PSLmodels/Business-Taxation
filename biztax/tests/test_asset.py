@@ -18,7 +18,11 @@ def test_asset_capital_path(reform_number, corporate,
     """
     Test corp/non-corp capital path results under different reforms.
     """
-    asset = Asset(reforms[reform_number], corp=corporate)
+    if not (reform_number == 1 and corporate == True):
+        return
+    reforms[reform_number]['pdf'].to_csv('tests/ref1-branch.csv',
+                                         float_format='%.3f')
+    asset = Asset(reforms[reform_number]['pdf'], corp=corporate)
     asset.calc_all()
     decimals = 2
     capital_path = asset.capital_path.round(decimals)
@@ -48,20 +52,6 @@ def test_update_response(default_btax_params):
     response_df = pd.DataFrame()
     asset.update_response(response_df)
     assert isinstance(asset.response, pd.DataFrame)
-
-
-@pytest.mark.skip
-def test_build_inv_matrix(default_btax_params):
-    """
-    Test build_inv_matrix method with response
-    """
-    resp_elasticities = {'inv_usercost_c': -1.0, 'inv_usercost_nc': -0.5}
-    resp = Response(resp_elasticities, default_btax_params, default_bax_params)
-    resp.calc_inv_response()
-    asset = Asset(default_btax_params, response=resp.investment_response)
-    asset.get_ccr_data()
-    asset.build_inv_matrix()
-    assert isinstance(asset.investment_history, pd.DataFrame)
 
 
 @pytest.mark.skip
