@@ -7,13 +7,7 @@ from biztax import BusinessModel, NUM_YEARS, START_YEAR
 
 @pytest.mark.one
 @pytest.mark.parametrize('param',
-                         [('depr_3yr_bonus'),
-                          ('depr_5yr_bonus'),
-                          ('depr_7yr_bonus'),
-                          ('depr_10yr_bonus'),
-                          ('depr_15yr_bonus'),
-                          ('depr_20yr_bonus'),
-                          ('depr_25yr_bonus'),
+                         [('depr_25yr_bonus'),
                           ('depr_275yr_bonus'),
                           ('depr_39yr_bonus'),
                           ('depr_land_bonus'),
