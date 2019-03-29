@@ -99,7 +99,8 @@ def calcDepAdjustment(corp):
     corp: indicator for whether corporate or noncorporate data
     """
     # Create Asset object
-    asset1 = Asset(data1.btax_defaults, corp)
+    policy = Policy()
+    asset1 = Asset(policy.parameters_dataframe, corp)
     asset1.calc_all()
     # Get unscaled depreciation for all years
     totalAnnualDepreciation = asset1.calcDep_allyears()
@@ -119,30 +120,32 @@ def calcDepAdjustment(corp):
     return adj_factor
 
 
-def calcIDAdjustment(Corp, eta=0.4):
+def calcIDAdjustment(corp, eta=0.4):
     """
     Calculates the adjustment factors for the corporate and noncorporate
     debt and interest.
     eta: retirement rate of existing debt
     """
+    policy = Policy()
+    policy_params_df = policy.parameters_dataframe()
     # Create Asset object
-    asset1 = Asset(data1.btax_defaults, Corp)
-    asset1.calc_all()
+    asset = Asset(policy_params_df, corp)
+    asset.calc_all()
     # Get asset forecast
-    forecast = asset1.get_forecast()
+    forecast = asset.get_forecast()
     # Create Debt object
-    debt1 = Debt(data1.btax_defaults, forecast, corp=Corp)
-    debt1.calc_all()
+    debt = Debt(policy_params_df, forecast, corp=corp)
+    debt.calc_all()
     # Get unscaled net interest deduction
-    NID_gross = debt1.NID[38:54]
+    NID_gross = debt.NID[38:54]
     # Get net interest deduction from historical IRS data
-    if Corp:
-        NID_irs = np.array(data1.debt_data_corp['NID_IRS'])[38:54]
+    if corp:
+        NID_irs = np.array(data.debt_data_corp['NID_IRS'])[38:54]
     else:
-        NID_irs = np.array(data1.debt_data_noncorp['ID_Scorp'][38:54] +
-                           data1.debt_data_noncorp['ID_sp'][38:54] +
-                           data1.debt_data_noncorp['ID_partner'][38:54])
-    NID_scale = sum(NID_irs / NID_gross) / 16.
+        NID_irs = np.array(data.debt_data_noncorp['ID_Scorp'][38:54] +
+                           data.debt_data_noncorp['ID_sp'][38:54] +
+                           data.debt_data_noncorp['ID_partner'][38:54])
+    NID_scale = sum(NID_irs / NID_gross) / 16.0  # 16 = 54 - 38
     return NID_scale
 
 

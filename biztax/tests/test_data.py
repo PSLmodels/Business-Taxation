@@ -3,7 +3,7 @@ Test Data class.
 """
 import numpy as np
 import pytest
-from biztax import Data
+from biztax import Data, NUM_YEARS
 
 
 def test_update_rescaling():
@@ -14,10 +14,9 @@ def test_update_rescaling():
     # check default values set in Data ctor
     assert isinstance(data.rescale_corp, np.ndarray)
     assert isinstance(data.rescale_noncorp, np.ndarray)
-    array_length = 14
-    assert len(data.rescale_corp) == array_length
-    assert len(data.rescale_noncorp) == array_length
-    ones = np.ones(array_length)
+    assert len(data.rescale_corp) == NUM_YEARS
+    assert len(data.rescale_noncorp) == NUM_YEARS
+    ones = np.ones(NUM_YEARS)
     assert np.allclose(data.rescale_corp, ones)
     assert np.allclose(data.rescale_noncorp, ones)
     # update the data.rescale_* values

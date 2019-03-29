@@ -9,7 +9,7 @@ import numpy
 import pandas
 import pytest
 import taxcalc as itax
-from biztax import Policy, Data, BusinessModel
+from biztax import Policy, Data
 
 
 # convert all numpy warnings into errors so they can be detected in tests
@@ -38,11 +38,9 @@ def puf_subsample(puf_fullsample):
 
 
 @pytest.fixture(scope='session')
-def default_btax_params(tests_path):
-    # TODO: change this to following:
-    # policy = Policy ; return policy.parameters_dataframe()
-    fname = os.path.join(tests_path, '..', 'mini_params_btax.csv')
-    return pandas.read_csv(fname)
+def clp_params_df():  # current-law policy parameters as a multi-year DataFrame
+    policy = Policy()
+    return policy.parameters_dataframe()
 
 
 @pytest.fixture(scope='session')
@@ -51,9 +49,8 @@ def reforms():
     # reform 0, the baseline
     policy0 = Policy()
     reform_dict[0] = {
-        'dict': dict(),
-        'pdf': policy0.parameters_dataframe(),
-        'obj': policy0
+        'params_df': policy0.parameters_dataframe(),
+        'policy_obj': policy0
     }
     # reform 1
     policy1 = Policy()
@@ -89,9 +86,8 @@ def reforms():
     }
     policy1.implement_reform(reform1)
     reform_dict[1] = {
-        'dict': reform1,
-        'pdf': policy1.parameters_dataframe(),
-        'obj': policy1
+        'params_df': policy1.parameters_dataframe(),
+        'policy_obj': policy1
     }
     # reform 2
     policy2 = Policy()
@@ -115,9 +111,8 @@ def reforms():
     }
     policy2.implement_reform(reform2)
     reform_dict[2] = {
-        'dict': reform2,
-        'pdf': policy2.parameters_dataframe(),
-        'obj': policy2
+        'params_df': policy2.parameters_dataframe(),
+        'policy_obj': policy2
     }
     return reform_dict
 

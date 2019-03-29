@@ -6,20 +6,20 @@ import pytest
 from biztax import CorpTaxReturn, Data, Asset, Debt
 
 
-def test_instantiation_and_update_methods(default_btax_params):
+def test_instantiation_and_update_methods(clp_params_df):
     """
     Test (in)correct CorpTaxReturn instantiation and update_* methods
     """
-    good_btax_params = default_btax_params
+    good_btax_params = clp_params_df
     bad_btax_params = list()
     good_earnings = np.ones(14)
     bad1_earnings = np.ones(13)
     bad2_earnings = dict()
     good_data = Data()
-    good_assets = Asset(default_btax_params)
+    good_assets = Asset(clp_params_df)
     good_assets.calc_all()
     bad_assets = dict()
-    good_debts = Debt(default_btax_params, np.ones(14))
+    good_debts = Debt(clp_params_df, np.ones(14))
     good_debts.calc_all()
     bad_debts = dict()
     # test (in)correct instantiation

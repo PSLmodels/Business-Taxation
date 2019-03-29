@@ -17,7 +17,7 @@ def test_corporation_results(reform_number, real_not_taxr_results,
     """
     Test different corporation results under different reforms.
     """
-    corp = Corporation(reforms[reform_number]['pdf'])
+    corp = Corporation(reforms[reform_number]['params_df'])
     corp.calc_static()
     decimals = 2
     if real_not_taxr_results:
@@ -29,7 +29,7 @@ def test_corporation_results(reform_number, real_not_taxr_results,
     actual_vs_expect(results, fname, precision=decimals)
 
 
-def test_incorrect_instantiation(default_btax_params):
+def test_incorrect_instantiation():
     """
     Test incorrect Corporation instantiation
     """
