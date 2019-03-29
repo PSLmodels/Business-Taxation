@@ -100,7 +100,7 @@ def calcDepAdjustment(corp):
     """
     # Create Asset object
     policy = Policy()
-    asset1 = Asset(policy.parameters_dataframe, corp)
+    asset1 = Asset(policy.parameters_dataframe(), corp)
     asset1.calc_all()
     # Get unscaled depreciation for all years
     totalAnnualDepreciation = asset1.calcDep_allyears()
