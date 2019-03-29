@@ -28,7 +28,7 @@
 
     "_tau_nc": {
         "long_name": "Noncorporate tax rate",
-        "description": "Entity-level tax rate applied to noncorporate businesses",
+        "description": "Effective marginal tax rate on noncorporate business income",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -74,8 +74,8 @@
     },
 
     "_tau_e": {
-        "long_name": "??? tax rate ???",
-        "description": "???",
+        "long_name": "Equity tax rate",
+        "description": "Effective marginal tax rate on income from corporate equity",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -142,8 +142,8 @@
     },
 
     "_pymtc_status": {
-        "long_name": "???",
-        "description": "???",
+        "long_name": "Status of Prior Year Minimum Tax Credit",
+        "description": "Indicator for PYMTC status: 0 for nonrefundable credit, 1 for repealed, 2 for refundable credit",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -590,7 +590,7 @@
         "description": "Bonus depreciation rate used for land",
         "section_1": "main",
         "section_2": "",
-        "notes": "",
+        "notes": "Not currently being used",
         "row_var": "FLPDYR",
         "row_label": ["2014"],
         "start_year": 2014,
@@ -610,7 +610,7 @@
         "long_name": "Inventory accounting method",
         "description": "Inventory accounting method used",
         "section_1": "main",
-        "section_2": "",
+        "section_2": "Currently only used in Response class, but not for tax purposes",
         "notes": "Method may be FIFO, LIFO, Expensing, or a mix of FIFO and LIFO",
         "row_var": "FLPDYR",
         "row_label": ["2014"],
@@ -626,7 +626,7 @@
 
     "_undepBasis_corp_hc": {
         "long_name": "Corporate undepreciated basis haircut",
-        "description": "Corporate undepreciated basis haircut",
+        "description": "Haircut on corporate undepreciated basis as of _undepBasis_corp_hcyear",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -647,7 +647,7 @@
 
     "_undepBasis_corp_hcyear": {
         "long_name": "Corporate undepreciated basis haircut",
-        "description": "Corporate undepreciated basis haircut",
+        "description": "Year at which _undepBasis_corp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -668,7 +668,7 @@
 
     "_undepBasis_noncorp_hc": {
         "long_name": "Non-corporate undepreciated basis haircut",
-        "description": "Non-corporate undepreciated basis haircut",
+        "description": "Haircut on non-corporate undepreciated basis as of _undepBasis_noncorp_hcyear",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -689,7 +689,7 @@
 
     "_undepBasis_noncorp_hcyear": {
         "long_name": "Non-corporate undepreciated basis haircut",
-        "description": "Non-corporate undepreciated basis haircut",
+        "description": "Year at which _undepBasis_noncorp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -709,8 +709,8 @@
     },
 
     "_ftc_hc": {
-        "long_name": "??? haircut",
-        "description": "??? haircut",
+        "long_name": "Foreign Tax Credit haircut",
+        "description": "Haircut applied to the Foreign Tax Credit",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -731,7 +731,7 @@
 
     "_sec199_hc": {
         "long_name": "Section 199 haircut",
-        "description": "Section 199 haircut",
+        "description": "Haircut applied to the Section 199 Domestic Production Deduction",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -752,7 +752,7 @@
 
     "_oldIntPaid_corp_hc": {
         "long_name": "Corporate old-interest-paid haircut",
-        "description": "Corporate old-interest-paid haircut",
+        "description": "Haircut on corporate interest paid deductions taken as of _oldIntPaid_corp_hcyear but originated before then",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -773,7 +773,7 @@
 
     "_oldIntPaid_corp_hcyear": {
         "long_name": "Corporate old-interest-paid haircut year",
-        "description": "Corporate old-interest-paid haircut year",
+        "description": "Year for which _oldIntPaid_corp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -794,7 +794,7 @@
 
     "_newIntPaid_corp_hc": {
         "long_name": "Corporate new-interest-paid haircut",
-        "description": "Corporate new-interest-paid haircut",
+        "description": "Haircut on corporate interest paid deductions on debt originated as of _newIntPaid_corp_hcyear",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -815,7 +815,7 @@
 
     "_newIntPaid_corp_hcyear": {
         "long_name": "Corporate new-interest-paid haircut year",
-        "description": "Corporate new-interest-paid haircut year",
+        "description": "Year to which _newIntPaid_corp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -836,7 +836,7 @@
 
     "_netIntPaid_corp_hc": {
         "long_name": "Corporate net-interest-paid haircut",
-        "description": "Corporate net-interest-paid haircut",
+        "description": "Haircut on corporate net interest deduction",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -857,7 +857,7 @@
 
     "_oldIntPaid_noncorp_hc": {
         "long_name": "Non-corporate old-interest-paid haircut",
-        "description": "Non-corporate old-interest-paid haircut",
+        "description": "Haircut on non-corporate interest paid deductions taken as of _oldIntPaid_noncorp_hcyear but originated before then",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -878,7 +878,7 @@
 
     "_oldIntPaid_noncorp_hcyear": {
         "long_name": "Non-corporate old-interest-paid haircut year",
-        "description": "Non-corporate old-interest-paid haircut year",
+        "description": "Year for which _oldIntPaid_noncorp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -899,7 +899,7 @@
 
     "_newIntPaid_noncorp_hc": {
         "long_name": "Non-corporate new-interest-paid haircut",
-        "description": "Non-corporate new-interest-paid haircut",
+        "description": "Haircut on non-corporate interest paid deductions on debt originated as of _newIntPaid_noncorp_hcyear",
         "section_1": "main",
         "section_2": "",
         "notes": "",
@@ -920,7 +920,7 @@
 
     "_newIntPaid_noncorp_hcyear": {
         "long_name": "Non-corporate new-interest-paid haircut year",
-        "description": "Non-corporate new-interest-paid haircut year",
+        "description": "Year to which _newIntPaid_noncorp_hc is applied",
         "section_1": "main",
         "section_2": "",
         "notes": "",
