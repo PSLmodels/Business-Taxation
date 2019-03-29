@@ -23,7 +23,6 @@ def test_incorrect_calc_all():
         bizmod.calc_all(response=pre_calc_response)
 
 
-@pytest.mark.bizmod
 @pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('with_response', [(False), (True)])
 def test_bm_corp0(with_response, actual_vs_expect,
