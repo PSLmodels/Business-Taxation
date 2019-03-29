@@ -62,40 +62,6 @@ class BusinessModel():
         self.multipliers = None
         self.model_results = None
 
-    def check_btax_reform(self, paramdict):
-        """
-        Checks that the btax_param dictionary are acceptable
-        """
-        assert isinstance(paramdict, dict)
-        paramnames = list(self.btax_defaults)
-        paramnames.remove('year')
-        for key in paramdict:
-            key2 = int(key)
-            assert key2 in range(START_YEAR, END_YEAR)
-            for param in paramdict[key]:
-                assert param in paramnames
-
-    def update_btax_params(self, param_dict):
-        """
-        Updates btax_params
-        param_dict is a year: {param: value} dictionary.
-        Acceptable years are 2017-2027. Ex:
-            {'2018': {'tau_c': 0.3}}
-        """
-        self.check_btax_reform(param_dict)
-        params_df = copy.deepcopy(self.btax_defaults)
-        yearlist = []
-        for key in param_dict:
-            yearlist.append(key)
-        yearlist.sort()
-        years = np.asarray(params_df['year'])
-        for year in yearlist:
-            for param in param_dict[year]:
-                paramlist1 = np.asarray(params_df[param])
-                paramlist1[years >= int(year)] = param_dict[year][param]
-                params_df[param] = paramlist1
-        return params_df
-
     def calc_all(self, response=None):
         """
         Executes all BusinessModel calculations.

@@ -65,8 +65,6 @@ class Data():
         self.sp_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'sp_nonfarm_data.csv'))
         # Defaults for posssible use (may be deprecated)
-        self.btax_defaults = Data.read_csv(
-            os.path.join(Data.CURRENT_PATH, 'mini_params_btax.csv'))
         self.econ_defaults = Data.read_csv(
             os.path.join(Data.CURRENT_PATH, 'mini_params_econ.csv'))
         self.rescale_corp = np.ones(NUM_YEARS)

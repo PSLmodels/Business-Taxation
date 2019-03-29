@@ -23,7 +23,6 @@ def test_incorrect_calc_all():
         bizmod.calc_all(response=pre_calc_response)
 
 
-@pytest.mark.bizmod
 @pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('with_response', [(False), (True)])
 def test_bm_corp0(with_response, actual_vs_expect,
@@ -100,7 +99,6 @@ def test_bm_corp0(with_response, actual_vs_expect,
     actual_vs_expect(results, fname, precision=dec)
 
 
-@pytest.mark.bizmod
 @pytest.mark.requires_pufcsv
 @pytest.mark.parametrize('reform_number', [(0), (1), (2)])
 def test_reforms(reform_number, reforms, puf_subsample, actual_vs_expect):
@@ -108,11 +106,12 @@ def test_reforms(reform_number, reforms, puf_subsample, actual_vs_expect):
     Test BusinessModel corporate tax return results under reforms
     with no response.
     """
-    bizmod = BusinessModel(reforms[reform_number]['obj'], itax.Policy(),
+    bizmod = BusinessModel(reforms[reform_number]['policy_obj'],
+                           itax.Policy(),
                            investor_data=puf_subsample)
     bizmod.calc_all(response=None)
     # compare actual and expected results
-    dec = 4
+    dec = 3
     results = bizmod.corp_ref.taxreturn.combined_return.round(dec)
     fname = 'bizmod_corp_ref{}_expect.csv'.format(reform_number)
     actual_vs_expect(results, fname, precision=dec)

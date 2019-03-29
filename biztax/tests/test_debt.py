@@ -18,9 +18,9 @@ def test_debt_interest_path(reform_number, corporate,
     """
     Test corp/non-corp interest path results under different reforms.
     """
-    asset = Asset(reforms[reform_number]['pdf'], corp=corporate)
+    asset = Asset(reforms[reform_number]['params_df'], corp=corporate)
     asset.calc_all()
-    debt = Debt(reforms[reform_number]['pdf'], asset.get_forecast())
+    debt = Debt(reforms[reform_number]['params_df'], asset.get_forecast())
     debt.calc_all()
     decimals = 2
     interest_path = debt.interest_path.round(decimals)
@@ -29,11 +29,11 @@ def test_debt_interest_path(reform_number, corporate,
     actual_vs_expect(interest_path, fname, precision=decimals)
 
 
-def test_instantiation(default_btax_params):
+def test_instantiation(clp_params_df):
     """
     Test (in)correct Debt instantiation
     """
-    good_btax_params = default_btax_params
+    good_btax_params = clp_params_df
     bad_btax_params = list()
     good_asset_forecast = np.ones(14)
     bad_asset_forecast = np.ones(13)
@@ -57,12 +57,12 @@ def test_instantiation(default_btax_params):
         Debt(good_btax_params, good_asset_forecast, response=bad_response)
 
 
-def test_constrain_history(default_btax_params):
+def test_constrain_history(clp_params_df):
     """
     Test constrain_history method
     """
     good_asset_forecast = np.ones(14)
-    debt = Debt(default_btax_params, good_asset_forecast)
+    debt = Debt(clp_params_df, good_asset_forecast)
     debt.get_haircuts()
     debt.build_level_history()
     debt.build_flow_history()

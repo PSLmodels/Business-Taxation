@@ -93,30 +93,3 @@ def test_parameters_dataframe():
         ppdf['tau_c'][END_YEAR]
     with pytest.raises(KeyError):
         ppdf['unknown_parameter'][0]
-
-
-def test_policy_values(tests_path):
-    """
-    Compare btax policy parameter values from two different sources:
-    biztax/policy_current_law.json and biztax/mini_params_btax.csv
-    """
-    # read policy parameter DataFrame from biztax/mini_params_btax.csv
-    params_csv = Data.read_csv(
-        os.path.join(Data.CURRENT_PATH, 'mini_params_btax.csv')
-    )
-    assert isinstance(params_csv, pandas.DataFrame)
-    # create policy parameter DataFrame from biztax/policy_current_law.json
-    policy = Policy()
-    params_json = policy.parameters_dataframe()
-    assert isinstance(params_json, pandas.DataFrame)
-    # compare params_json with params_csv
-    assert set(params_json.columns) == set(params_csv.columns)
-    params_with_diff = list()
-    for pname in params_json:
-        if params_csv[pname].dtype == numpy.object:
-            allclose = numpy.all(params_json[pname] == params_csv[pname])
-        else:
-            allclose = numpy.allclose(params_json[pname], params_csv[pname])
-        if not allclose:
-            params_with_diff.append(pname)
-    assert not params_with_diff
