@@ -2,7 +2,6 @@
 Business-Taxation Policy class.
 """
 import os
-import numpy
 import pandas
 import taxcalc
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
@@ -101,7 +100,7 @@ class Policy(taxcalc.Parameters):
         # validate reform parameter names and types
         self.parameter_warnings = ''
         self.parameter_errors = ''
-        self._validate_parameter_names_types(reform)
+        self._validate_names_types(reform)
         if not self._ignore_errors and self.parameter_errors:
             raise ValueError(self.parameter_errors)
         # implement the reform year by year
@@ -113,7 +112,7 @@ class Policy(taxcalc.Parameters):
             self._update({year: reform[year]})
         self.set_year(precall_current_year)
         # validate reform parameter values
-        self._validate_parameter_values(reform_parameters)
+        self._validate_values(reform_parameters)
         if self.parameter_warnings and print_warnings:
             print(self.parameter_warnings)
         if self.parameter_errors and raise_errors:
@@ -139,146 +138,3 @@ class Policy(taxcalc.Parameters):
             parray = getattr(self, pname)
             pdict[pname[1:]] = parray
         return pandas.DataFrame(data=pdict)
-
-    # ----- begin private methods of Policy class -----
-
-    def _validate_parameter_names_types(self, reform):
-        """
-        Check validity of parameter names and parameter types used
-        in the specified reform dictionary.
-        """
-        param_names = set(self._vals.keys())
-        for year in sorted(reform.keys()):
-            for name in reform[year]:
-                if name not in param_names:
-                    msg = '{} {} is an unknown parameter name'
-                    self.parameter_errors += (
-                        'ERROR: ' + msg.format(year, name) + '\n'
-                    )
-                else:
-                    # check parameter value type avoiding use of isinstance
-                    # because isinstance(True, (int,float)) is True, which
-                    # makes it impossible to check float parameters
-                    valtype = self._vals[name]['value_type']
-                    assert isinstance(reform[year][name], list)
-                    pvalue = reform[year][name][0]
-                    if isinstance(pvalue, list):
-                        scalar = False  # parameter value is a list
-                    else:
-                        scalar = True  # parameter value is a scalar
-                        pvalue = [pvalue]  # make scalar a single-item list
-                    for idx in range(0, len(pvalue)):
-                        if scalar:
-                            pname = name
-                        else:
-                            pname = '{}_{}'.format(name, idx)
-                        pval = pvalue[idx]
-                        if valtype == 'real':
-                            if type(pval) != float and type(pval) != int:
-                                msg = '{} {} value {} is not a number'
-                                self.parameter_errors += (
-                                    'ERROR: ' +
-                                    msg.format(year, pname, pval) +
-                                    '\n'
-                                )
-                        elif valtype == 'boolean':
-                            if type(pval) != bool:
-                                msg = '{} {} value {} is not boolean'
-                                self.parameter_errors += (
-                                    'ERROR: ' +
-                                    msg.format(year, pname, pval) +
-                                    '\n'
-                                )
-                        elif valtype == 'integer':
-                            if type(pval) != int:
-                                msg = '{} {} value {} is not integer'
-                                self.parameter_errors += (
-                                    'ERROR: ' +
-                                    msg.format(year, pname, pval) +
-                                    '\n'
-                                )
-                        elif valtype == 'string':
-                            if type(pval) != str:
-                                msg = '{} {} value {} is not a string'
-                                self.parameter_errors += (
-                                    'ERROR: ' +
-                                    msg.format(year, pname, pval) +
-                                    '\n'
-                                )
-        del param_names
-
-    def _validate_parameter_values(self, parameters_set):
-        """
-        Check values of parameters in specified parameter_set using
-        range information from the policy_current_law.json file.
-        """
-        parameters = sorted(parameters_set)
-        syr = self.start_year
-        for pname in parameters:
-            pvalue = getattr(self, pname)
-            if self._vals[pname]['value_type'] == 'string':
-                valid_options = self._vals[pname]['valid_values']['options']
-                for idx in numpy.ndindex(pvalue.shape):
-                    if pvalue[idx] not in valid_options:
-                        msg = "{} {} value '{}' not in {}"
-                        fullmsg = '{}: {}\n'.format(
-                            'ERROR',
-                            msg.format(idx[0] + syr,
-                                       pname,
-                                       pvalue[idx],
-                                       valid_options)
-                        )
-                        self.parameter_errors += fullmsg
-            else:  # parameter does not have string type
-                for vop, vval in self._vals[pname]['valid_values'].items():
-                    if isinstance(vval, str):
-                        vvalue = getattr(self, vval)
-                    else:
-                        vvalue = numpy.full(pvalue.shape, vval)
-                    assert pvalue.shape == vvalue.shape
-                    assert len(pvalue.shape) <= 2
-                    if len(pvalue.shape) == 2:
-                        scalar = False  # parameter value is a list (vector)
-                    else:
-                        scalar = True  # parameter value is a scalar
-                    for idx in numpy.ndindex(pvalue.shape):
-                        out_of_range = False
-                        if vop == 'min' and pvalue[idx] < vvalue[idx]:
-                            out_of_range = True
-                            msg = '{} {} value {} < min value {}'
-                            extra = self._vals[pname]['invalid_minmsg']
-                            if extra:
-                                msg += ' {}'.format(extra)
-                        if vop == 'max' and pvalue[idx] > vvalue[idx]:
-                            out_of_range = True
-                            msg = '{} {} value {} > max value {}'
-                            extra = self._vals[pname]['invalid_maxmsg']
-                            if extra:
-                                msg += ' {}'.format(extra)
-                        if out_of_range:
-                            action = self._vals[pname]['invalid_action']
-                            if scalar:
-                                name = pname
-                            else:
-                                name = '{}_{}'.format(pname, idx[1])
-                                if extra:
-                                    msg += '_{}'.format(idx[1])
-                            if action == 'warn':
-                                fullmsg = '{}: {}\n'.format(
-                                    'WARNING',
-                                    msg.format(idx[0] + syr,
-                                               name,
-                                               pvalue[idx],
-                                               vvalue[idx])
-                                )
-                                self.parameter_warnings += fullmsg
-                            if action == 'stop':
-                                fullmsg = '{}: {}\n'.format(
-                                    'ERROR',
-                                    msg.format(idx[0] + syr,
-                                               name,
-                                               pvalue[idx],
-                                               vvalue[idx])
-                                )
-                                self.parameter_errors += fullmsg
-        del parameters
