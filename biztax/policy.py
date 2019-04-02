@@ -23,10 +23,8 @@ class Policy(taxcalc.Parameters):
     DEFAULTS_FILE_PATH = os.path.abspath(os.path.dirname(__file__))
 
     def __init__(self):
-        super().__init__()
         # read default parameters and initialize
-        self._vals = self._params_dict_from_json_file()
-        # initialize abstract base taxcalc.Parameters class
+        super().__init__()
         self.initialize(START_YEAR, NUM_YEARS)
         # specify warning/error handling variables
         self.parameter_warnings = ''
