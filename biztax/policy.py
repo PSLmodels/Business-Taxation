@@ -29,7 +29,6 @@ class Policy(taxcalc.Parameters):
         # specify warning/error handling variables
         self.parameter_warnings = ''
         self.parameter_errors = ''
-        self._ignore_errors = False
 
     def implement_reform(self, reform,
                          print_warnings=True, raise_errors=True):
@@ -99,7 +98,7 @@ class Policy(taxcalc.Parameters):
         self.parameter_warnings = ''
         self.parameter_errors = ''
         self._validate_names_types(reform)
-        if self.parameter_errors and not self._ignore_errors:
+        if self.parameter_errors:
             raise ValueError(self.parameter_errors)
         # implement the reform year by year
         precall_current_year = self.current_year
@@ -115,12 +114,6 @@ class Policy(taxcalc.Parameters):
             print(self.parameter_warnings)
         if self.parameter_errors and raise_errors:
             raise ValueError('\n' + self.parameter_errors)
-
-    def ignore_reform_errors(self):
-        """
-        Sets self._ignore_errors to True.
-        """
-        self._ignore_errors = True
 
     def parameters_dataframe(self):
         """
