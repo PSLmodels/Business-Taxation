@@ -56,32 +56,32 @@ def reforms():
     policy1 = Policy()
     reform1 = {
         2017: {
-            '_tau_c': [0.3],
-            '_depr_3yr_method': ['GDS'],
-            '_depr_3yr_bonus': [0.8],
-            '_depr_5yr_method': ['ADS'],
-            '_depr_5yr_bonus': [0.8],
-            '_depr_7yr_method': ['Economic'],
-            '_depr_7yr_bonus': [0.8],
-            '_depr_10yr_method': ['GDS'],
-            '_depr_10yr_bonus': [0.6],
-            '_depr_15yr_method': ['Expensing'],
-            '_depr_15yr_bonus': [0.6],
-            '_depr_20yr_method': ['ADS'],
-            '_depr_20yr_bonus': [0.4],
-            '_depr_25yr_method': ['GDS'],
-            '_depr_25yr_bonus': [0.2],
-            '_depr_275yr_method': ['GDS'],
-            '_depr_275yr_bonus': [0.2],
-            '_depr_39yr_method': ['ADS'],
-            '_depr_39yr_bonus': [0.2],
-            '_tau_amt': [0.0],
-            '_pymtc_status': [1]
+            'tau_c': 0.3,
+            'depr_3yr_method': 'GDS',
+            'depr_3yr_bonus': 0.8,
+            'depr_5yr_method': 'ADS',
+            'depr_5yr_bonus': 0.8,
+            'depr_7yr_method': 'Economic',
+            'depr_7yr_bonus': 0.8,
+            'depr_10yr_method': 'GDS',
+            'depr_10yr_bonus': 0.6,
+            'depr_15yr_method': 'Expensing',
+            'depr_15yr_bonus': 0.6,
+            'depr_20yr_method': 'ADS',
+            'depr_20yr_bonus': 0.4,
+            'depr_25yr_method': 'GDS',
+            'depr_25yr_bonus': 0.2,
+            'depr_275yr_method': 'GDS',
+            'depr_275yr_bonus': 0.2,
+            'depr_39yr_method': 'ADS',
+            'depr_39yr_bonus': 0.2,
+            'tau_amt': 0.0,
+            'pymtc_status': 1
         },
         2018: {
-            '_netIntPaid_corp_hc': [0.5],
-            '_sec199_hc': [0.5],
-            '_ftc_hc': [0.5]
+            'netIntPaid_corp_hc': 0.5,
+            'sec199_hc': 0.5,
+            'ftc_hc': 0.5
         }
     }
     policy1.implement_reform(reform1)
@@ -93,20 +93,20 @@ def reforms():
     policy2 = Policy()
     reform2 = {
         2017: {
-            '_oldIntPaid_corp_hcyear': [2017],
-            '_oldIntPaid_corp_hc': [0.5],
-            '_newIntPaid_corp_hcyear': [2017],
-            '_newIntPaid_corp_hc': [1.0],
-            '_oldIntPaid_noncorp_hcyear': [2017],
-            '_oldIntPaid_noncorp_hc': [0.5],
-            '_newIntPaid_noncorp_hcyear': [2017],
-            '_newIntPaid_noncorp_hc': [1.0]
+            'oldIntPaid_corp_hcyear': 2017,
+            'oldIntPaid_corp_hc': 0.5,
+            'newIntPaid_corp_hcyear': 2017,
+            'newIntPaid_corp_hc': 1.0,
+            'oldIntPaid_noncorp_hcyear': 2017,
+            'oldIntPaid_noncorp_hc': 0.5,
+            'newIntPaid_noncorp_hcyear': 2017,
+            'newIntPaid_noncorp_hc': 1.0
         },
         2018: {
-            '_undepBasis_corp_hcyear': [2018],
-            '_undepBasis_corp_hc': [0.5],
-            '_undepBasis_noncorp_hcyear': [2018],
-            '_undepBasis_noncorp_hc': [0.5]
+            'undepBasis_corp_hcyear': 2018,
+            'undepBasis_corp_hc': 0.5,
+            'undepBasis_noncorp_hcyear': 2018,
+            'undepBasis_noncorp_hc': 0.5
         }
     }
     policy2.implement_reform(reform2)

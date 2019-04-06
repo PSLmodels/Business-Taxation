@@ -37,22 +37,22 @@ def test_implement_reform():
     with pytest.raises(ValueError):
         policy.implement_reform(list())
     with pytest.raises(ValueError):
-        policy.implement_reform({2099: {'_tau_c': [0.20]}})
+        policy.implement_reform({2099: {'tau_c': 0.20}})
     policy.set_year(2019)
     with pytest.raises(ValueError):
-        policy.implement_reform({2018: {'_tau_c': [0.20]}})
+        policy.implement_reform({2018: {'tau_c': 0.20}})
     with pytest.raises(ValueError):
-        policy.implement_reform({2020: {'_tau_c': [-0.2]}})
+        policy.implement_reform({2020: {'tau_c': -0.2}})
     with pytest.raises(ValueError):
-        policy.implement_reform({2020: {'_inventory_method': ['XIFO']}})
+        policy.implement_reform({2020: {'inventory_method': 'XIFO'}})
     del policy
     # correct use of implement_reform
     policy = Policy()
     reform = {
         2021: {
-            '_tau_c': [0.20],
-            '_inventory_method': ['FIFO'],
-            '_newIntPaid_corp_hcyear': [2018]
+            'tau_c': 0.20,
+            'inventory_method': 'FIFO',
+            'newIntPaid_corp_hcyear': 2018
         }
     }
     policy.implement_reform(reform)

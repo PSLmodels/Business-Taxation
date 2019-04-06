@@ -94,6 +94,10 @@ class Policy(taxcalc.Parameters):
         if last_reform_year > self.end_year:
             msg = 'ERROR: {} YEAR reform provision in YEAR > end_year={}'
             raise ValueError(msg.format(last_reform_year, self.end_year))
+        # add leading underscore character to each parameter name in reform
+        reform = Policy._add_underscores(reform)
+        # add brackets around each data element in reform
+        reform = Policy._add_brackets(reform)        
         # validate reform parameter names and types
         self.parameter_warnings = ''
         self.parameter_errors = ''
