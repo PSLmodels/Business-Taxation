@@ -17,10 +17,9 @@ def test_json_file_contents(tests_path, fname):
     Check contents of JSON parameter files.
     """
     # specify test information
-    required_keys = ['long_name', 'description',
-                     'section_1', 'section_2', 'notes',
+    required_keys = ['name', 'desc',
+                     'sec1', 'sec2', 'notes',
                      'row_label',
-                     'cpi_inflated', 'cpi_inflatable',
                      'col_var', 'col_label',
                      'value_type', 'value', 'valid_values']
     valid_value_types = ['boolean', 'integer', 'real', 'string']
@@ -49,26 +48,13 @@ def test_json_file_contents(tests_path, fname):
             for key in invalid_keys:
                 assert key in param
             assert param['invalid_action'] in ['stop', 'warn']
-        # check for non-empty long_name and description strings
-        assert isinstance(param['long_name'], str)
-        if not param['long_name']:
-            assert '{} long_name'.format(pname) == 'empty string'
-        assert isinstance(param['description'], str)
-        if not param['description']:
-            assert '{} description'.format(pname) == 'empty string'
-        # check that cpi_inflatable and cpi_inflated are boolean
-        assert isinstance(param['cpi_inflatable'], bool)
-        assert isinstance(param['cpi_inflated'], bool)
-        # check that cpi_inflatable and cpi_inflated are False in many files
-        if fname != 'policy_current_law.json':
-            assert param['cpi_inflatable'] is False
-            assert param['cpi_inflated'] is False
-        # check that cpi_inflatable is True when cpi_inflated is True
-        if param['cpi_inflated'] and not param['cpi_inflatable']:
-            msg = 'param:<{}>; cpi_inflated={}; cpi_inflatable={}'
-            fail = msg.format(pname, param['cpi_inflated'],
-                              param['cpi_inflatable'])
-            failures += fail + '\n'
+        # check for non-empty name and desc strings
+        assert isinstance(param['name'], str)
+        if not param['name']:
+            assert '{} name'.format(pname) == 'empty string'
+        assert isinstance(param['desc'], str)
+        if not param['desc']:
+            assert '{} desc'.format(pname) == 'empty string'
         # check that value_type is correct string
         if not param['value_type'] in valid_value_types:
             msg = 'param:<{}>; value_type={}'

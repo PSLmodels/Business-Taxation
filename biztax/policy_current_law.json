@@ -1,9 +1,9 @@
 {
     "tau_c": {
-        "name": "Corporate tax rate",
-        "desc": "Effective statutory corporate tax rate, adjusted for progressivity",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate tax rate",
+        "description": "Effective statutory corporate tax rate, adjusted for progressivity",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -23,10 +23,10 @@
     },
 
     "tau_nc": {
-        "name": "Noncorporate tax rate",
-        "desc": "Effective marginal tax rate on noncorporate business income",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Noncorporate tax rate",
+        "description": "Effective marginal tax rate on noncorporate business income",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -66,10 +66,10 @@
     },
 
     "tau_e": {
-        "name": "Equity tax rate",
-        "desc": "Effective marginal tax rate on income from corporate equity",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Equity tax rate",
+        "description": "Effective marginal tax rate on income from corporate equity",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -109,10 +109,10 @@
     },
 
     "tau_amt": {
-        "name": "Corporate AMT rate",
-        "desc": "Statutory tax rate used in the calculation of the corporate alternative minimum tax",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate AMT rate",
+        "description": "Statutory tax rate used in the calculation of the corporate alternative minimum tax",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -126,10 +126,10 @@
     },
 
     "pymtc_status": {
-        "name": "Status of Prior Year Minimum Tax Credit",
-        "desc": "Indicator for PYMTC status: 0 for nonrefundable credit, 1 for repealed, 2 for refundable credit",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Status of Prior Year Minimum Tax Credit",
+        "description": "Indicator for PYMTC status: 0 for nonrefundable credit, 1 for repealed, 2 for refundable credit",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -143,10 +143,10 @@
     },
 
     "depr_3yr_method": {
-        "name": "3-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 3-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "3-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 3-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -157,10 +157,10 @@
     },
 
     "depr_3yr_bonus": {
-        "name": "3-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 3-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "3-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 3-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -186,10 +186,10 @@
     },
 
     "depr_5yr_method": {
-        "name": "5-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 5-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "5-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 5-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -200,10 +200,10 @@
     },
 
     "depr_5yr_bonus": {
-        "name": "5-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 5-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "5-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 5-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -229,10 +229,10 @@
     },
 
     "depr_7yr_method": {
-        "name": "7-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 7-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "7-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 7-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -243,10 +243,10 @@
     },
 
     "depr_7yr_bonus": {
-        "name": "7-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 7-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "7-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 7-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -272,10 +272,10 @@
     },
 
     "depr_10yr_method": {
-        "name": "10-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 10-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "10-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 10-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -286,10 +286,10 @@
     },
 
     "depr_10yr_bonus": {
-        "name": "10-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 10-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "10-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 10-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -315,10 +315,10 @@
     },
 
     "depr_15yr_method": {
-        "name": "15-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 15-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "15-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 15-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -329,10 +329,10 @@
     },
 
     "depr_15yr_bonus": {
-        "name": "15-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 15-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "15-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 15-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -358,10 +358,10 @@
     },
 
     "depr_20yr_method": {
-        "name": "20-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 20-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "20-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 20-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -372,10 +372,10 @@
     },
 
     "depr_20yr_bonus": {
-        "name": "20-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 20-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "20-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 20-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014",
                       "2015",
@@ -401,10 +401,10 @@
     },
 
     "depr_25yr_method": {
-        "name": "25-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 25-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "25-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 25-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -415,10 +415,10 @@
     },
 
     "depr_25yr_bonus": {
-        "name": "25-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 25-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "25-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 25-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -432,10 +432,10 @@
     },
 
     "depr_275yr_method": {
-        "name": "27.5-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 27.5-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "27.5-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 27.5-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -446,10 +446,10 @@
     },
 
     "depr_275yr_bonus": {
-        "name": "27.5-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 27.5-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "27.5-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 27.5-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -463,10 +463,10 @@
     },
 
     "depr_39yr_method": {
-        "name": "39-year asset class depreciation method",
-        "desc": "Depreciation method used for assets with 39-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "39-year asset class depreciation method",
+        "description": "Depreciation method used for assets with 39-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -477,10 +477,10 @@
     },
 
     "depr_39yr_bonus": {
-        "name": "39-year asset class bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for assets with 39-year class life",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "39-year asset class bonus depreciation rate",
+        "description": "Bonus depreciation rate used for assets with 39-year class life",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -494,10 +494,10 @@
     },
 
     "depr_land_bonus": {
-        "name": "Land bonus depreciation rate",
-        "desc": "Bonus depreciation rate used for land",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Land bonus depreciation rate",
+        "description": "Bonus depreciation rate used for land",
+        "section_1": "main",
+        "section_2": "",
         "notes": "Not currently being used",
         "row_label": ["2014"],
         "col_var": "",
@@ -511,10 +511,10 @@
     },
 
     "inventory_method": {
-        "name": "Inventory accounting method",
-        "desc": "Inventory accounting method used",
-        "sec1": "main",
-        "sec2": "Currently only used in Response class, but not for tax purposes",
+        "long_name": "Inventory accounting method",
+        "description": "Inventory accounting method used",
+        "section_1": "main",
+        "section_2": "Currently only used in Response class, but not for tax purposes",
         "notes": "Method may be FIFO, LIFO, Expensing, or a mix of FIFO and LIFO",
         "row_label": ["2014"],
         "col_var": "",
@@ -525,10 +525,10 @@
     },
 
     "undepBasis_corp_hc": {
-        "name": "Corporate undepreciated basis haircut",
-        "desc": "Haircut on corporate undepreciated basis as of _undepBasis_corp_hcyear",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate undepreciated basis haircut",
+        "description": "Haircut on corporate undepreciated basis as of _undepBasis_corp_hcyear",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -542,10 +542,10 @@
     },
 
     "undepBasis_corp_hcyear": {
-        "name": "Corporate undepreciated basis haircut",
-        "desc": "Year at which _undepBasis_corp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate undepreciated basis haircut",
+        "description": "Year at which _undepBasis_corp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -559,10 +559,10 @@
     },
 
     "undepBasis_noncorp_hc": {
-        "name": "Non-corporate undepreciated basis haircut",
-        "desc": "Haircut on non-corporate undepreciated basis as of _undepBasis_noncorp_hcyear",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate undepreciated basis haircut",
+        "description": "Haircut on non-corporate undepreciated basis as of _undepBasis_noncorp_hcyear",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -576,10 +576,10 @@
     },
 
     "undepBasis_noncorp_hcyear": {
-        "name": "Non-corporate undepreciated basis haircut",
-        "desc": "Year at which _undepBasis_noncorp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate undepreciated basis haircut",
+        "description": "Year at which _undepBasis_noncorp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -593,10 +593,10 @@
     },
 
     "ftc_hc": {
-        "name": "Foreign Tax Credit haircut",
-        "desc": "Haircut applied to the Foreign Tax Credit",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Foreign Tax Credit haircut",
+        "description": "Haircut applied to the Foreign Tax Credit",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -609,11 +609,11 @@
         "invalid_action": "stop"
     },
 
-    "sec199_hc": {
-        "name": "Section 199 haircut",
-        "desc": "Haircut applied to the Section 199 Domestic Production Deduction",
-        "sec1": "main",
-        "sec2": "",
+    "section_199_hc": {
+        "long_name": "Section 199 haircut",
+        "description": "Haircut applied to the Section 199 Domestic Production Deduction",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -627,10 +627,10 @@
     },
 
     "oldIntPaid_corp_hc": {
-        "name": "Corporate old-interest-paid haircut",
-        "desc": "Haircut on corporate interest paid deductions taken as of _oldIntPaid_corp_hcyear but originated before then",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate old-interest-paid haircut",
+        "description": "Haircut on corporate interest paid deductions taken as of _oldIntPaid_corp_hcyear but originated before then",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -644,10 +644,10 @@
     },
 
     "oldIntPaid_corp_hcyear": {
-        "name": "Corporate old-interest-paid haircut year",
-        "desc": "Year for which _oldIntPaid_corp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate old-interest-paid haircut year",
+        "description": "Year for which _oldIntPaid_corp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -661,10 +661,10 @@
     },
 
     "newIntPaid_corp_hc": {
-        "name": "Corporate new-interest-paid haircut",
-        "desc": "Haircut on corporate interest paid deductions on debt originated as of _newIntPaid_corp_hcyear",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate new-interest-paid haircut",
+        "description": "Haircut on corporate interest paid deductions on debt originated as of _newIntPaid_corp_hcyear",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -678,10 +678,10 @@
     },
 
     "newIntPaid_corp_hcyear": {
-        "name": "Corporate new-interest-paid haircut year",
-        "desc": "Year to which _newIntPaid_corp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate new-interest-paid haircut year",
+        "description": "Year to which _newIntPaid_corp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -695,10 +695,10 @@
     },
 
     "netIntPaid_corp_hc": {
-        "name": "Corporate net-interest-paid haircut",
-        "desc": "Haircut on corporate net interest deduction",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Corporate net-interest-paid haircut",
+        "description": "Haircut on corporate net interest deduction",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -712,10 +712,10 @@
     },
 
     "oldIntPaid_noncorp_hc": {
-        "name": "Non-corporate old-interest-paid haircut",
-        "desc": "Haircut on non-corporate interest paid deductions taken as of _oldIntPaid_noncorp_hcyear but originated before then",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate old-interest-paid haircut",
+        "description": "Haircut on non-corporate interest paid deductions taken as of _oldIntPaid_noncorp_hcyear but originated before then",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -729,10 +729,10 @@
     },
 
     "oldIntPaid_noncorp_hcyear": {
-        "name": "Non-corporate old-interest-paid haircut year",
-        "desc": "Year for which _oldIntPaid_noncorp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate old-interest-paid haircut year",
+        "description": "Year for which _oldIntPaid_noncorp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -746,10 +746,10 @@
     },
 
     "newIntPaid_noncorp_hc": {
-        "name": "Non-corporate new-interest-paid haircut",
-        "desc": "Haircut on non-corporate interest paid deductions on debt originated as of _newIntPaid_noncorp_hcyear",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate new-interest-paid haircut",
+        "description": "Haircut on non-corporate interest paid deductions on debt originated as of _newIntPaid_noncorp_hcyear",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",
@@ -763,10 +763,10 @@
     },
 
     "newIntPaid_noncorp_hcyear": {
-        "name": "Non-corporate new-interest-paid haircut year",
-        "desc": "Year to which _newIntPaid_noncorp_hc is applied",
-        "sec1": "main",
-        "sec2": "",
+        "long_name": "Non-corporate new-interest-paid haircut year",
+        "description": "Year to which _newIntPaid_noncorp_hc is applied",
+        "section_1": "main",
+        "section_2": "",
         "notes": "",
         "row_label": ["2014"],
         "col_var": "",

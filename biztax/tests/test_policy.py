@@ -24,7 +24,7 @@ def test_policy_json_content():
         expected_row_label = [str(start_year + i) for i in range(len(value))]
         if row_label != expected_row_label:
             msg = 'name,row_label,expected_row_label: {}\n{}\n{}'
-            raise ValueError(msg.format(data.get('long_name')), row_label,
+            raise ValueError(msg.format(data.get('name')), row_label,
                              expected_row_label)
 
 
