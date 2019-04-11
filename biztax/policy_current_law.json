@@ -2,32 +2,22 @@
     "tau_c": {
         "long_name": "Corporate tax rate",
         "description": "Effective statutory corporate tax rate, adjusted for progressivity",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
                       "2017"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.347,
                   0.347,
                   0.347,
                   0.347],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "tau_nc": {
         "long_name": "Noncorporate tax rate",
         "description": "Effective marginal tax rate on noncorporate business income",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -42,9 +32,6 @@
                       "2025",
                       "2026",
                       "2027"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.283637722,
                   0.284784914,
                   0.284911335,
@@ -59,18 +46,13 @@
                   0.230259853,
                   0.284612026,
                   0.284899989],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "tau_e": {
         "long_name": "Equity tax rate",
         "description": "Effective marginal tax rate on income from corporate equity",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -85,9 +67,6 @@
                       "2025",
                       "2026",
                       "2027"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.095454191,
                   0.096784722,
                   0.096394563,
@@ -102,56 +81,32 @@
                   0.090666182,
                   0.095351126,
                   0.095449286],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "tau_amt": {
         "long_name": "Corporate AMT rate",
         "description": "Statutory tax rate used in the calculation of the corporate alternative minimum tax",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.20],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "pymtc_status": {
         "long_name": "Status of Prior Year Minimum Tax Credit",
         "description": "Indicator for PYMTC status: 0 for nonrefundable credit, 1 for repealed, 2 for refundable credit",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 2},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 2}
     },
 
     "depr_3yr_method": {
         "long_name": "3-year asset class depreciation method",
         "description": "Depreciation method used for assets with 3-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -159,9 +114,7 @@
     "depr_3yr_bonus": {
         "long_name": "3-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 3-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -169,9 +122,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -179,22 +129,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_5yr_method": {
         "long_name": "5-year asset class depreciation method",
         "description": "Depreciation method used for assets with 5-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -202,9 +144,7 @@
     "depr_5yr_bonus": {
         "long_name": "5-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 5-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -212,9 +152,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -222,22 +159,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_7yr_method": {
         "long_name": "7-year asset class depreciation method",
         "description": "Depreciation method used for assets with 7-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -245,9 +174,7 @@
     "depr_7yr_bonus": {
         "long_name": "7-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 7-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -255,9 +182,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -265,22 +189,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_10yr_method": {
         "long_name": "10-year asset class depreciation method",
         "description": "Depreciation method used for assets with 10-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -288,9 +204,7 @@
     "depr_10yr_bonus": {
         "long_name": "10-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 10-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -298,9 +212,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -308,22 +219,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_15yr_method": {
         "long_name": "15-year asset class depreciation method",
         "description": "Depreciation method used for assets with 15-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -331,9 +234,7 @@
     "depr_15yr_bonus": {
         "long_name": "15-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 15-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -341,9 +242,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -351,22 +249,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_20yr_method": {
         "long_name": "20-year asset class depreciation method",
         "description": "Depreciation method used for assets with 20-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -374,9 +264,7 @@
     "depr_20yr_bonus": {
         "long_name": "20-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 20-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
+        "value_type": "real",
         "row_label": ["2014",
                       "2015",
                       "2016",
@@ -384,9 +272,6 @@
                       "2018",
                       "2019",
                       "2020"],
-        "col_var": "",
-        "col_label": "",
-        "value_type": "real",
         "value": [0.5,
                   0.5,
                   0.5,
@@ -394,22 +279,14 @@
                   0.4,
                   0.3,
                   0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_25yr_method": {
         "long_name": "25-year asset class depreciation method",
         "description": "Depreciation method used for assets with 25-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -417,30 +294,17 @@
     "depr_25yr_bonus": {
         "long_name": "25-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 25-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_275yr_method": {
         "long_name": "27.5-year asset class depreciation method",
         "description": "Depreciation method used for assets with 27.5-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -448,30 +312,17 @@
     "depr_275yr_bonus": {
         "long_name": "27.5-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 27.5-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_39yr_method": {
         "long_name": "39-year asset class depreciation method",
         "description": "Depreciation method used for assets with 39-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["GDS"],
         "valid_values": {"options": ["GDS", "ADS", "Economic", "Expensing"]}
     },
@@ -479,47 +330,26 @@
     "depr_39yr_bonus": {
         "long_name": "39-year asset class bonus depreciation rate",
         "description": "Bonus depreciation rate used for assets with 39-year class life",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "depr_land_bonus": {
         "long_name": "Land bonus depreciation rate",
-        "description": "Bonus depreciation rate used for land",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "Not currently being used",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
+        "description": "Bonus depreciation rate used for land (not currently being used)",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "inventory_method": {
         "long_name": "Inventory accounting method",
-        "description": "Inventory accounting method used",
-        "section_1": "main",
-        "section_2": "Currently only used in Response class, but not for tax purposes",
-        "notes": "Method may be FIFO, LIFO, Expensing, or a mix of FIFO and LIFO",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
+        "description": "Inventory accounting method used (may be FIFO, LIFO, Expensing, or a mix of FIFO and LIFO)",
         "value_type": "string",
+        "row_label": ["2014"],
         "value": ["Mix"],
         "valid_values": {"options": ["FIFO", "LIFO", "Expensing", "Mix"]}
     },
@@ -527,255 +357,135 @@
     "undepBasis_corp_hc": {
         "long_name": "Corporate undepreciated basis haircut",
         "description": "Haircut on corporate undepreciated basis as of _undepBasis_corp_hcyear",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "undepBasis_corp_hcyear": {
         "long_name": "Corporate undepreciated basis haircut",
         "description": "Year at which _undepBasis_corp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     },
 
     "undepBasis_noncorp_hc": {
         "long_name": "Non-corporate undepreciated basis haircut",
         "description": "Haircut on non-corporate undepreciated basis as of _undepBasis_noncorp_hcyear",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "undepBasis_noncorp_hcyear": {
         "long_name": "Non-corporate undepreciated basis haircut",
         "description": "Year at which _undepBasis_noncorp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     },
 
     "ftc_hc": {
         "long_name": "Foreign Tax Credit haircut",
         "description": "Haircut applied to the Foreign Tax Credit",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
-    "section_199_hc": {
+    "sec199_hc": {
         "long_name": "Section 199 haircut",
         "description": "Haircut applied to the Section 199 Domestic Production Deduction",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "oldIntPaid_corp_hc": {
         "long_name": "Corporate old-interest-paid haircut",
         "description": "Haircut on corporate interest paid deductions taken as of _oldIntPaid_corp_hcyear but originated before then",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "oldIntPaid_corp_hcyear": {
         "long_name": "Corporate old-interest-paid haircut year",
         "description": "Year for which _oldIntPaid_corp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     },
 
     "newIntPaid_corp_hc": {
         "long_name": "Corporate new-interest-paid haircut",
         "description": "Haircut on corporate interest paid deductions on debt originated as of _newIntPaid_corp_hcyear",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "newIntPaid_corp_hcyear": {
         "long_name": "Corporate new-interest-paid haircut year",
         "description": "Year to which _newIntPaid_corp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     },
 
     "netIntPaid_corp_hc": {
         "long_name": "Corporate net-interest-paid haircut",
         "description": "Haircut on corporate net interest deduction",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "oldIntPaid_noncorp_hc": {
         "long_name": "Non-corporate old-interest-paid haircut",
         "description": "Haircut on non-corporate interest paid deductions taken as of _oldIntPaid_noncorp_hcyear but originated before then",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "oldIntPaid_noncorp_hcyear": {
         "long_name": "Non-corporate old-interest-paid haircut year",
         "description": "Year for which _oldIntPaid_noncorp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     },
 
     "newIntPaid_noncorp_hc": {
         "long_name": "Non-corporate new-interest-paid haircut",
         "description": "Haircut on non-corporate interest paid deductions on debt originated as of _newIntPaid_noncorp_hcyear",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "real",
+        "row_label": ["2014"],
         "value": [0.0],
-        "valid_values": {"min": 0, "max": 1},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 1}
     },
 
     "newIntPaid_noncorp_hcyear": {
         "long_name": "Non-corporate new-interest-paid haircut year",
         "description": "Year to which _newIntPaid_noncorp_hc is applied",
-        "section_1": "main",
-        "section_2": "",
-        "notes": "",
-        "row_label": ["2014"],
-        "col_var": "",
-        "col_label": "",
         "value_type": "integer",
+        "row_label": ["2014"],
         "value": [0],
-        "valid_values": {"min": 0, "max": 9999},
-        "invalid_minmsg": "",
-        "invalid_maxmsg": "",
-        "invalid_action": "stop"
+        "valid_values": {"min": 0, "max": 9999}
     }
 }
