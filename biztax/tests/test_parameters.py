@@ -18,8 +18,7 @@ def test_json_file_contents(tests_path, fname):
     """
     # specify test information
     required_keys = ['long_name', 'description',
-                     'row_label',
-                     'value_type', 'value', 'valid_values']
+                     'value_type', 'value_yrs', 'value', 'valid_values']
     valid_value_types = ['boolean', 'integer', 'real', 'string']
     # read JSON parameter file into a dictionary
     path = os.path.join(tests_path, '..', fname)
@@ -53,17 +52,17 @@ def test_json_file_contents(tests_path, fname):
             msg = 'param:<{}>; value_type={}'
             fail = msg.format(pname, param['value_type'])
             failures += fail + '\n'
-        # check that row_label is list
-        rowlabel = param['row_label']
-        assert isinstance(rowlabel, list)
-        # check all row_label values
+        # check that value_yrs is list
+        valueyrs = param['value_yrs']
+        assert isinstance(valueyrs, list)
+        # check all value_yrs values
         cyr = START_YEAR
-        for rlabel in rowlabel:
-            assert int(rlabel) == cyr
+        for vyr in valueyrs:
+            assert vyr == cyr
             cyr += 1
         # check type and dimension of value
         value = param['value']
         assert isinstance(value, list)
-        assert len(value) == len(rowlabel)
+        assert len(value) == len(valueyrs)
     if failures:
         raise ValueError(failures)

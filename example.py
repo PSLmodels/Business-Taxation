@@ -20,27 +20,25 @@ from biztax import Policy, BusinessModel, Response
 
 # Create a business-tax Policy object with the following reform
 btax_reform_dict = {
-    2018: {
-        '_tau_c': [0.28],
-        '_depr_3yr_bonus': [0.0],
-        '_depr_5yr_bonus': [0.0],
-        '_depr_7yr_bonus': [0.0],
-        '_depr_10yr_bonus': [0.0],
-        '_depr_15yr_bonus': [0.0],
-        '_depr_20yr_bonus': [0.0],
-        '_depr_25yr_bonus': [0.0],
-        '_depr_275yr_bonus': [0.0],
-        '_depr_39yr_bonus': [0.0],
-        '_pymtc_status': [1],
-        '_newIntPaid_corp_hc': [1.0],
-        '_newIntPaid_corp_hcyear': [2018],
-        '_oldIntPaid_corp_hc': [1.0],
-        '_oldIntPaid_corp_hcyear': [2018],
-        '_newIntPaid_noncorp_hc': [1.0],
-        '_newIntPaid_noncorp_hcyear': [2018],
-        '_oldIntPaid_noncorp_hc': [1.0],
-        '_oldIntPaid_noncorp_hcyear': [2018]
-    }
+    'tau_c': {2018: 0.28},
+    'depr_3yr_bonus': {2018: 0.0},
+    'depr_5yr_bonus': {2018: 0.0},
+    'depr_7yr_bonus': {2018: 0.0},
+    'depr_10yr_bonus': {2018: 0.0},
+    'depr_15yr_bonus': {2018: 0.0},
+    'depr_20yr_bonus': {2018: 0.0},
+    'depr_25yr_bonus': {2018: 0.0},
+    'depr_275yr_bonus': {2018: 0.0},
+    'depr_39yr_bonus': {2018: 0.0},
+    'pymtc_status': {2018: 1},
+    'newIntPaid_corp_hc': {2018: 1.0},
+    'newIntPaid_corp_hcyear': {2018: 2018},
+    'oldIntPaid_corp_hc': {2018: 1.0},
+    'oldIntPaid_corp_hcyear': {2018: 2018},
+    'newIntPaid_noncorp_hc': {2018: 1.0},
+    'newIntPaid_noncorp_hcyear': {2018: 2018},
+    'oldIntPaid_noncorp_hc': {2018: 1.0},
+    'oldIntPaid_noncorp_hcyear': {2018: 2018}
 }
 btax_policy_reform = Policy()
 btax_policy_reform.implement_reform(btax_reform_dict)
