@@ -9,11 +9,12 @@ from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 
 class Policy(taxcalc.Parameters):
     """
-    Policy is a subclass of the Tax-Calculator Policy class, and
-    therefore, inherits its methods (none of which are shown here).
+    The Policy class is derived from the Tax-Calculator Parameters class,
+    and therefore, inherits its methods (none of which are shown here).
 
-    Constructor for the Policy class, which does not have any indexed
-    policy parameters.
+    Constructor for the Business-Taxation Policy class, which
+    does not have any (wage or price) indexed parameters and
+    does not have any vector parameters.
 
     Parameters:
         none
