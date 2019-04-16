@@ -26,11 +26,11 @@ help:
 clean:
 	@find . -name *pyc -exec rm {} \;
 	@find . -name *cache -maxdepth 1 -exec rm -r {} \;
-	@./conda.recipe/remove_local_package.sh
+	@conda uninstall biztax --yes --quiet 2>&1 > /dev/null
 
 .PHONY=package
 package:
-	@cd conda.recipe ; ./install_local_package.sh
+	@pbrelease Business-Taxation biztax 0.0.0 --local
 
 define pytest-cleanup
 find . -name *cache -maxdepth 1 -exec rm -r {} \;
