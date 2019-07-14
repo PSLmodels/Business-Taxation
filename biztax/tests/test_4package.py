@@ -30,7 +30,7 @@ def test_for_consistency(tests_path):
     meta_file = os.path.join(tests_path, '..', '..',
                              'conda.recipe', 'meta.yaml')
     with open(meta_file, 'r') as stream:
-        meta = yaml.load(stream)
+        meta = yaml.safe_load(stream)
     bld = set(meta['requirements']['build'])
     run = set(meta['requirements']['run'])
     # confirm conda.recipe/meta.yaml build and run requirements are the same
@@ -39,7 +39,7 @@ def test_for_consistency(tests_path):
     envr_file = os.path.join(tests_path, '..', '..',
                              'environment.yml')
     with open(envr_file, 'r') as stream:
-        envr = yaml.load(stream)
+        envr = yaml.safe_load(stream)
     env = set(envr['dependencies'])
     # confirm that environment and run packages are the same
     assert env == run
