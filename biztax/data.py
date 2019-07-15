@@ -37,6 +37,8 @@ class Data():
             os.path.join(Data.CTAX_DATA_DIR, 'ftc_gdp_data.csv'))
         self.ftc_other_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'ftc_other_data.csv'))
+        self.cfc_data = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'cfc_data.csv'))
         # Data for Sec. 199
         self.sec199_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'sec199.csv'))
