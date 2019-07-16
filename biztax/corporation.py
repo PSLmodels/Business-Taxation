@@ -43,17 +43,37 @@ class Corporation():
         """
         Creates the initial forecast for earnings. Static only.
         """
+        # Grab forecasts of profit growth
         earnings_forecast = np.asarray(self.data.gfactors['profit'])
-        earnings2013 = np.asarray(self.data.historical_taxdata['ebitda13'])[-1]
-        earnings_new = (earnings_forecast[1:] / earnings_forecast[0]
-                        * earnings2013)
-        self.earnings = earnings_new
+        # 2013 value for earnings (total)
+        earnings13 = np.asarray(self.data.historical_taxdata['ebitda13'])[-1]
+        # 2013 value for dividends received from foreign corporations
+        foreign_divs13 = np.asarray(self.data.historical_taxdata['foreign_divs'])[-1]
+        # 2013 value for foreign taxes gross-up
+        foreign_tax13 = np.asarray(self.data.historical_taxdata['foreign_tax'])[-1]
+        # 2013 value for other foreign income
+        foreign_othinc13 = np.asarray(self.data.historical_taxdata['foreign_other'])[-1]
+        # Compute domestic earnings for 2013
+        domestic_inc13 = earnings13 - foreign_divs13 - foreign_tax13 - foreign_othinc13
+        # Forecast new domestic earnings
+        domestic_new = (earnings_forecast[1:] / earnings_forecast[0] * domestic_inc13)
+        # Forecast new foreign earnings components
+        foreign_div_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_divs13)
+        foreign_tax_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_tax13)
+        foreign_othinc_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_othinc13)
+        # Compute earnings
+        self.earnings = domestic_new + foreign_div_new + foreign_tax_new + foreign_othinc_new
+        # Get foreign income exclusion parameters
+        foreign_div_tinc = foreign_div_new * np.asarray(self.btax_params['foreign_dividend_inclusion'])
+        foreign_tax_tinc = foreign_tax_new * np.asarray(self.btax_params['foreign_tax_grossrt'])
+        foreign_othinc_tinc = foreign_othinc_new * np.asarray(self.btax_params['foreign_othinc_inclusion'])
+        self.taxearnings = domestic_new + foreign_div_tinc + foreign_tax_tinc + foreign_othinc_tinc
 
     def file_taxes(self):
         """
         Creates the CorpTaxReturn object.
         """
-        self.taxreturn = CorpTaxReturn(self.btax_params, self.earnings,
+        self.taxreturn = CorpTaxReturn(self.btax_params, self.taxearnings,
                                        data=self.data, assets=self.asset,
                                        debts=self.debt)
         self.taxreturn.calc_all()
