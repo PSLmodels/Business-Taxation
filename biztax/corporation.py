@@ -7,6 +7,7 @@ from biztax.asset import Asset
 from biztax.debt import Debt
 from biztax.corptaxreturn import CorpTaxReturn
 from biztax.response import Response
+from biztax.domesticmne import DomesticMNE
 
 
 class Corporation():
@@ -27,6 +28,9 @@ class Corporation():
         # Create Asset object and calculate
         self.asset = Asset(self.btax_params, corp=True, data=self.data)
         self.asset.calc_all()
+        # Create DomesticMNE object
+        self.dmne = DomesticMNE(self.btax_params)
+        self.dmne.calc_all()
         # Create earnings forecast
         self.create_earnings()
 
@@ -44,38 +48,23 @@ class Corporation():
         Creates the initial forecast for earnings. Static only.
         """
         # Grab forecasts of profit growth
-        earnings_forecast = np.asarray(self.data.gfactors['profit'])
-        # 2013 value for earnings (total)
+        earnings_forecast = np.asarray(self.data.gfactors['profit_d'])
+        # 2013 value for domestic earnings
         earnings13 = np.asarray(self.data.historical_taxdata['ebitda13'])[-1]
-        # 2013 value for dividends received from foreign corporations
-        foreign_divs13 = np.asarray(self.data.historical_taxdata['foreign_divs'])[-1]
-        # 2013 value for foreign taxes gross-up
-        foreign_tax13 = np.asarray(self.data.historical_taxdata['foreign_tax'])[-1]
-        # 2013 value for other foreign income
-        foreign_othinc13 = np.asarray(self.data.historical_taxdata['foreign_other'])[-1]
-        # Compute domestic earnings for 2013
-        domestic_inc13 = earnings13 - foreign_divs13 - foreign_tax13 - foreign_othinc13
+        foreigninc13 = np.asarray(self.data.historical_taxdata['foreign_taxinc'])[-1]
+        domesticinc13 = earnings13 - foreigninc13
         # Forecast new domestic earnings
-        domestic_new = (earnings_forecast[1:] / earnings_forecast[0] * domestic_inc13)
-        # Forecast new foreign earnings components
-        foreign_div_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_divs13)
-        foreign_tax_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_tax13)
-        foreign_othinc_new = (earnings_forecast[1:] / earnings_forecast[0] * foreign_othinc13)
-        # Compute earnings
-        self.earnings = domestic_new + foreign_div_new + foreign_tax_new + foreign_othinc_new
-        # Get foreign income exclusion parameters
-        foreign_div_tinc = foreign_div_new * np.asarray(self.btax_params['foreign_dividend_inclusion'])
-        foreign_tax_tinc = foreign_tax_new * np.asarray(self.btax_params['foreign_tax_grossrt'])
-        foreign_othinc_tinc = foreign_othinc_new * np.asarray(self.btax_params['foreign_othinc_inclusion'])
-        self.taxearnings = domestic_new + foreign_div_tinc + foreign_tax_tinc + foreign_othinc_tinc
+        self.dearnings = earnings_forecast[1:] / earnings_forecast[0] * domesticinc13
+        # Save total real earnings
+        self.earnings = self.dearnings + self.dmne.dmne_results['foreign_inc']
 
     def file_taxes(self):
         """
         Creates the CorpTaxReturn object.
         """
-        self.taxreturn = CorpTaxReturn(self.btax_params, self.taxearnings,
-                                       data=self.data, assets=self.asset,
-                                       debts=self.debt)
+        self.taxreturn = CorpTaxReturn(self.btax_params, self.dearnings,
+                                       dmne=self.dmne, data=self.data,
+                                       assets=self.asset, debts=self.debt)
         self.taxreturn.calc_all()
 
     def real_activity(self):

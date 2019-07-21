@@ -498,7 +498,7 @@
         "valid_values": {"min": 0, "max": 1}
     },
 
-    "foreign_othinc_inclusion": {
+    "foreign_otherinc_inclusion": {
         "long_name": "Foreign nondividend income inclusion rate",
         "description": "Fraction of foreign foreign income (excluding dividends) included in taxable income.",
         "value_type": "real",
