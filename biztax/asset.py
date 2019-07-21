@@ -369,12 +369,17 @@ class Asset():
         Dep_arr = self.investment_history * unitDep_arr
         # Apply the haircut on undepreciated basis
         iyr = year - START_YEAR
-        if self.corp:
-            hc_undep_year = np.array(self.btax_params['undepBasis_corp_hcyear'])[iyr]
-            hc_undep = np.array(self.btax_params['undepBasis_corp_hc'])[iyr]
+        if year < 2014:
+            # Use no haircut for years before calculator
+            hc_undep_year = 0
+            hc_undep = 0.
         else:
-            hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[iyr]
-            hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[iyr]
+            if self.corp:
+                hc_undep_year = np.array(self.btax_params['undepBasis_corp_hcyear'])[iyr]
+                hc_undep = np.array(self.btax_params['undepBasis_corp_hc'])[iyr]
+            else:
+                hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[iyr]
+                hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[iyr]
         if year >= hc_undep_year:
             for j in range(75):
                 if j < hc_undep_year:
@@ -389,7 +394,7 @@ class Asset():
         1960-2035.
         """
         dep_deductions = np.zeros(75)
-        for year in range(1960, 2035):
+        for year in range(1960, 2028):
             dep_deductions[year - 1960] = self.calcDep_oneyear(year)
         return dep_deductions
 
