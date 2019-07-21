@@ -245,6 +245,6 @@ passthru_factors = {'dep_scorp_pos': depshare_scorp_posinc,
                     'int_part_pos': intshare_partner_posinc,
                     'int_part_neg': intshare_partner_neginc}
 df_adjf = pd.DataFrame({k: [adj_factors[k]] for k in adj_factors})
-df_adjf.to_csv('adjfactors.csv', index=False)
+df_adjf.to_csv('biztax/adjfactors.csv', index=False)
 df_pts = pd.DataFrame({k: [passthru_factors[k]] for k in passthru_factors})
-df_pts.to_csv('passthru_shares.csv', index=False)
+df_pts.to_csv('biztax/passthru_shares.csv', index=False)
