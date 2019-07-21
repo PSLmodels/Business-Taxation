@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
+from biztax.domesticmne import DomesticMNE
 from biztax.asset import Asset
 from biztax.debt import Debt
 
@@ -23,7 +24,7 @@ class CorpTaxReturn():
         earnings: list or array of earnings for each year in the budget window
     """
 
-    def __init__(self, btax_params, earnings,
+    def __init__(self, btax_params, dearnings, dmne=None,
                  data=None, assets=None, debts=None):
         # Create an associated Data object
         if isinstance(data, Data):
@@ -34,6 +35,14 @@ class CorpTaxReturn():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
+        if dmne is None:
+            # Note: Don't do this in general
+            self.dmne = DomesticMNE(self.btax_params)
+            self.dmne.calc_all()
+        elif isinstance(dmne, DomesticMNE):
+            self.dmne = dmne
+        else:
+            raise ValueError('dmne must be a DomesticMNE object')
         if assets is not None:
             if isinstance(assets, Asset):
                 self.assets = assets
@@ -51,8 +60,11 @@ class CorpTaxReturn():
             assets_forecast = self.assets.get_forecast()
             self.debts = Debt(btax_params, assets_forecast)
             self.debts.calc_all()
-        # Use earnings to create DataFrame for results
-        assert len(earnings) == NUM_YEARS
+        # Check length of domestic earnings array
+        assert len(dearnings) == NUM_YEARS
+        # Get taxable foreign earnings
+        fearnings = np.asarray(self.dmne.dmne_results['foreign_taxinc'])
+        earnings = dearnings + fearnings
         combined = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                  'ebitda': earnings})
         # Add tax depreciation and net interest deductions
@@ -78,12 +90,13 @@ class CorpTaxReturn():
         else:
             raise ValueError('debts must be Debt object')
 
-    def update_earnings(self, earnings):
+    def update_earnings(self, dearnings):
         """
         Updates the earnings DataFrame associated with the tax return.
         """
-        assert len(earnings) == NUM_YEARS
-        self.combined_return['ebitda'] = earnings
+        assert len(dearnings) == NUM_YEARS
+        fearnings = np.asarray(self.dmne.dmne_results['foreign_taxinc'])
+        self.combined_return['ebitda'] = dearnings + fearnings
 
     def calcSec199(self):
         """
@@ -113,35 +126,9 @@ class CorpTaxReturn():
 
     def calcFTC(self):
         """
-        Calculates foreign tax credit for [START_YEAR, END_YEAR].
+        Gets foreign tax credit from DomesticMNE
         """
-        hclist = np.array(self.btax_params['ftc_hc'])
-
-        def calcWAvgTaxRate(year):
-            """
-            Calculates the weighted average statutory corporate tax rate
-            in all OECD countries in a given year.
-            """
-            assert year in range(1995, 2028)
-            year = min(year, 2016)
-            gdp_list = np.asarray(self.data.ftc_gdp_data[str(year)])
-            taxrate_list = np.asarray(self.data.ftc_taxrates_data[str(year)])
-            # remove observations with missing data
-            taxrate_list2 = np.where(np.isnan(taxrate_list), 0, taxrate_list)
-            gdp_list2 = np.where(np.isnan(taxrate_list), 0, gdp_list)
-            avgrate = sum(taxrate_list2 * gdp_list2) / sum(gdp_list2)
-            return avgrate
-
-        # Get foreign profits forecast
-        profits = np.asarray(self.data.ftc_other_data['C_total'][19:])
-        profits_d = np.asarray(self.data.ftc_other_data['C_domestic'][19:])
-        tax_f = np.zeros(NUM_YEARS)
-        for iyr in range(NUM_YEARS):
-            tax_f[iyr] = calcWAvgTaxRate(iyr + START_YEAR)
-        ftc_final = ((profits - profits_d) * tax_f / 100. *
-                     self.data.adjfactor_ftc_corp *
-                     (1 - hclist)) * self.data.rescale_corp
-        self.combined_return['ftc'] = ftc_final
+        self.combined_return['ftc'] = self.dmne.dmne_results['ftc']
 
     def calcAMT(self):
         """

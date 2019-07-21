@@ -10,9 +10,11 @@ import copy
 import numpy as np
 import pandas as pd
 import scipy.optimize
-from data import Data
-from asset import Asset
-from debt import Debt
+from biztax.data import Data
+from biztax.asset import Asset
+from biztax.debt import Debt
+from biztax.policy import Policy
+
 
 
 # Specify single Data object (for convenience)
@@ -140,11 +142,11 @@ def calcIDAdjustment(corp, eta=0.4):
     NID_gross = debt.NID[38:54]
     # Get net interest deduction from historical IRS data
     if corp:
-        NID_irs = np.array(data.debt_data_corp['NID_IRS'])[38:54]
+        NID_irs = np.array(data1.debt_data_corp['NID_IRS'])[38:54]
     else:
-        NID_irs = np.array(data.debt_data_noncorp['ID_Scorp'][38:54] +
-                           data.debt_data_noncorp['ID_sp'][38:54] +
-                           data.debt_data_noncorp['ID_partner'][38:54])
+        NID_irs = np.array(data1.debt_data_noncorp['ID_Scorp'][38:54] +
+                           data1.debt_data_noncorp['ID_sp'][38:54] +
+                           data1.debt_data_noncorp['ID_partner'][38:54])
     NID_scale = sum(NID_irs / NID_gross) / 16.0  # 16 = 54 - 38
     return NID_scale
 

@@ -3,9 +3,6 @@ import numpy as np
 import pandas as pd
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
-from biztax.asset import Asset
-from biztax.debt import Debt
-from biztax.corptaxreturn import CorpTaxReturn
 from biztax.response import Response
 
 
@@ -16,14 +13,17 @@ class CFC():
     corporate income tax.
     """
 
-    def __init__(self, btax_params):
+    def __init__(self, btax_params, data=None):
         # Store policy parameter objects
         if isinstance(btax_params, pd.DataFrame):
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
         # Create Data object
-        self.data = Data()
+        if isinstance(data, Data):
+            self.data = data
+        else:
+            self.data = Data()
         # Extract baseline forecast for earnings and action
         self.cfc_data = copy.deepcopy(self.data.cfc_data)
 
@@ -43,7 +43,7 @@ class CFC():
         Determine taxes paid to foreign governments on earnings/profits
         Note: This is constant at the 2014 value.
         """
-        ftaxrate = np.asarray(self.cfc_data['taxrt'])
+        ftaxrate = np.asarray(self.cfc_data['taxrt'])[1:]
         self.foreigntax = ftaxrate * self.earnings
 
     def repatriate_accumulate(self):
