@@ -88,14 +88,16 @@ class CFC():
         """
         assert isinstance(update_df, pd.DataFrame)
         assert len(update_df) == 14
+        reprate_e = np.asarray(self.cfc_data['reprate_e'])
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            self.cfc_data['reprate_e'] = update_df['reprate_e']
-        if 'reprate_e' in update_df:
-            # Update repatriation rate on accumulated profits
-            self.cfc_data['reprate_e'] = update_df['reprate_e']
-        # Recalculate using new repatriation decisions
-        self.repatriate_accumulate()
+            reprate_e[1:] = np.minimum(np.maximum(reprate_e[1:] +
+                                                  update_df['reprate_e'], 0), 1.)
+            self.cfc_data['reprate_e'] = reprate_e
+        if 'reprate_a' in update_df:
+            # Update repatriation rate on accumulated profits (if built)
+            self.cfc_data['reprate_e'] = self.cfc_data['reprate_e']
+
 
 
 
