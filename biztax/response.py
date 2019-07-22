@@ -16,6 +16,7 @@ class Response():
     Currently, these include:
         investment responses: to cost of capital and EATR
         debt responses: to tax shield from debt
+        repatriation responses: to change in tax penalty from repatriating
         legal response: to tax differential across business forms
 
     Parameters:
@@ -24,9 +25,10 @@ class Response():
     Associated objects (results):
         investment_response: DataFrame of investment responses and MPKs
         debt_response: DataFrame of optimal borrowing responses
+        repatriation_response: DataFrame of repatriation responses
         rescale_corp & rescale_noncorp: rescaling measures from legal response
 
-    WARNING: The legal response method is not in its final form!
+    WARNING: The legal response method is not in use!
     """
 
     DEFAULT_ELASTICITIES = {
@@ -38,6 +40,7 @@ class Response():
         'mne_share_nc': 0.0,
         'debt_taxshield_c': 0.0,
         'debt_taxshield_nc': 0.0,
+        'reprate_inc': 0.0,
         'legalform_ratediff': 0.0,
         'first_year_response': 2017
     }
@@ -83,6 +86,7 @@ class Response():
         assert self.elasticities['mne_share_nc'] <= 1.0
         assert self.elasticities['debt_taxshield_c'] >= 0.0
         assert self.elasticities['debt_taxshield_nc'] >= 0.0
+        assert self.elasticities['reprate_inc'] <= 0.0
         assert self.elasticities['legalform_ratediff'] <= 0.0
         assert (self.elasticities['first_year_response']
                 in range(START_YEAR, END_YEAR + 1))
@@ -93,6 +97,7 @@ class Response():
         """
         self._calc_investment_response(btax_params_base, btax_params_ref)
         self._calc_debt_responses(btax_params_base, btax_params_ref)
+        self._calc_repatriation_response(btax_params_base, btax_params_ref)
         self._calc_legal_response(btax_params_base, btax_params_ref)
 
     # ----- begin private methods of Release class -----
@@ -191,6 +196,44 @@ class Response():
                                     'pchDelta_corp': debtresp_c,
                                     'pchDelta_noncorp': debtresp_nc})
         self.debt_response = debtresp_df
+
+    def _calc_repatriation_response(self, btax_params_base, btax_params_ref):
+        """
+        Calculates the new repatriation rate of current CFC after-tax profits.
+        The parameter used is the semi-elasticity of repatriations
+        with respect to the tax penalty from repatriating, although it is
+        implemented in exponential form instead of as a change. The response is
+        only used for repatriations from current profits, as repatriations
+        from accumulated profits are too complicated to model explicity
+        and not relevant following the 2017 tax act.
+        Note that although the set-up for this may seem odd, it is designed to
+        ensure that no policy change results in to repatriation response,
+        regardless of the semielasticity used. The appropriate value for the
+        semi-elasticity is -10.66536949, which is consistent with the
+        repatriation rate as of 2014.
+        """
+        # Get foreign tax rate
+        ftax = np.asarray(Data().cfc_data['taxrt'])[1:]
+        # Get domestic tax rate
+        dtax_base = np.asarray(btax_params_base['tau_c'])
+        dtax_ref = np.asarray(btax_params_ref['tau_c'])
+        # Get foreign dividend inclusion rate for CFCs
+        divrt_base = np.asarray(btax_params_base['foreign_dividend_inclusion'])
+        divrt_ref = np.asarray(btax_params_ref['foreign_dividend_inclusion'])
+        penalty_base = np.maximum(dtax_base - ftax, 0.) * divrt_base
+        penalty_ref = np.maximum(dtax_ref - ftax, 0.) * divrt_ref
+        # Compute repatriation rates
+        reprate_base = np.exp(-penalty_base * self.elasticities['reprate_inc'])
+        reprate_ref = np.exp(-penalty_ref * self.elasticities['reprate_inc'])
+        # Compute change in repatriation rate
+        reprate_ch = np.zeros(14)
+        for i in range(14):
+            if i + 2014 >= self.elasticities['first_year_response']:
+                reprate_ch[i] = reprate_ref[i] - reprate_base[i]
+        repat_response = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
+                                    'reprate_e': reprate_ch,
+                                    'reprate_a': np.zeros(14)})
+        self.repatriation_response = repat_response
 
     def _calc_legal_response(self, btax_params_base, btax_params_ref):
         """

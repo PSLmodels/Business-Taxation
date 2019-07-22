@@ -125,6 +125,15 @@ class Corporation():
         self.asset.update_response(responses.investment_response)
         self.asset.calc_all()
 
+    def update_repatriation(self, responses):
+        """
+        Updates the DomesticMNE object to include the repatriation response.
+        Also updates profits to reflect this response.
+        """
+        # First, save current foreign earnings
+        self.dmne.update_profits(responses.repatriation_response)
+        self.dmne.calc_all()
+
     def update_earnings(self, responses):
         """
         Recalculates earnings using the old capital stock by asset type, the
@@ -144,7 +153,9 @@ class Corporation():
         deltaE = np.zeros(NUM_YEARS)
         for iyr in range(NUM_YEARS):
             deltaE[iyr] = changeEarnings[:, iyr].sum()
-        self.earnings = (self.earnings + deltaE) * self.data.rescale_corp
+        # Update new earnings
+        self.dearnings = (self.dearnings + deltaE) * self.data.rescale_corp
+        self.earnings = self.dearnings + self.dmne.dmne_results['foreign_inc']
 
     def update_debt(self, responses):
         """
@@ -163,6 +174,7 @@ class Corporation():
         assert isinstance(responses, Response)
         self.update_legal(responses)
         self.update_investment(responses)
+        self.update_repatriation(responses)
         self.update_earnings(responses)
         self.update_debt(responses)
         self.file_taxes()

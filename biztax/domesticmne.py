@@ -127,11 +127,10 @@ class DomesticMNE():
         """
         return None
     
-    def update_profits(self):
+    def update_profits(self, repat_response):
         """
         Updates location of profits based on profit-shifting response and
-        change in capital location from investment response.
-        Include response by CFC.
-        Not yet built.
+        repatriation rate from profits in CFC.
+        Currently, only handles the repatriation response.
         """
-        return None
+        self.cfc.update_cfc(repat_response)
