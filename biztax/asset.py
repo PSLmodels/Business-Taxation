@@ -384,9 +384,20 @@ class Asset():
             for j in range(75):
                 if j < hc_undep_year:
                     Dep_arr[:, j] = Dep_arr[:, j] * (1 - hc_undep)
-        # Calculate the total deduction
-        total_depded = Dep_arr.sum().sum()
-        return total_depded
+        # Asset types included in tax depreciation or not
+        other_assets = list(range(70, 73)) # Software
+        other_assets.extend(range(73, 88)) # Add R&D categories
+        other_assets.extend([94, 95]) # Add land and inventories
+        depr_assets = list(range(0, 70)) # Tangible assets
+        depr_assets.extend(range(88, 93)) # Add artistic originals
+        depr_assets.append(93) # Add residential
+        # Total deduction for capital cost recovery
+        totalded = Dep_arr.sum().sum()
+        # Tax depreciation deduction
+        depded = Dep_arr[depr_assets,:].sum().sum()
+        # Other CCR deduction
+        otherded = Dep_arr[other_assets,:].sum().sum()
+        return [totalded, depded, otherded]
 
     def calcDep_allyears(self):
         """
@@ -395,7 +406,7 @@ class Asset():
         """
         dep_deductions = np.zeros(75)
         for year in range(1960, 2028):
-            dep_deductions[year - 1960] = self.calcDep_oneyear(year)
+            dep_deductions[year - 1960] = self.calcDep_oneyear(year)[1]
         return dep_deductions
 
     def calcDep_budget(self):
@@ -403,9 +414,12 @@ class Asset():
         Calculates total depreciation deductions taken for START_ to END_YEAR.
         """
         dep_deductions = np.zeros(NUM_YEARS)
+        other_deductions = np.zeros(NUM_YEARS)
         for iyr in range(0, NUM_YEARS):
             year = iyr + START_YEAR
-            dep_deductions[iyr] = self.calcDep_oneyear(year)
+            [totalded, depded, otherded] = self.calcDep_oneyear(year)
+            dep_deductions[iyr] = depded
+            other_deductions[iyr] = otherded
         return dep_deductions
 
     def build_capital_history(self):
@@ -449,6 +463,7 @@ class Asset():
         inv_total = np.zeros(NUM_YEARS)
         fixedInv_total = np.zeros(NUM_YEARS)
         Mdep_total = np.zeros(NUM_YEARS)
+        Oded_total = np.zeros(NUM_YEARS)
         for iyr in range(NUM_YEARS):
             adjfactor = (self.adjustments['overall']
                          * self.adjustments['rescalar'][iyr])
@@ -463,7 +478,9 @@ class Asset():
                                      - self.investment_history[31, iyr + 54])
                                     * adjfactor))
             year = iyr + START_YEAR
-            Mdep_total[iyr] = self.calcDep_oneyear(year) * adjfactor
+            [totalded, depded, otherded] = self.calcDep_oneyear(year)
+            Mdep_total[iyr] = depded * adjfactor
+            Oded_total[iyr] = otherded * adjfactor
         cap_result = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                    'Kstock': Kstock_total,
                                    'Investment': inv_total,
