@@ -95,33 +95,6 @@ def calcFTCAdjustment():
     return adjfactor
 
 
-def calcDepAdjustment(corp):
-    """
-    Calculates the adjustment factor for assets, depreciation and investment
-    corp: indicator for whether corporate or noncorporate data
-    """
-    # Create Asset object
-    policy = Policy()
-    asset1 = Asset(policy.parameters_dataframe(), corp)
-    asset1.calc_all()
-    # Get unscaled depreciation for all years
-    totalAnnualDepreciation = asset1.calcDep_allyears()
-    #####
-    depreciation_data = copy.deepcopy(data1.depreciationIRS_data)
-    depreciation_data['dep_model'] = totalAnnualDepreciation[40:54]
-    if corp:
-        depreciation_data['scale'] = (depreciation_data['dep_Ccorp'] /
-                                      depreciation_data['dep_model'])
-    else:
-        depreciation_data['scale'] = ((depreciation_data['dep_Scorp'] +
-                                       depreciation_data['dep_sp'] +
-                                       depreciation_data['dep_partner']) /
-                                      depreciation_data['dep_model'])
-    adj_factor = (sum(depreciation_data['scale']) /
-                  len(depreciation_data['scale']))
-    return adj_factor
-
-
 def calcIDAdjustment(corp, eta=0.4):
     """
     Calculates the adjustment factors for the corporate and noncorporate
@@ -155,9 +128,6 @@ def calcIDAdjustment(corp, eta=0.4):
 all_amt_params = calcAMTparams2()
 # Calculate the FTC adjustment parameters
 adjfactor_ftc_corp = calcFTCAdjustment()
-# Calculate the depreciation adjustment parameters
-adjfactor_dep_corp = calcDepAdjustment(True)
-adjfactor_dep_noncorp = calcDepAdjustment(False)
 # Calculate the interest adjustment parameters
 adjfactor_int_corp = calcIDAdjustment(True)
 adjfactor_int_noncorp = calcIDAdjustment(False)
@@ -228,8 +198,6 @@ adj_factors = {'param_amt': all_amt_params[0],
                'trans_amt2': all_amt_params[5],
                'stock2014': all_amt_params[6],
                'ftc': adjfactor_ftc_corp,
-               'dep_corp': adjfactor_dep_corp,
-               'dep_noncorp': adjfactor_dep_noncorp,
                'int_corp': adjfactor_int_corp,
                'int_noncorp': adjfactor_int_noncorp}
 passthru_factors = {'dep_scorp_pos': depshare_scorp_posinc,

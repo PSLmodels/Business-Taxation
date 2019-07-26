@@ -109,8 +109,8 @@ class Response():
         firstyear: when the firm behavioral response takes effect
         """
         # Read in the underlying functions for the investment response
-        maindata = copy.deepcopy(Data().assets_data())
-        maindata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
+        maindata = copy.deepcopy(Data().taxdep_info_gross())
+        maindata.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
         # Extract relevant response parameters
         firstyear = self.elasticities['first_year_response']
         elast_c = self.elasticities['inv_usercost_c']

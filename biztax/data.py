@@ -20,7 +20,6 @@ class Data():
 
     CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
     CTAX_DATA_DIR = 'brc_data'
-    BTAX_DATA_DIR = 'btax_data'
 
     def __init__(self):
         self.gfactors = Data.read_csv('gfactors.csv')
@@ -44,11 +43,15 @@ class Data():
         # Data for Sec. 199
         self.sec199_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'sec199.csv'))
-        # Investment data
-        self.investmentrate_data = Data.read_csv(
-            os.path.join(Data.CTAX_DATA_DIR, 'investment_rates.csv'))
-        self.investmentshare_data = Data.read_csv(
-            os.path.join(Data.CTAX_DATA_DIR, 'investment_shares.csv'))
+        # Investment and capital data
+        self.investment_corp = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'investment_corp.csv'))
+        self.investment_noncorp = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'investment_ncorp.csv'))
+        self.capital_corp = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'capital_corp.csv'))
+        self.capital_noncorp = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'capital_ncorp.csv'))
         self.investmentGfactors_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'investment_gfactors.csv'))
         # Tax depreciation information
@@ -83,8 +86,6 @@ class Data():
         self.trans_amt2 = adj_factors['trans_amt2'].values[0]
         self.stock2014 = adj_factors['stock2014'].values[0]
         self.adjfactor_ftc_corp = adj_factors['ftc'].values[0]
-        self.adjfactor_dep_corp = adj_factors['dep_corp'].values[0]
-        self.adjfactor_dep_noncorp = adj_factors['dep_noncorp'].values[0]
         self.adjfactor_int_corp = adj_factors['int_corp'].values[0]
         self.adjfactor_int_noncorp = adj_factors['int_noncorp'].values[0]
         # Read in pass-through shares
@@ -117,54 +118,42 @@ class Data():
         return dframe
 
     @staticmethod
-    def assets_data():
-        """
-        Retrieves the DataFrame with asset dames and amounts
-        """
-        asset_data = Data.read_csv('mini_assets.csv')
-        asset_data.drop([3, 21, 32, 91], axis=0, inplace=True)
-        asset_data.reset_index(drop=True, inplace=True)
-        return asset_data
-
-    @staticmethod
     def econ_depr_df():
         """
         Retrieves the DataFrame with economic depreciation rates
         """
-        df_econdepr = Data.read_csv(
-            os.path.join(Data.BTAX_DATA_DIR,
+        df_econdepr1 = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR,
                          'economic_depreciation_rates.csv'))
-        asset = np.asarray(df_econdepr['Asset'])
-        asset[78] = 'Communications equipment manufacturing'
-        asset[81] = 'Motor vehicles and parts manufacturing'
-        df_econdepr['Asset'] = asset
-        df_econdepr.drop('Code', axis=1, inplace=True)
-        df_econdepr.rename(columns={'Economic Depreciation Rate': 'delta'},
-                           inplace=True)
-        df_econdepr.drop([56, 89, 90], axis=0, inplace=True)
-        df_econdepr.reset_index(drop=True, inplace=True)
-        return df_econdepr
+        # Extract each column as an array
+        asset = np.asarray(df_econdepr1['Asset'])
+        code = np.asarray(df_econdepr1['Code'])
+        delta = np.asarray(df_econdepr1['Economic Depreciation Rate'])
+        # Append values for residential categories
+        asset = np.append(asset, ['Residential new',
+                                  'Residential additions and alterations',
+                                  'Residential major improvements',
+                                  'Residential equipment'])
+        code = np.append(code, ['RR10', 'RR20', 'RR30', 'RR40'])
+        delta = np.append(delta, [delta[96], delta[96], delta[96], delta[36]])
+        df_econdepr2 = pd.DataFrame({'Asset': asset, 'Code': code, 'delta': delta})
+        # Drop nonbusiness categories, land and inventories
+        df_econdepr2.drop([28, 36, 56, 89, 90, 96, 97, 98], axis=0, inplace=True)
+        df_econdepr2.reset_index(drop=True, inplace=True)
+        return df_econdepr2
 
     def taxdep_info_gross(self):
         """
         Retrieves the basic DataFrame with tax depreciation information
         """
         taxdep1 = Data.read_csv(
-            os.path.join(Data.BTAX_DATA_DIR,
-                         'tax_depreciation_rates.csv'))
-        taxdep1.drop(['System'], axis=1, inplace=True)
-        taxdep1.rename(columns={'GDS Life': 'L_gds', 'ADS Life': 'L_ads',
-                                'Asset Type': 'Asset'}, inplace=True)
-        asset = np.asarray(taxdep1['Asset'])
-        asset[81] = 'Motor vehicles and parts manufacturing'
-        method = np.asarray(taxdep1['Method'])
-        method[asset == 'Land'] = 'None'
-        method[asset == 'Inventories'] = 'None'
-        taxdep1['Asset'] = asset
-        taxdep1['Method'] = method
-        taxdep1.drop([56, 89, 90], axis=0, inplace=True)
-        taxdep1.reset_index(drop=True, inplace=True)
-        return taxdep1.merge(right=self.econ_depr_df(), how='outer', on='Asset')
+            os.path.join(Data.CURRENT_PATH,
+                         'tax_depreciation_rules.csv'))
+        taxdep1.rename(columns={'GDS life': 'L_gds', 'ADS life': 'L_ads',
+                                'Asset Type': 'Asset', 'GDS method': 'Method',
+                                'Asset code': 'Code'},
+                       inplace=True)
+        return taxdep1.merge(right=self.econ_depr_df(), how='outer', on='Code')
 
     def update_rescaling(self, corparray, ncorparray):
         """
