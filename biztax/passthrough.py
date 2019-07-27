@@ -233,14 +233,12 @@ class PassThrough():
         """
         Kstock_base = copy.deepcopy(self.old_capital_history)
         Kstock_ref = copy.deepcopy(self.asset.capital_history)
-        deltaK = Kstock_ref - Kstock_base
-        changeEarnings = np.zeros((96, NUM_YEARS))
+        changeEarnings = np.zeros((95, NUM_YEARS))
         for j in range(NUM_YEARS):  # for each year
             ystr = str(j + START_YEAR)
             mpk = np.array(responses.investment_response['MPKnc' + ystr])
-            for i in range(96):  # by asset
-                changeEarnings[i, j] = (deltaK[i, j] * mpk[i]
-                                        * self.data.adjfactor_dep_noncorp)
+            for i in range(95):  # by asset
+                changeEarnings[i, j] = (Kstock_ref[ystr][i] - Kstock_base[ystr][i]) * mpk[i]
         deltaE = np.zeros(NUM_YEARS)
         for j in range(NUM_YEARS):  # for each year
             deltaE[j] = changeEarnings[:, j].sum()

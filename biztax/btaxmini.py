@@ -498,12 +498,12 @@ class BtaxMini():
         tdict_c = self.make_tdict_c(year)
         tdict_nc = self.make_tdict_nc(year)
         # Create base DataFrame and get depreciation rates
-        asset_data = copy.deepcopy(Data().assets_data())
-        Delta = np.array(Data().econ_depr_df()['delta'])
+        asset_data = copy.deepcopy(Data().taxdep_info_gross())
+        asset_data.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
+        Delta = np.array(asset_data['delta'])
         # Get deductible fractions of interest paid
         (fracded_c, fracded_nc) = self.calc_frac_ded(year)
         # Get inventory method
-        inv_method = self.btax_params['inventory_method'][year-START_YEAR]
         assets = np.asarray(asset_data['Asset'])
         uc_c = np.zeros(len(assets))
         uc_nc = np.zeros(len(assets))
@@ -522,24 +522,11 @@ class BtaxMini():
             eatr_nc[j] = self.calc_eatr(0.2, r_nc, pi, Delta[j], Method[j],
                                         Life[j], Bonus[j], f_nc, r_d,
                                         fracded_nc, tdict_nc, length=50)
-        # Special cost of capital calculations for inventories
-        uc_c[assets == 'Inventories'] = self.calc_rho_inv(r_c, pi,
-                                                          inv_method, 0.5,
-                                                          tdict_c)
-        uc_nc[assets == 'Inventories'] = self.calc_rho_inv(r_nc, pi,
-                                                           inv_method, 0.5,
-                                                           tdict_nc)
-        # EATR for inventories and land with no supernormal returns
-        eatr_c[assets == 'Inventories'] = (uc_c[assets == 'Inventories'] - r_c) / uc_c[assets == 'Inventories']
-        eatr_nc[assets == 'Inventories'] = (uc_nc[assets == 'Inventories'] - r_nc) / uc_nc[assets == 'Inventories']
-        eatr_c[assets == 'Land'] = (uc_c[assets == 'Land'] - r_c) / uc_c[assets == 'Land']
-        eatr_nc[assets == 'Land'] = (uc_nc[assets == 'Land'] - r_nc) / uc_nc[assets == 'Land']
         # Save the results to the main DataFrame
         asset_data['uc_c'] = uc_c
         asset_data['uc_nc'] = uc_nc
         asset_data['eatr_c'] = eatr_c
         asset_data['eatr_nc'] = eatr_nc
-        asset_data.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
         return asset_data
 
     def run_btax_mini(self, yearlist):
@@ -547,7 +534,8 @@ class BtaxMini():
         Runs the code to compute the user cost and EATR
         for each asset type for each year in yearlist.
         """
-        basedata = copy.deepcopy(Data().assets_data())
+        basedata = copy.deepcopy(Data().taxdep_info_gross())
+        basedata.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
         for year in yearlist:
             # Get calculations for each year
             results_oneyear = self.calc_oneyear(year)
@@ -560,5 +548,4 @@ class BtaxMini():
             # Merge year's results into combined DataFrame
             basedata = basedata.merge(right=results_oneyear,
                                       how='outer', on='Asset')
-        basedata.drop(['assets_c', 'assets_nc'], axis=1, inplace=True)
         return basedata
