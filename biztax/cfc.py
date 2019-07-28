@@ -29,28 +29,44 @@ class CFC():
 
     def create_earnings(self):
         """
-        Forecast growth of foreign earnings/profits
-        Note: 2013 value is set to produce actual 2014 value after growth factor.
+        Forecast growth of foreign earnings/profits.
+        Also forecasts growth of total assets and net PPE using
+        the same growth factors.
         """
+        # Get growth factors for foreign activity
         earnings_forecast = np.asarray(self.data.gfactors['profit_f'])
-        earnings2014 = np.asarray(self.cfc_data['earnings'])[0]
-        earnings_new = (earnings_forecast[1:] / earnings_forecast[1]
-                        * earnings2014)
-        self.earnings = earnings_new
+        gfacts = earnings_forecast[1:] / earnings_forecast[1]
+        # Get real activity information for 2014
+        earnings_2014 = np.asarray(self.cfc_data['earnings'])[0]
+        subpartF_2014 = np.asarray(self.cfc_data['subpartF'])[0]
+        assets_2014 = np.asarray(self.cfc_data['assets'])[0]
+        ppe_2014 = np.asarray(self.cfc_data['ppe'])[0]
+        # Produce forecast measures
+        self.earnings = earnings_2014 * gfacts
+        self.subpartF = subpartF_2014 * gfacts
+        self.assets = assets_2014 * gfacts
+        self.ppe = ppe_2014 * gfacts
 
     def pay_foreign_taxes(self):
         """
         Determine taxes paid to foreign governments on earnings/profits
         Note: This is constant at the 2014 value.
+        Also compute taxable income to be included for GILTI
         """
-        ftaxrate = np.asarray(self.cfc_data['taxrt'])
-        self.foreigntax = ftaxrate * self.earnings
+        # Compute foreign tax liability
+        self.ftaxrate = np.asarray(self.cfc_data['taxrt'])
+        self.foreigntax = self.ftaxrate * self.earnings
+        GILTI_inc = (self.earnings - self.subpartF
+                     - self.ppe * np.asarray(self.btax_params['GILTI_thd']))
+        GILTI_tinc = GILTI_inc * np.asarray(self.btax_params['cfcinc_inclusion'])
+        self.GILTI_tinc = GILTI_tinc
 
     def repatriate_accumulate(self):
         """
         Determine repatriations to US parent company based on current
         profits and accumulated profits.
-        Note: 
+        Accumulations are only for untaxed profits (i.e. net of
+        subpart F and grossed-up dividends).
         """
         # Fraction of current earnings to repatriate
         reprate_earnings = np.asarray(self.cfc_data['reprate_e'])
@@ -58,15 +74,20 @@ class CFC():
         reprate_accum = np.asarray(self.cfc_data['reprate_a'])
         # Create arrays for dividends to parent and accumulated profits
         dividends = np.zeros(14)
+        repatriations = np.zeros(14)
         accum = np.zeros(15)
         accum[0] = np.asarray(self.cfc_data['accum'])[0]
         for i in range(14):
-            # Compute dividend repatriations to parent company
-            dividends[i] = (reprate_earnings[i] * (self.earnings[i] - self.foreigntax[i])
-                            + reprate_accum[i] * accum[i])
+            # Compute dividend repatriations to parent company from earnings
+            dividends[i] = (self.earnings[i] - self.foreigntax[i]
+                            - self.subpartF[i]) * reprate_earnings[i]
+            # Repatriations from accumulated untaxed profits
+            repatriations[i] = reprate_accum[i] * accum[i]
             # Compute new accumulated profits
-            accum[i+1] = accum[i] + self.earnings[i] - self.foreigntax[i] - dividends[i]
+            accum[i+1] = (accum[i] + self.earnings[i] - self.subpartF[i]
+                          - repatriations[i] - dividends[i] * (1 + self.ftaxrate[i]))
         self.dividends = dividends
+        self.repatriations = repatriations
         self.accumulated_profits = accum[1:]
 
     def calc_all(self):
