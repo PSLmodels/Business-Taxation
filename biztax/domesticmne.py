@@ -62,6 +62,7 @@ class DomesticMNE():
         self.otherinc = (interest + rent + serviceinc + branchinc + otherinc -
                          deductions - adjustments)
         self.foreigntax = foreigntax
+        self.repatinc = self.cfc.repatriations
 
     def taxable_earnings(self):
         """
@@ -70,7 +71,9 @@ class DomesticMNE():
         divtinc = self.divinc * np.asarray(self.btax_params['foreign_dividend_inclusion'])
         othertinc = self.otherinc * np.asarray(self.btax_params['foreign_otherinc_inclusion'])
         grosstax = self.foreigntax *  np.asarray(self.btax_params['foreign_tax_grossrt'])
-        self.taxinc = divtinc + othertinc + grosstax
+        repattinc = self.repatinc * np.asarray(self.btax_params['foreign_repatriation_inclusion'])
+        self.taxinc = (divtinc + othertinc + grosstax + repattinc
+                       + self.cfc.subpartF + self.cfc.GILTI_tinc)
 
     def calcFTC(self):
         """
@@ -115,7 +118,9 @@ class DomesticMNE():
         self.calcFTC()
         # Store results in DataFrame
         self.dmne_results = pd.DataFrame({'year': range(2014,2028),
-                                          'foreign_inc': self.divinc + self.otherinc,
+                                          'foreign_inc': (self.divinc
+                                                          + self.otherinc
+                                                          + self.cfc.subpartF),
                                           'foreign_tax': self.foreigntax,
                                           'foreign_taxinc': self.taxinc,
                                           'ftc': self.ftc})

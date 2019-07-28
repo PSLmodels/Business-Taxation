@@ -17,6 +17,13 @@ from biztax.years import START_YEAR, HISTORY_START
 RAW_DATA_PATH = 'data_prep/'
 OUTPUT_PATH = 'biztax/brc_data/'
 
+# Import Excel files
+stockfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_stk.xlsx'))
+invfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_inv.xlsx'))
+resfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailresidential.xlsx'))
+firminvfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_inv.xls'))
+firmstkfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_stk.xls'))
+
 """
 SECTION 1. READING IN DATA ON PRIVATE NONRESIDENTIAL CAPITAL
 
@@ -109,13 +116,6 @@ We remove the following asset types:
     Other nonprofit institutions
     
 """
-
-# Import Excel files
-stockfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_stk.xlsx'))
-invfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_inv.xlsx'))
-resfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailresidential.xlsx'))
-firminvfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_inv.xls'))
-firmstkfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_stk.xls'))
 
 def read_and_clean(ind, data):
     """
