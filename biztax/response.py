@@ -213,7 +213,7 @@ class Response():
         repatriation rate as of 2014.
         """
         # Get foreign tax rate
-        ftax = np.asarray(Data().cfc_data['taxrt'])[1:]
+        ftax = np.asarray(Data().cfc_data['taxrt'])
         # Get domestic tax rate
         dtax_base = np.asarray(btax_params_base['tau_c'])
         dtax_ref = np.asarray(btax_params_ref['tau_c'])
