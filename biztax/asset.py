@@ -4,7 +4,7 @@ Business-Taxation Asset class.
 import copy
 import numpy as np
 import pandas as pd
-from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS, HISTORY_START
 from biztax.data import Data
 
 
@@ -88,17 +88,17 @@ class Asset():
         else:
             investment_df = copy.deepcopy(self.data.investment_noncorp)
         # Extend investment using NGDP (growth factors from CBO forecast)
-        for year in range(2015, 2028):
-            gfact = (self.data.investmentGfactors_data['ngdp'][year-1960]
+        for year in range(START_YEAR + 1, END_YEAR + 1):
+            gfact = (self.data.investmentGfactors_data['ngdp'][year-HISTORY_START]
                      / self.data.investmentGfactors_data['ngdp'][54])
-            investment_df[str(year)] = investment_df['2014'] * gfact
+            investment_df[str(year)] = investment_df[str(START_YEAR)] * gfact
         # Update investment matrix to include investment responses
         if self.response is not None:
             if self.corp:
                 deltaIkey = 'deltaIc'
             else:
                 deltaIkey = 'deltaInc'
-            for year in range(2014, 2028):
+            for year in range(START_YEAR, END_YEAR + 1):
                 investment_df[str(year)] = (investment_df[str(year)] *
                                             (1. + self.response[deltaIkey + str(year)]))
         self.investment_history = investment_df
@@ -170,7 +170,7 @@ class Asset():
             bonus = np.zeros(len(life))
             for y in [3, 5, 7, 10, 15, 20, 25, 27.5, 39]:
                 s = "bonus{}".format(y if y != 27.5 else 27)
-                bonus[life == y] = self.data.bonus_data[s][year - 1960]
+                bonus[life == y] = self.data.bonus_data[s][year - HISTORY_START]
             taxdep['bonus'] = bonus
             taxdep.drop(['L_gds', 'L_ads', 'Class life'],
                         axis=1, inplace=True)
@@ -201,8 +201,8 @@ class Asset():
         method_history = [[]] * 68
         life_history = np.zeros((95, 68))
         bonus_history = np.zeros((95, 68))
-        for year in range(1960, 2028):
-            iyr = year - 1960
+        for year in range(HISTORY_START, END_YEAR + 1):
+            iyr = year - HISTORY_START
             params_oneyear = get_btax_params_oneyear(self.btax_params, year)
             method_history[iyr] = params_oneyear['Method']
             life_history[:, iyr] = params_oneyear['L']
@@ -328,7 +328,7 @@ class Asset():
                               * self.adjustments['bonus']
                               + self.adjustments['sec179']), 1.0)
                 unitDep_arr[i, j] = depreciationDeduction(
-                    j, year - 1960, self.method_history[j][i],
+                    j, year - HISTORY_START, self.method_history[j][i],
                     self.life_history[i, j], delta[i], bonus1
                 )
         inv_hist = copy.deepcopy(self.investment_history)
@@ -337,7 +337,7 @@ class Asset():
         Dep_arr = inv_hist2 * unitDep_arr
         # Apply the haircut on undepreciated basis
         iyr = year - START_YEAR
-        if year < 2014:
+        if year < START_YEAR:
             # Use no haircut for years before calculator
             hc_undep_year = 0
             hc_undep = 0.
@@ -369,9 +369,9 @@ class Asset():
         Calculates total depreciation deductions taken for all years
         1960-2035.
         """
-        dep_deductions = np.zeros(2028 - 1960)
-        for year in range(1960, 2028):
-            dep_deductions[year - 1960] = self.calcDep_oneyear(year)[0]
+        dep_deductions = np.zeros(END_YEAR + 1 - HISTORY_START)
+        for year in range(HISTORY_START, END_YEAR + 1):
+            dep_deductions[year - HISTORY_START] = self.calcDep_oneyear(year)[0]
         return dep_deductions
 
     def calcDep_budget(self):
@@ -400,11 +400,12 @@ class Asset():
         capital_df2 = capital_df1.merge(right=self.data.econ_depr_df(), how='outer', on='Code')
         trueDep_df = copy.deepcopy(self.data.econ_depr_df())
         pcelist = np.asarray(self.data.investmentGfactors_data['pce'])
-        for year in range(2014, 2028):
+        for year in range(START_YEAR, END_YEAR + 1):
             trueDep_df[str(year)] = capital_df2[str(year)] * trueDep_df['delta']
             capital_df2[str(year + 1)] = ((capital_df2[str(year)] - trueDep_df[str(year)]
                                            + self.investment_history[str(year)])
-                                          * pcelist[year-1960+1] / pcelist[year-1960])
+                                          * pcelist[year-HISTORY_START+1]
+                                          / pcelist[year-HISTORY_START])
         self.capital_history = capital_df2
         self.trueDep = trueDep_df
 
@@ -419,14 +420,15 @@ class Asset():
         inv_total = np.zeros(NUM_YEARS)
         Mdep_total = np.zeros(NUM_YEARS)
         Oded_total = np.zeros(NUM_YEARS)
-        for year in range(2014, 2028):
-            adjfactor = self.adjustments['rescalar'][year-2014]
-            Kstock_total[year-2014] = sum(self.capital_history[str(year)]) * adjfactor
-            trueDep_total[year-2014] = sum(self.trueDep[str(year)]) * adjfactor
-            inv_total[year-2014] = sum(self.investment_history[str(year)]) * adjfactor
+        for year in range(START_YEAR, END_YEAR + 1):
+            iyr = year - START_YEAR
+            adjfactor = self.adjustments['rescalar'][iyr]
+            Kstock_total[iyr] = sum(self.capital_history[str(year)]) * adjfactor
+            trueDep_total[iyr] = sum(self.trueDep[str(year)]) * adjfactor
+            inv_total[iyr] = sum(self.investment_history[str(year)]) * adjfactor
             [depded, otherded] = self.calcDep_oneyear(year)
-            Mdep_total[year-2014] = depded * adjfactor
-            Oded_total[year-2014] = otherded * adjfactor
+            Mdep_total[iyr] = depded * adjfactor
+            Oded_total[iyr] = otherded * adjfactor
         cap_result = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                    'Kstock': Kstock_total,
                                    'Investment': inv_total,
