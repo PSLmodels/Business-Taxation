@@ -12,9 +12,10 @@ import os
 from biztax.data import Data
 from biztax.asset import Asset
 from biztax.policy import Policy
+from biztax.years import START_YEAR, HISTORY_START
 
-RAW_DATA_PATH = 'C:/Users/cody_/Documents/GitHub/BRC/data_prep/'
-OUTPUT_PATH = 'C:/Users/cody_/Documents/GitHub/BRC/biztax/brc_data/'
+RAW_DATA_PATH = 'data_prep/'
+OUTPUT_PATH = 'biztax/brc_data/'
 
 """
 SECTION 1. READING IN DATA ON PRIVATE NONRESIDENTIAL CAPITAL
@@ -109,6 +110,13 @@ We remove the following asset types:
     
 """
 
+# Import Excel files
+stockfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_stk.xlsx'))
+invfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailnonres_inv.xlsx'))
+resfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'detailresidential.xlsx'))
+firminvfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_inv.xls'))
+firmstkfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, 'nonres_firm_stk.xls'))
+
 def read_and_clean(ind, data):
     """
     Reads the relevant asset by industry data from the Excel files.
@@ -118,20 +126,18 @@ def read_and_clean(ind, data):
     Returns a DataFrame
     """
     if data == 'inv':
-        fname = os.path.join(RAW_DATA_PATH, 'detailnonres_inv.xlsx')
+        data1 = pd.read_excel(invfile, sheet_name=ind, header=5)
     elif data == 'stock':
-        fname = os.path.join(RAW_DATA_PATH, 'detailnonres_stk.xlsx')
+        data1 = pd.read_excel(stockfile, sheet_name=ind, header=5)
     else:
         raise ValueError('Data file must be inv or stock')
-    # Read in the raw data
-    data1 = pd.read_excel(fname, sheet_name=ind, header=5)
     # Drop empty row and aggregate rows
     data1.drop([0, 1, 41, 74], axis=0, inplace=True)
     # Drop unwanted asset types
     data1.drop([30, 38, 59, 93, 94], axis=0, inplace=True)
     syr = 1901 if data=='inv' else 1947
-    data1.drop(map(str, range(syr, 1960)), axis=1, inplace=True)
-    data1.drop(map(str, range(2015, 2018)), axis=1, inplace=True)
+    data1.drop(map(str, range(syr, HISTORY_START)), axis=1, inplace=True)
+    data1.drop(map(str, range(START_YEAR + 1, 2018)), axis=1, inplace=True)
     data1.rename({'NIPA Asset Types': 'asset_name',
                   'Asset Codes': 'asset_code'}, axis=1, inplace=True)
     data1.set_index('asset_code', inplace=True)
@@ -179,9 +185,9 @@ give them codes.
     Rental residential, equipment (RR40)
 """
 # Rental residential investment
-resinv = pd.read_excel(RAW_DATA_PATH + 'detailresidential.xlsx', sheet_name='Investment ', header=5)
-resinv.drop(map(str, range(1901, 1960)), axis=1, inplace=True)
-resinv.drop(map(str, range(2015, 2018)), axis=1, inplace=True)
+resinv = pd.read_excel(resfile, sheet_name='Investment ', header=5)
+resinv.drop(map(str, range(1901, HISTORY_START)), axis=1, inplace=True)
+resinv.drop(map(str, range(START_YEAR + 1, 2018)), axis=1, inplace=True)
 resinv.drop(['Asset Codes', 'Unnamed: 1'], axis=1, inplace=True)
 # Corporate rental residential, new investment
 rr10_c_inv = np.array(resinv.iloc[24] + resinv.iloc[27])
@@ -201,9 +207,9 @@ rr30_nc_inv = np.array(resinv.iloc[38] + resinv.iloc[41])
 rr40_nc_inv = np.array(resinv.iloc[45] + resinv.iloc[46])
 
 # Rental residential capital stock
-resstk = pd.read_excel(RAW_DATA_PATH + 'detailresidential.xlsx', sheet_name='Net Stock (Current-Cost)', header=5)
-resstk.drop(map(str, range(1925, 1960)), axis=1, inplace=True)
-resstk.drop(map(str, range(2015, 2018)), axis=1, inplace=True)
+resstk = pd.read_excel(resfile, sheet_name='Net Stock (Current-Cost)', header=5)
+resstk.drop(map(str, range(1925, HISTORY_START)), axis=1, inplace=True)
+resstk.drop(map(str, range(START_YEAR + 1, 2018)), axis=1, inplace=True)
 resstk.drop(['Asset Codes', 'Unnamed: 1'], axis=1, inplace=True)
 # Corporate rental residential, building stock
 rr10_c_stk = np.array(resstk.iloc[24] + resstk.iloc[27])
@@ -233,14 +239,14 @@ shares of investment in each major asset type for corporations and for
 noncorporate businesses in each year.
 """
 # Read in investment by legal type and major category
-firm_inv = pd.read_excel(RAW_DATA_PATH + 'nonres_firm_inv.xls', sheet_name='Sheet0', header=5)
-firm_inv.drop(map(str, range(1901, 1960)), axis=1, inplace=True)
-firm_inv.drop(map(str, range(2015, 2018)), axis=1, inplace=True)
+firm_inv = pd.read_excel(firminvfile, sheet_name='Sheet0', header=5)
+firm_inv.drop(map(str, range(1901, HISTORY_START)), axis=1, inplace=True)
+firm_inv.drop(map(str, range(START_YEAR + 1, 2018)), axis=1, inplace=True)
 firm_inv.drop(['Line', 'Unnamed: 1'], axis=1, inplace=True)
 # Read in asset stock by legal type and major category
-firm_stk = pd.read_excel(RAW_DATA_PATH + 'nonres_firm_stk.xls', sheet_name='Sheet0', header=5)
-firm_stk.drop(map(str, range(1925, 1960)), axis=1, inplace=True)
-firm_stk.drop(map(str, range(2015, 2018)), axis=1, inplace=True)
+firm_stk = pd.read_excel(firmstkfile, sheet_name='Sheet0', header=5)
+firm_stk.drop(map(str, range(1925, HISTORY_START)), axis=1, inplace=True)
+firm_stk.drop(map(str, range(START_YEAR + 1, 2018)), axis=1, inplace=True)
 firm_stk.drop(['Line', 'Unnamed: 1'], axis=1, inplace=True)
 # Extract totals for major asset categories
 inv_eq_tot = np.array(firm_inv.iloc[2])

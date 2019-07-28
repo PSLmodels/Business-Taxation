@@ -1,7 +1,7 @@
 import copy
 import numpy as np
 import pandas as pd
-from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
+from biztax.years import START_YEAR, END_YEAR, NUM_YEARS, HISTORY_START
 from biztax.data import Data
 
 
@@ -181,10 +181,10 @@ class Debt():
         for i in range(54, 68):
             for j in range(i+1):
                 hctouse = 0.0
-                if j + 1960 < self.haircuts['id_hc_oldyear'][i-54]:
+                if j + HISTORY_START < self.haircuts['id_hc_oldyear'][i-54]:
                     # If originated before "old" haircut, apply haircut
                     hctouse = self.haircuts['id_hc_old'][i-54]
-                if j + 1960 >= self.haircuts['id_hc_newyear'][i-54]:
+                if j + HISTORY_START >= self.haircuts['id_hc_newyear'][i-54]:
                     # If originated after "new" haircut, apply haircut
                     hctouse = max(hctouse, self.haircuts['id_hc_new'][i-54])
                 int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j) *
