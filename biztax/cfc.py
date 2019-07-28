@@ -33,9 +33,9 @@ class CFC():
         Note: 2013 value is set to produce actual 2014 value after growth factor.
         """
         earnings_forecast = np.asarray(self.data.gfactors['profit_f'])
-        earnings2013 = np.asarray(self.cfc_data['earnings'])[0]
-        earnings_new = (earnings_forecast[1:] / earnings_forecast[0]
-                        * earnings2013)
+        earnings2014 = np.asarray(self.cfc_data['earnings'])[0]
+        earnings_new = (earnings_forecast[1:] / earnings_forecast[1]
+                        * earnings2014)
         self.earnings = earnings_new
 
     def pay_foreign_taxes(self):
@@ -43,7 +43,7 @@ class CFC():
         Determine taxes paid to foreign governments on earnings/profits
         Note: This is constant at the 2014 value.
         """
-        ftaxrate = np.asarray(self.cfc_data['taxrt'])[1:]
+        ftaxrate = np.asarray(self.cfc_data['taxrt'])
         self.foreigntax = ftaxrate * self.earnings
 
     def repatriate_accumulate(self):
@@ -53,9 +53,9 @@ class CFC():
         Note: 
         """
         # Fraction of current earnings to repatriate
-        reprate_earnings = np.asarray(self.cfc_data['reprate_e'])[1:]
+        reprate_earnings = np.asarray(self.cfc_data['reprate_e'])
         # Fraction of previously accumulated earnings to repatriate
-        reprate_accum = np.asarray(self.cfc_data['reprate_a'])[1:]
+        reprate_accum = np.asarray(self.cfc_data['reprate_a'])
         # Create arrays for dividends to parent and accumulated profits
         dividends = np.zeros(14)
         accum = np.zeros(15)
@@ -91,8 +91,7 @@ class CFC():
         reprate_e = np.asarray(self.cfc_data['reprate_e'])
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            reprate_e[1:] = np.minimum(np.maximum(reprate_e[1:] +
-                                                  update_df['reprate_e'], 0), 1.)
+            reprate_e = np.minimum(np.maximum(reprate_e + update_df['reprate_e'], 0), 1.)
             self.cfc_data['reprate_e'] = reprate_e
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
