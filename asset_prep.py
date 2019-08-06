@@ -271,7 +271,7 @@ stk_st_nc = np.array(firm_stk.iloc[65] + firm_stk.iloc[69]) / stk_st_tot
 stk_ip_nc = np.array(firm_stk.iloc[66] + firm_stk.iloc[70]) / stk_ip_tot
 
 """
-SECTION 4. FINAL DATASETS
+SECTION 4. SEMI-FINAL DATASETS
 
 This section uses all of the above work to produce the final datasets. It
 splits takes the investment and capital DataFrames and multiplies each entry by
@@ -418,13 +418,13 @@ def calcDepAdjustment(corp):
                                       depreciation_data['dep_model'])
     adj_factor = (sum(depreciation_data['scale']) /
                   len(depreciation_data['scale']))
-    depreciation_data.to_csv('depr_data_' + str(corp) + '.csv')
+    # depreciation_data.to_csv('depr_data_' + str(corp) + '.csv')
     return adj_factor
 
 adjfactor_dep_corp = calcDepAdjustment(True)
 adjfactor_dep_noncorp = calcDepAdjustment(False)
-print('Corp adjustment factor: ' + str(adjfactor_dep_corp))
-print('Noncorp adjustment factor: ' + str(adjfactor_dep_noncorp))
+print('Corp adjustment factor: ' + str(adjfactor_dep_corp * 1000))
+print('Noncorp adjustment factor: ' + str(adjfactor_dep_noncorp * 1000))
 
 # Rescale the capital and investment datasets using adjustment factors
 investment_corp2 = investment_corp * adjfactor_dep_corp

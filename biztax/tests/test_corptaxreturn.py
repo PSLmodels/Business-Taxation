@@ -3,7 +3,7 @@ Test CorpTaxReturn class.
 """
 import numpy as np
 import pytest
-from biztax import CorpTaxReturn, Data, Asset, Debt
+from biztax import CorpTaxReturn, Data, Asset, Debt, Corporation
 
 
 def test_instantiation_and_update_methods(clp_params_df):
@@ -22,22 +22,31 @@ def test_instantiation_and_update_methods(clp_params_df):
     good_debts = Debt(clp_params_df, np.ones(14))
     good_debts.calc_all()
     bad_debts = dict()
+    Corp = Corporation(good_btax_params)
     # test (in)correct instantiation
     with pytest.raises(ValueError):
-        CorpTaxReturn(bad_btax_params, good_earnings)
-    with pytest.raises(AssertionError):
-        CorpTaxReturn(good_btax_params, bad1_earnings)
-    with pytest.raises(AssertionError):
-        CorpTaxReturn(good_btax_params, bad2_earnings)
-    CorpTaxReturn(good_btax_params, good_earnings, data=Data())
-    CorpTaxReturn(good_btax_params, good_earnings, assets=good_assets)
+        CorpTaxReturn(bad_btax_params, Corp.revenues,
+                      Corp.deductions, Corp.credits)
     with pytest.raises(ValueError):
-        CorpTaxReturn(good_btax_params, good_earnings, assets=bad_assets)
-    CorpTaxReturn(good_btax_params, good_earnings, debts=good_debts)
+        CorpTaxReturn(good_btax_params, bad1_earnings,
+                      Corp.deductions, Corp.credits)
     with pytest.raises(ValueError):
-        CorpTaxReturn(good_btax_params, good_earnings, debts=bad_debts)
+        CorpTaxReturn(good_btax_params, bad2_earnings,
+                      Corp.deductions, Corp.credits)
+    CorpTaxReturn(good_btax_params, Corp.revenues,
+                  Corp.deductions, Corp.credits, data=Data())
+    CorpTaxReturn(good_btax_params, Corp.revenues,
+                  Corp.deductions, Corp.credits, assets=good_assets)
+    with pytest.raises(ValueError):
+        CorpTaxReturn(good_btax_params, Corp.revenues,
+                      Corp.deductions, Corp.credits, assets=bad_assets)
+    CorpTaxReturn(good_btax_params, Corp.revenues,
+                  Corp.deductions, Corp.credits, debts=good_debts)
+    with pytest.raises(ValueError):
+        CorpTaxReturn(good_btax_params, Corp.revenues,
+                      Corp.deductions, Corp.credits, debts=bad_debts)
     # test update_* methods
-    ctr = CorpTaxReturn(good_btax_params, good_earnings)
+    ctr = CorpTaxReturn(good_btax_params, Corp.revenues, Corp.deductions, Corp.credits)
     assert isinstance(ctr, CorpTaxReturn)
     ctr.update_assets(good_assets)
     with pytest.raises(ValueError):

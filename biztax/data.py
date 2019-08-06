@@ -29,6 +29,9 @@ class Data():
         # Tax revenue data
         self.taxrev_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'taxrev.csv'))
+        # Corporate tax data for 2013
+        self.corp_tax2013 = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'corp_taxreturn_2013.csv'))
         # Data for FTC model
         self.ftc_taxrates_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'ftc_taxrates_data.csv'))

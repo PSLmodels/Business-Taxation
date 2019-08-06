@@ -1,0 +1,76 @@
+,item,amount
+0,Number of returns,0.819232
+1,Total assets,53231.245211
+2,    Cash,3485.276383
+3,    Notes and accounts receivable,10427.516392
+4,        Less: Allowance for bad debts,175.27583
+5,    Inventories,1122.242328
+6,    Investments in Government obligations,1380.954346
+7,    Tax-exempt securities,922.43086
+8,    Other current assets,3768.209799
+9,    Loans to shareholders,213.279583
+10,    Mortgage and real estate loans,6877.66543
+11,    Other investments,14794.329542
+12,    Depreciable assets ,6711.744675
+13,        Less: Accumulated depreciation ,3359.98317
+14,    Depletable assets,420.135174
+15,        Less: Accumulated depletion,182.562963
+16,    Land,262.564274
+17,    Intangible assets (amortizable),4291.81845
+18,        Less: Accumulated amortization,735.980382
+19,    Other assets,3006.880321
+20,Total liabilities,53231.245211
+21,    Accounts payable,3450.145108
+22,"    Mortgages, notes, and bonds payable in less than one year",2660.100582
+23,    Other current liabilities,14012.631282
+24,    Loans from shareholders,331.436006
+25,"    Mortgages, notes, and bonds payable in one year or more",10702.860881
+26,    Other liabilities,9322.996995
+27,    Capital stock,1288.438043
+28,    Additional paid-in capital,8097.135771
+29,"    Retained earnings, appropriated",173.659283
+30,"    Retained earnings, unappropriated [30]",5541.014282
+31,        Less: Cost of treasury stock,2349.17302
+32,Total receipts,18734.021065
+33,    Business receipts,16505.717891
+34,    Interest,826.6937
+35,    Interest on Government obligations:  State and local,24.04828
+36,    Rents,71.72026
+37,    Royalties,180.863002
+38,    Net short-term capital gain reduced by net long-term capital loss,6.389228
+39,    Net long-term capital gain reduced by net short-term capital loss,117.770296
+40,"    Net gain, noncapital assets",63.951654
+41,    Dividends received from domestic corporations,23.778323
+42,    Dividends received from foreign corporations,118.748425
+43,    Other receipts,794.340006
+44,Total deductions,17377.094489
+45,    Cost of goods sold,10612.969409
+46,    Compensation of officers,158.105544
+47,    Salaries and wages,1718.480543
+48,    Repairs,108.533156
+49,    Bad debts,106.58982
+50,    Rent paid on business property,239.56553
+51,    Taxes paid,336.881904
+52,    Interest paid,491.881251
+53,    Charitable contributions,16.567776
+54,    Amortization,137.485009
+55,    Depreciation,462.642342
+56,    Depletion,16.896597
+57,    Advertising,190.415204
+58,"    Pension, profit sharing, stock, annuity",105.889974
+59,    Employee benefit programs,239.126789
+60,    Domestic production activities deduction,33.89626
+61,"    Net loss, noncapital assets",19.558391
+62,    Other deductions,2381.608989
+63,Total receipts less total deductions,1356.926576
+64,Constructive taxable income from related foreign corporations,146.79246
+65,Net income,1479.670755
+66,Income subject to tax,1257.462578
+67,Total income tax before credits [8],441.15788
+68,    Income tax,436.984928
+69,    Alternative minimum tax,3.970248
+70,Foreign tax credit,118.086352
+71,General business credit,27.722828
+72,Prior year minimum tax credit,1.998761
+73,Total income tax after credits [2],292.904406
+74,"Endnotes at end of table section.  Detail may not add to total because of rounding.  See text for ""Explanation of Terms"" and ""Description of the Sample and Limitations of the Data.""",
