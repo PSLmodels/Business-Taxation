@@ -48,21 +48,54 @@ class Corporation():
         Creates the initial forecast for earnings. Static only.
         """
         # Grab forecasts of profit growth
-        earnings_forecast = np.asarray(self.data.gfactors['profit_d'])
-        # 2013 value for domestic earnings
-        earnings13 = np.asarray(self.data.historical_taxdata['ebitda13'])[-1]
-        foreigninc13 = np.asarray(self.data.historical_taxdata['foreign_taxinc'])[-1]
-        domesticinc13 = earnings13 - foreigninc13
-        # Forecast new domestic earnings
-        self.dearnings = earnings_forecast[1:] / earnings_forecast[0] * domesticinc13
-        # Save total real earnings
-        self.earnings = self.dearnings + self.dmne.dmne_results['foreign_inc']
+        earnings_forecast = np.asarray(self.data.gfactors['profit'])
+        gfacts = earnings_forecast[1:] / earnings_forecast[0]
+        # 2013 values for non-modeled revenues
+        taxitems = np.array(self.data.corp_tax2013['amount'])
+        receipts = taxitems[33] * gfacts
+        rent_inc = taxitems[36] * gfacts
+        royalties = taxitems[37] * gfacts
+        capgains = taxitems[38] + taxitems[39] + taxitems[40] * gfacts
+        domestic_divs = taxitems[41] * gfacts
+        other_recs = taxitems[43] * gfacts
+        # 2013 values for non-modeled deductions and credits
+        cogs = taxitems[45] * gfacts
+        execcomp = taxitems[46] * gfacts
+        wages = taxitems[47] * gfacts
+        repairs = taxitems[48] * gfacts
+        baddebt = taxitems[49] * gfacts
+        rent_paid = taxitems[50] * gfacts
+        statelocaltax = taxitems[51] * gfacts
+        charity = taxitems[53] * gfacts
+        amortization = taxitems[54] * gfacts
+        depletion = taxitems[56] * gfacts
+        advertising = taxitems[57] * gfacts
+        pensions = taxitems[58] * gfacts
+        benefits = taxitems[59] * gfacts
+        nolded = taxitems[61] * gfacts
+        other_ded = taxitems[62] * gfacts
+        gbc = taxitems[71] * gfacts
+        # Save unodeled tax items
+        self.revenues = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
+                                      'receipts': receipts, 'rent': rent_inc,
+                                      'royalties': royalties, 'capgains': capgains,
+                                      'domestic_divs': domestic_divs, 'other': other_recs})
+        self.deductions = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
+                                        'cogs': cogs, 'execcomp': execcomp, 'wages': wages,
+                                        'repairs': repairs, 'baddebt': baddebt,
+                                        'rent': rent_paid, 'statelocaltax': statelocaltax,
+                                        'charity': charity, 'amortization': amortization,
+                                        'depletion': depletion, 'advertising': advertising,
+                                        'pensions': pensions, 'benefits': benefits,
+                                        'nol': nolded, 'other': other_ded})
+        self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1), 'gbc': gbc})
 
     def file_taxes(self):
         """
         Creates the CorpTaxReturn object.
         """
-        self.taxreturn = CorpTaxReturn(self.btax_params, self.dearnings,
+        self.taxreturn = CorpTaxReturn(self.btax_params, self.revenues,
+                                       self.deductions, self.credits,
                                        dmne=self.dmne, data=self.data,
                                        assets=self.asset, debts=self.debt)
         self.taxreturn.calc_all()
@@ -81,8 +114,19 @@ class Corporation():
             Net income
             Cash flow
         """
-        real_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
-                                     'Earnings': self.earnings})
+
+        real_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1)})
+        real_results['Earnings'] = (self.revenues['receipts'] + self.revenues['rent']
+                                    + self.revenues['royalties'] + self.revenues['capgains']
+                                    + self.revenues['domestic_divs'] + self.revenues['other']
+                                    - self.deductions['cogs'] - self.deductions['execcomp']
+                                    - self.deductions['wages'] - self.deductions['repairs']
+                                    - self.deductions['baddebt'] - self.deductions['rent']
+                                    - self.deductions['charity'] - self.deductions['depletion']
+                                    - self.deductions['advertising'] - self.deductions['pensions']
+                                    - self.deductions['benefits'] - self.deductions['other']
+                                    + self.dmne.dmne_results['foreign_directinc']
+                                    + self.dmne.dmne_results['foreign_indirectinc'])
         real_results['Kstock'] = self.asset.get_forecast()
         real_results['Inv'] = self.asset.get_investment()
         real_results['Depr'] = self.asset.get_truedep()
@@ -92,10 +136,14 @@ class Corporation():
         real_results['NetInc'] = (real_results['Earnings']
                                   - real_results['Depr']
                                   - real_results['NIP']
-                                  - real_results['Tax'])
+                                  - real_results['Tax']
+                                  - self.dmne.dmne_results['foreign_tax']
+                                  - self.deductions['statelocaltax'])
         real_results['CashFlow'] = (real_results['Earnings']
                                     - real_results['Inv']
-                                    - real_results['Tax'])
+                                    - real_results['Tax']
+                                    - self.dmne.dmne_results['foreign_tax']
+                                    - self.deductions['statelocaltax'])
         self.real_results = real_results
 
     def calc_static(self):
@@ -152,8 +200,7 @@ class Corporation():
         for iyr in range(NUM_YEARS):
             deltaE[iyr] = changeEarnings[:, iyr].sum()
         # Update new earnings
-        self.dearnings = (self.dearnings + deltaE) * self.data.rescale_corp
-        self.earnings = self.dearnings + self.dmne.dmne_results['foreign_inc']
+        self.revenues['receipts'] = self.revenues['receipts'] + deltaE
 
     def update_debt(self, responses):
         """
