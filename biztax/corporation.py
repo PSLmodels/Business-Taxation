@@ -51,7 +51,7 @@ class Corporation():
         earnings_forecast = np.asarray(self.data.gfactors['profit'])
         gfacts = earnings_forecast[1:] / earnings_forecast[0]
         # 2013 values for non-modeled revenues
-        taxitems = np.array(self.data.corp_tax2013['amount'])
+        taxitems = np.array(self.data.corp_tax2013['ALL'])
         receipts = taxitems[33] * gfacts
         rent_inc = taxitems[36] * gfacts
         royalties = taxitems[37] * gfacts
@@ -72,6 +72,7 @@ class Corporation():
         advertising = taxitems[57] * gfacts
         pensions = taxitems[58] * gfacts
         benefits = taxitems[59] * gfacts
+        sec199_base = taxitems[60] * gfacts
         nolded = taxitems[61] * gfacts
         other_ded = taxitems[62] * gfacts
         gbc = taxitems[71] * gfacts
@@ -87,6 +88,7 @@ class Corporation():
                                         'charity': charity, 'amortization': amortization,
                                         'depletion': depletion, 'advertising': advertising,
                                         'pensions': pensions, 'benefits': benefits,
+                                        'sec199': sec199_base,
                                         'nol': nolded, 'other': other_ded})
         self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1), 'gbc': gbc})
 
