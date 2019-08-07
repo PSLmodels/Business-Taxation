@@ -111,17 +111,29 @@ class BusinessModel():
         # Get net income results for the pass-throughs
         netinc_ptbase = copy.deepcopy(self.passthru_base.netinc_results)
         netinc_ptref = copy.deepcopy(self.passthru_ref.netinc_results)
-        multipliers['SchC_pos'] = netinc_ptref['SchC_pos'] / netinc_ptbase['SchC_pos']
-        multipliers['SchC_neg'] = netinc_ptref['SchC_neg'] / netinc_ptbase['SchC_neg']
-        multipliers['e26270_pos'] = (netinc_ptref['partner_pos'] + netinc_ptref['Scorp_pos']) / (netinc_ptbase['partner_pos'] + netinc_ptbase['Scorp_pos'])
-        multipliers['e26270_neg'] = (netinc_ptref['partner_neg'] + netinc_ptref['Scorp_neg']) / (netinc_ptbase['partner_neg'] + netinc_ptbase['Scorp_neg'])
+        multipliers['SchC_pos'] = (netinc_ptref['SchC_pos']
+                                   / netinc_ptbase['SchC_pos'])
+        multipliers['SchC_neg'] = (netinc_ptref['SchC_neg']
+                                   / netinc_ptbase['SchC_neg'])
+        multipliers['e26270_pos'] = ((netinc_ptref['partner_pos']
+                                      + netinc_ptref['Scorp_pos']) /
+                                     (netinc_ptbase['partner_pos']
+                                      + netinc_ptbase['Scorp_pos']))
+        multipliers['e26270_neg'] = ((netinc_ptref['partner_neg']
+                                      + netinc_ptref['Scorp_neg']) /
+                                     (netinc_ptbase['partner_neg']
+                                      + netinc_ptbase['Scorp_neg']))
         # Corporate interest share of all interest
         # Note: interest income not distributed to debtholders (yet)
         corpshare_totalint = 1.0
-        multipliers['debt'] = (1 + (self.corp_ref.real_results['NIP'] / self.corp_base.real_results['NIP'] - 1) * corpshare_totalint)
+        multipliers['debt'] = (1 + (self.corp_ref.real_results['NIP'] /
+                                    self.corp_base.real_results['NIP'] - 1.)
+                               * corpshare_totalint)
         # Add recale results
-        multipliers['rescale_corp'] = self.corp_ref.data.rescale_corp / self.corp_base.data.rescale_corp
-        multipliers['rescale_noncorp'] = self.corp_ref.data.rescale_noncorp / self.corp_base.data.rescale_noncorp
+        multipliers['rescale_corp'] = (self.corp_ref.data.rescale_corp /
+                                       self.corp_base.data.rescale_corp)
+        multipliers['rescale_noncorp'] = (self.corp_ref.data.rescale_noncorp /
+                                          self.corp_base.data.rescale_noncorp)
         # Save multipliers
         self.multipliers = multipliers
 

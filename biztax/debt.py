@@ -157,7 +157,8 @@ class Debt():
         """
         Calculates interest income, interest paid and net interest paid.
         """
-        self.int_income = np.array(self.debt_asset_history) * np.array(self.i_a)
+        self.int_income = (np.array(self.debt_asset_history)
+                           * np.array(self.i_a))
         int_expense = np.zeros(68)
         for i in range(1, 68):
             for j in range(i+1):
@@ -187,8 +188,8 @@ class Debt():
                 if j + HISTORY_START >= self.haircuts['id_hc_newyear'][i-54]:
                     # If originated after "new" haircut, apply haircut
                     hctouse = max(hctouse, self.haircuts['id_hc_new'][i-54])
-                int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j) *
-                                  self.i_l[j] * (1 - hctouse))
+                int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j)
+                                  * self.i_l[j] * (1 - hctouse))
         NID_gross = int_expded - int_income
         # Get (contemporary) NID haircut
         nid_hc = np.zeros(68)

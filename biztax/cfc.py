@@ -58,7 +58,8 @@ class CFC():
         self.foreigntax = self.ftaxrate * self.earnings
         GILTI_inc = (self.earnings - self.subpartF
                      - self.ppe * np.asarray(self.btax_params['GILTI_thd']))
-        GILTI_tinc = GILTI_inc * np.asarray(self.btax_params['cfcinc_inclusion'])
+        GILTI_tinc = (GILTI_inc *
+                      np.asarray(self.btax_params['cfcinc_inclusion']))
         self.GILTI_tinc = GILTI_tinc
 
     def repatriate_accumulate(self):
@@ -85,7 +86,8 @@ class CFC():
             repatriations[i] = reprate_accum[i] * accum[i]
             # Compute new accumulated profits
             accum[i+1] = (accum[i] + self.earnings[i] - self.subpartF[i]
-                          - repatriations[i] - dividends[i] * (1 + self.ftaxrate[i]))
+                          - repatriations[i]
+                          - dividends[i] * (1 + self.ftaxrate[i]))
         self.dividends = dividends
         self.repatriations = repatriations
         self.accumulated_profits = accum[1:]
@@ -112,12 +114,10 @@ class CFC():
         reprate_e = np.asarray(self.cfc_data['reprate_e'])
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            reprate_e = np.minimum(np.maximum(reprate_e + update_df['reprate_e'], 0), 1.)
+            reprate_e = np.minimum(np.maximum(reprate_e +
+                                              update_df['reprate_e'],
+                                              0.), 1.)
             self.cfc_data['reprate_e'] = reprate_e
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
             self.cfc_data['reprate_e'] = self.cfc_data['reprate_e']
-
-
-
-

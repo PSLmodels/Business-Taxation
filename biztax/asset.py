@@ -397,12 +397,14 @@ class Asset():
         else:
             capital_df1 = copy.deepcopy(self.data.capital_noncorp)
         capital_df1.rename(columns={'asset_code': 'Code'}, inplace=True)
-        capital_df2 = capital_df1.merge(right=self.data.econ_depr_df(), how='outer', on='Code')
+        capital_df2 = capital_df1.merge(right=self.data.econ_depr_df(),
+                                        how='outer', on='Code')
         trueDep_df = copy.deepcopy(self.data.econ_depr_df())
         pcelist = np.asarray(self.data.investmentGfactors_data['pce'])
         for year in range(START_YEAR, END_YEAR + 1):
             trueDep_df[str(year)] = capital_df2[str(year)] * trueDep_df['delta']
-            capital_df2[str(year + 1)] = ((capital_df2[str(year)] - trueDep_df[str(year)]
+            capital_df2[str(year + 1)] = ((capital_df2[str(year)]
+                                           - trueDep_df[str(year)]
                                            + self.investment_history[str(year)])
                                           * pcelist[year-HISTORY_START+1]
                                           / pcelist[year-HISTORY_START])
