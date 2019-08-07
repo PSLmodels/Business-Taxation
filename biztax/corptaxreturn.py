@@ -74,22 +74,33 @@ class CorpTaxReturn():
             self.debts = Debt(btax_params, assets_forecast)
             self.debts.calc_all()
         # Prepare unmodeled components of tax return
-        self.revenues['total'] = (self.revenues['receipts'] + self.revenues['rent']
-                                  + self.revenues['royalties'] + self.revenues['capgains']
-                                  + self.revenues['domestic_divs'] + self.revenues['other']
+        self.revenues['total'] = (self.revenues['receipts']
+                                  + self.revenues['rent']
+                                  + self.revenues['royalties']
+                                  + self.revenues['capgains']
+                                  + self.revenues['domestic_divs']
+                                  + self.revenues['other']
                                   + self.dmne.dmne_results['foreign_taxinc'])
         # self.revenues.to_csv('revenues.csv')
-        self.deductions['total'] = (self.deductions['cogs'] + self.deductions['execcomp']
-                                    + self.deductions['wages'] + self.deductions['repairs']
-                                    + self.deductions['baddebt'] + self.deductions['rent']
-                                    + self.deductions['statelocaltax'] + self.deductions['charity']
-                                    + self.deductions['amortization'] + self.deductions['depletion']
-                                    + self.deductions['advertising'] + self.deductions['pensions']
-                                    + self.deductions['benefits'] + self.deductions['nol']
+        self.deductions['total'] = (self.deductions['cogs']
+                                    + self.deductions['execcomp']
+                                    + self.deductions['wages']
+                                    + self.deductions['repairs']
+                                    + self.deductions['baddebt']
+                                    + self.deductions['rent']
+                                    + self.deductions['statelocaltax']
+                                    + self.deductions['charity']
+                                    + self.deductions['amortization']
+                                    + self.deductions['depletion']
+                                    + self.deductions['advertising']
+                                    + self.deductions['pensions']
+                                    + self.deductions['benefits']
+                                    + self.deductions['nol']
                                     + self.deductions['other'])
         # self.deductions.to_csv('deductions.csv')
         combined = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
-                                 'ebitda': self.revenues['total'] - self.deductions['total']})
+                                 'ebitda': (self.revenues['total'] -
+                                            self.deductions['total'])})
         # Add tax depreciation and net interest deductions
         combined['taxDep'] = self.assets.get_taxdep()
         combined['nid'] = self.debts.get_nid()
@@ -135,10 +146,11 @@ class CorpTaxReturn():
         """
         Calculates taxable income and tax before credits.
         """
-        self.combined_return['taxinc'] = np.maximum(self.combined_return['ebitda'] -
-                                                    self.combined_return['taxDep'] -
-                                                    self.combined_return['nid'] -
-                                                    self.combined_return['sec199'], 0.)
+        netinc1 = (self.combined_return['ebitda'] -
+                   self.combined_return['taxDep'] -
+                   self.combined_return['nid'] -
+                   self.combined_return['sec199'])
+        self.combined_return['taxinc'] = np.maximum(netinc1, 0.)
         self.combined_return['tau'] = self.btax_params['tau_c']
         self.combined_return['taxbc'] = (self.combined_return['taxinc'] *
                                          self.combined_return['tau'])
@@ -167,12 +179,15 @@ class CorpTaxReturn():
         P = np.zeros(NUM_YEARS)
         stockA = np.zeros(NUM_YEARS + 1)
         stockN = np.zeros(NUM_YEARS + 1)
-        stockA[0] = ((self.data.trans_amt1 * self.data.userate_pymtc + self.data.trans_amt2 *
-                      (1 - self.data.userate_pymtc)) / (1 - self.data.trans_amt1) * self.data.stock2014)
+        stockA[0] = ((self.data.trans_amt1 * self.data.userate_pymtc +
+                     self.data.trans_amt2 * (1 - self.data.userate_pymtc)) /
+                     (1 - self.data.trans_amt1) * self.data.stock2014)
         stockN[0] = self.data.stock2014 - stockN[0]
-        stockN[0] = (1 - self.data.trans_amt1) / (1 - self.data.trans_amt1 + self.data.trans_amt1 *
-                                                  self.data.userate_pymtc + self.data.trans_amt2 *
-                                                  (1 - self.data.userate_pymtc)) * self.data.stock2014
+        stockN[0] = ((1 - self.data.trans_amt1) /
+                     (1 - self.data.trans_amt1 +
+                     self.data.trans_amt1 * self.data.userate_pymtc +
+                     self.data.trans_amt2 * (1 - self.data.userate_pymtc))
+                     * self.data.stock2014)
         stockA[0] = self.data.stock2014 - stockN[0]
         for iyr in range(NUM_YEARS):
             # Calculate AMT
@@ -224,11 +239,12 @@ class CorpTaxReturn():
         """
         self.combined_return['gbc'] = self.credits['gbc']
         # Calculate final tax liability
-        self.combined_return['taxrev'] = np.maximum(self.combined_return['taxbc'] +
-                                                    self.combined_return['amt'] -
-                                                    self.combined_return['ftc'] -
-                                                    self.combined_return['pymtc'] -
-                                                    self.combined_return['gbc'], 0.)
+        taxliab1 = (self.combined_return['taxbc'] +
+                    self.combined_return['amt'] -
+                    self.combined_return['ftc'] -
+                    self.combined_return['pymtc'] -
+                    self.combined_return['gbc'])
+        self.combined_return['taxrev'] = np.maximum(taxliab1, 0.)
 
     def calc_all(self):
         """

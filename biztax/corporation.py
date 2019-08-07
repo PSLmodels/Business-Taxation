@@ -78,19 +78,31 @@ class Corporation():
         gbc = taxitems[71] * gfacts
         # Save unodeled tax items
         self.revenues = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
-                                      'receipts': receipts, 'rent': rent_inc,
-                                      'royalties': royalties, 'capgains': capgains,
-                                      'domestic_divs': domestic_divs, 'other': other_recs})
+                                      'receipts': receipts,
+                                      'rent': rent_inc,
+                                      'royalties': royalties,
+                                      'capgains': capgains,
+                                      'domestic_divs': domestic_divs,
+                                      'other': other_recs})
         self.deductions = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
-                                        'cogs': cogs, 'execcomp': execcomp, 'wages': wages,
-                                        'repairs': repairs, 'baddebt': baddebt,
-                                        'rent': rent_paid, 'statelocaltax': statelocaltax,
-                                        'charity': charity, 'amortization': amortization,
-                                        'depletion': depletion, 'advertising': advertising,
-                                        'pensions': pensions, 'benefits': benefits,
+                                        'cogs': cogs,
+                                        'execcomp': execcomp,
+                                        'wages': wages,
+                                        'repairs': repairs,
+                                        'baddebt': baddebt,
+                                        'rent': rent_paid,
+                                        'statelocaltax': statelocaltax,
+                                        'charity': charity,
+                                        'amortization': amortization,
+                                        'depletion': depletion,
+                                        'advertising': advertising,
+                                        'pensions': pensions,
+                                        'benefits': benefits,
                                         'sec199': sec199_base,
-                                        'nol': nolded, 'other': other_ded})
-        self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1), 'gbc': gbc})
+                                        'nol': nolded,
+                                        'other': other_ded})
+        self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
+                                     'gbc': gbc})
 
     def file_taxes(self):
         """
@@ -118,15 +130,24 @@ class Corporation():
         """
 
         real_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1)})
-        real_results['Earnings'] = (self.revenues['receipts'] + self.revenues['rent']
-                                    + self.revenues['royalties'] + self.revenues['capgains']
-                                    + self.revenues['domestic_divs'] + self.revenues['other']
-                                    - self.deductions['cogs'] - self.deductions['execcomp']
-                                    - self.deductions['wages'] - self.deductions['repairs']
-                                    - self.deductions['baddebt'] - self.deductions['rent']
-                                    - self.deductions['charity'] - self.deductions['depletion']
-                                    - self.deductions['advertising'] - self.deductions['pensions']
-                                    - self.deductions['benefits'] - self.deductions['other']
+        real_results['Earnings'] = (self.revenues['receipts']
+                                    + self.revenues['rent']
+                                    + self.revenues['royalties']
+                                    + self.revenues['capgains']
+                                    + self.revenues['domestic_divs']
+                                    + self.revenues['other']
+                                    - self.deductions['cogs']
+                                    - self.deductions['execcomp']
+                                    - self.deductions['wages']
+                                    - self.deductions['repairs']
+                                    - self.deductions['baddebt']
+                                    - self.deductions['rent']
+                                    - self.deductions['charity']
+                                    - self.deductions['depletion']
+                                    - self.deductions['advertising']
+                                    - self.deductions['pensions']
+                                    - self.deductions['benefits']
+                                    - self.deductions['other']
                                     + self.dmne.dmne_results['foreign_directinc']
                                     + self.dmne.dmne_results['foreign_indirectinc'])
         real_results['Kstock'] = self.asset.get_forecast()
@@ -197,7 +218,8 @@ class Corporation():
             ystr = str(iyr + START_YEAR)
             mpk = np.array(responses.investment_response['MPKc' + ystr])
             for i in range(95):  # by asset
-                changeEarnings[i, iyr] = (Kstock_ref[ystr][i] - Kstock_base[ystr][i]) * mpk[i]
+                changeEarnings[i, iyr] = (Kstock_ref[ystr][i] -
+                                          Kstock_base[ystr][i]) * mpk[i]
         deltaE = np.zeros(NUM_YEARS)
         for iyr in range(NUM_YEARS):
             deltaE[iyr] = changeEarnings[:, iyr].sum()

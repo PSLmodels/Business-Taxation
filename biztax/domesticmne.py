@@ -5,13 +5,14 @@ from biztax.years import START_YEAR, END_YEAR, NUM_YEARS
 from biztax.data import Data
 from biztax.cfc import CFC
 
+
 class DomesticMNE():
     """
     Constructor for the DomesticMNE class.
     This contains information for source of profits and foreign taxes for
     domestic-headquartered multinational enterprises.
     """
-    
+
     def __init__(self, btax_params, data=None):
         # Store policy parameter object
         if isinstance(btax_params, pd.DataFrame):
@@ -73,7 +74,6 @@ class DomesticMNE():
         repattinc = self.repatinc * np.asarray(self.btax_params['foreign_repatriation_inclusion'])
         self.taxinc = (divtinc + grosstax + repattinc
                        + self.cfc.subpartF + self.cfc.GILTI_tinc)
-        
 
     def calcFTC(self):
         """
@@ -117,9 +117,10 @@ class DomesticMNE():
         self.taxable_earnings()
         self.calcFTC()
         # Store results in DataFrame
-        self.dmne_results = pd.DataFrame({'year': range(2014,2028),
+        self.dmne_results = pd.DataFrame({'year': range(2014, 2028),
                                           'foreign_directinc': self.otherinc,
-                                          'foreign_indirectinc': self.divinc + self.cfc.subpartF,
+                                          'foreign_indirectinc': (self.divinc +
+                                                                  self.cfc.subpartF),
                                           'foreign_tax': self.foreigntax,
                                           'foreign_taxinc': self.taxinc,
                                           'ftc': self.ftc})
@@ -130,7 +131,7 @@ class DomesticMNE():
         Not yet built.
         """
         return None
-    
+
     def update_profits(self, repat_response):
         """
         Updates location of profits based on profit-shifting response and

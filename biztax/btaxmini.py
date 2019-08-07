@@ -198,9 +198,11 @@ class BtaxMini():
         # Calculate for fist (half) year
         Dlist = [bonus + (1 - bonus) * self.calc_D_econ(delta, r, 0, 0.5)]
         for j in range(1, length-1):
-            Dlist.append((1 - bonus) * self.calc_D_econ(delta, r, j-0.5, j+0.5))
+            Dlist.append((1 - bonus) *
+                         self.calc_D_econ(delta, r, j-0.5, j+0.5))
         # Calculate from last period to infinity
-        Dlist.append((1 - bonus) * self.calc_D_econ(delta, r, length-1-0.5, 9e99))
+        Dlist.append((1 - bonus) *
+                     self.calc_D_econ(delta, r, length-1-0.5, 9e99))
         return Dlist
 
     def calc_D_dbsl(self, N, L, r, pi, a, b):
@@ -228,7 +230,8 @@ class BtaxMini():
         elif b <= t2:
             if a < t1:
                 # If period splits exponential and straight-line depreciation
-                Ddb = (N / L / (r + pi + N / L) * np.exp(-(r + pi + N / L) * a) *
+                Ddb = (N / L / (r + pi + N / L) *
+                       np.exp(-(r + pi + N / L) * a) *
                        (1 - np.exp(-(r + pi + N / L) * (t1 - a))))
                 if r + pi == 0:
                     # Special case of zero nominal discount rate
@@ -448,7 +451,8 @@ class BtaxMini():
         P = p / (r + delta)
         Tlist = np.asarray(self.calc_Tlist(tdict, length))
         Nlist = np.asarray(self.calc_Ilist(delta, r, length))
-        Dlist = np.asarray(self.calc_Dlist(method, life, delta, r, pi, bonus, length))
+        Dlist = np.asarray(self.calc_Dlist(method, life, delta,
+                                           r, pi, bonus, length))
         Flist = np.asarray(self.calc_Flist(f, r, rd, delta, fracded, length))
         A = sum(Dlist * Tlist)
         F = sum(Flist * Tlist)

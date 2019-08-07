@@ -139,9 +139,11 @@ class Data():
                                   'Residential equipment'])
         code = np.append(code, ['RR10', 'RR20', 'RR30', 'RR40'])
         delta = np.append(delta, [delta[96], delta[96], delta[96], delta[36]])
-        df_econdepr2 = pd.DataFrame({'Asset': asset, 'Code': code, 'delta': delta})
+        df_econdepr2 = pd.DataFrame({'Asset': asset, 'Code': code,
+                                     'delta': delta})
         # Drop nonbusiness categories, land and inventories
-        df_econdepr2.drop([28, 36, 56, 89, 90, 96, 97, 98], axis=0, inplace=True)
+        df_econdepr2.drop([28, 36, 56, 89, 90, 96, 97, 98],
+                          axis=0, inplace=True)
         df_econdepr2.reset_index(drop=True, inplace=True)
         return df_econdepr2
 

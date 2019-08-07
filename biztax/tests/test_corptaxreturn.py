@@ -46,7 +46,8 @@ def test_instantiation_and_update_methods(clp_params_df):
         CorpTaxReturn(good_btax_params, Corp.revenues,
                       Corp.deductions, Corp.credits, debts=bad_debts)
     # test update_* methods
-    ctr = CorpTaxReturn(good_btax_params, Corp.revenues, Corp.deductions, Corp.credits)
+    ctr = CorpTaxReturn(good_btax_params, Corp.revenues,
+                        Corp.deductions, Corp.credits)
     assert isinstance(ctr, CorpTaxReturn)
     ctr.update_assets(good_assets)
     with pytest.raises(ValueError):

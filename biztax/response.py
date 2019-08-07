@@ -136,12 +136,22 @@ class Response():
         # Compare results to produce the responses
         for year in years:
             ystr = str(year)
-            maindata['deltaIc' + ystr] = (((results_ref['u_c' + ystr] / results_base['u_c' + ystr] - 1) * elast_c +
-                                           (results_ref['eatr_c' + ystr] - results_base['eatr_c' + ystr]) * selast_c * mne_share_c))
-            maindata['deltaInc' + ystr] = (((results_ref['u_nc' + ystr] / results_base['u_nc' + ystr] - 1) * elast_nc +
-                                            (results_ref['eatr_nc' + ystr] - results_base['eatr_nc' + ystr]) * selast_nc * mne_share_nc))
-            maindata['MPKc' + ystr] = (results_ref['u_c' + ystr] + results_base['u_c' + ystr]) / 2.0
-            maindata['MPKnc' + ystr] = (results_ref['u_nc' + ystr] + results_base['u_nc' + ystr]) / 2.0
+            maindata['deltaIc' + ystr] = (((results_ref['u_c' + ystr]
+                                            / results_base['u_c' + ystr] - 1)
+                                           * elast_c +
+                                           (results_ref['eatr_c' + ystr]
+                                            - results_base['eatr_c' + ystr])
+                                           * selast_c * mne_share_c))
+            maindata['deltaInc' + ystr] = (((results_ref['u_nc' + ystr]
+                                             / results_base['u_nc' + ystr] - 1)
+                                            * elast_nc +
+                                            (results_ref['eatr_nc' + ystr]
+                                             - results_base['eatr_nc' + ystr])
+                                            * selast_nc * mne_share_nc))
+            maindata['MPKc' + ystr] = (results_ref['u_c' + ystr]
+                                       + results_base['u_c' + ystr]) / 2.0
+            maindata['MPKnc' + ystr] = (results_ref['u_nc' + ystr]
+                                        + results_base['u_nc' + ystr]) / 2.0
         # Save the responses
         self.investment_response = copy.deepcopy(maindata)
 
@@ -231,8 +241,8 @@ class Response():
             if i + 2014 >= self.elasticities['first_year_response']:
                 reprate_ch[i] = reprate_ref[i] - reprate_base[i]
         repat_response = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
-                                    'reprate_e': reprate_ch,
-                                    'reprate_a': np.zeros(14)})
+                                       'reprate_e': reprate_ch,
+                                       'reprate_a': np.zeros(14)})
         self.repatriation_response = repat_response
 
     def _calc_legal_response(self, btax_params_base, btax_params_ref):
@@ -258,7 +268,8 @@ class Response():
         tau_e_ref = btax_params_ref['tau_e']
         taxterm_base = (tau_c_base + tau_e_base - tau_c_base * tau_e_base -
                         tau_nc_base)
-        taxterm_ref = tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref - tau_nc_ref
+        taxterm_ref = (tau_c_ref + tau_e_ref - tau_c_ref * tau_e_ref
+                       - tau_nc_ref)
         legalshift = elast_list * (taxterm_ref - taxterm_base)
         # business activity shares
         earnings_c = combined_base['ebitda']

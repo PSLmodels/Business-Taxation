@@ -69,7 +69,8 @@ class Investor():
         inc3 = np.abs(incdict['SchEpassive'])
         inc4 = incdict['definc']
         wgt = incdict['wgt']
-        mtr_ft = (sum((mtr1 * inc1 + mtr2 * inc2 + mtr3 * inc3) * posti * wgt) /
+        mtr_ft = (sum((mtr1 * inc1 + mtr2 * inc2
+                       + mtr3 * inc3) * posti * wgt) /
                   sum((inc1 + inc2 + inc3) * posti * wgt))
         mtr_td = sum(mtr4 * inc4 * posti * wgt) / sum(inc4 * posti * wgt)
         mtr_nc = alpha_nc_ft * mtr_ft + alpha_nc_td * mtr_td
