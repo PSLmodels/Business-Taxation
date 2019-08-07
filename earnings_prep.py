@@ -23,7 +23,7 @@ taxfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, '13co13ccr.xls'))
 data1 = pd.read_excel(taxfile, header=6)
 data1.to_csv('taxdata_temp.csv')
 data2 = data1.filter(items=['Unnamed: 0', 1])
-data2.rename(columns={'Unnamed: 0': 'item', 1: 'amount'},
+data2.rename(columns={'Unnamed: 0': 'item', 1: 'ALL'},
              inplace=True)
 data3 = copy.deepcopy(data2)
 data3['amount'] = data2['amount'] / 10**6

@@ -127,12 +127,8 @@ class CorpTaxReturn():
         """
         # Extract relevant parmeters
         s199_hclist = np.array(self.btax_params['sec199_hc'])
-        profit = np.asarray(self.data.gfactors['profit_d'])
-        sec199_res = np.zeros(NUM_YEARS)
-        sec199_2013 = np.asarray(self.data.historical_taxdata['sec199'])[-1]
-        for iyr in range(NUM_YEARS):
-            sec199_res[iyr] = (profit[iyr + 1] / profit[0] * sec199_2013
-                               * (1 - s199_hclist[iyr]))
+        sec199_base = np.asarray(self.deductions['sec199'])
+        sec199_res = sec199_base * (1. - s199_hclist)
         self.combined_return['sec199'] = sec199_res
 
     def calcInitialTax(self):
