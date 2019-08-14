@@ -13,7 +13,7 @@ import pandas as pd
 import copy
 import os
 
-RAW_DATA_PATH = 'data_prep/'
+RAW_DATA_PATH = 'data_prep/historical_corp/'
 OUTPUT_PATH = 'biztax/brc_data/'
 
 # Import Excel file
