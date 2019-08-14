@@ -14,7 +14,7 @@ from biztax.asset import Asset
 from biztax.policy import Policy
 from biztax.years import START_YEAR, HISTORY_START
 
-RAW_DATA_PATH = 'data_prep/'
+RAW_DATA_PATH = 'data_prep/historical_bea/'
 OUTPUT_PATH = 'biztax/brc_data/'
 
 # Import Excel files

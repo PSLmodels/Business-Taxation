@@ -18,7 +18,7 @@ from biztax.policy import Policy
 from biztax.cfc import CFC
 from biztax.years import START_YEAR, END_YEAR, NUM_YEARS, HISTORY_START
 
-RAW_DATA_PATH = 'data_prep/'
+RAW_DATA_PATH = 'data_prep/international/'
 OUTPUT_PATH = 'biztax/brc_data/'
 
 # Import all Excel files
