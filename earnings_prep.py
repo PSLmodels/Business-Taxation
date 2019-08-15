@@ -21,10 +21,11 @@ taxfile = pd.ExcelFile(os.path.join(RAW_DATA_PATH, '13co13ccr.xls'))
 
 # Read data from the Excel file
 data1 = pd.read_excel(taxfile, header=6)
-data1.to_csv('taxdata_temp.csv')
 data2 = data1.filter(items=['Unnamed: 0', 1])
 data2.rename(columns={'Unnamed: 0': 'item', 1: 'ALL'},
              inplace=True)
 data3 = copy.deepcopy(data2)
-data3['amount'] = data2['amount'] / 10**6
+data3['ALL'] = data2['ALL'] / 10**6
+# Replace dividends from domestic corporations with actual ones
+data3.loc[41, 'ALL'] = data3.loc[41, 'ALL'] / 0.3
 data3.to_csv(OUTPUT_PATH + 'corp_taxreturn_2013.csv', index=False)
