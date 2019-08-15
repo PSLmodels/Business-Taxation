@@ -78,7 +78,8 @@ class CorpTaxReturn():
                                   + self.revenues['rent']
                                   + self.revenues['royalties']
                                   + self.revenues['capgains']
-                                  + self.revenues['domestic_divs']
+                                  + (self.revenues['domestic_divs'] *
+                                     self.btax_params['domestic_dividend_inclusion'])
                                   + self.revenues['other']
                                   + self.dmne.dmne_results['foreign_taxinc'])
         # self.revenues.to_csv('revenues.csv')

@@ -1,4 +1,4 @@
-item,amount
+item,ALL
 Number of returns,0.819232
 Total assets,53231.245211
     Cash,3485.276383
@@ -40,7 +40,7 @@ Total receipts,18734.021065
     Net short-term capital gain reduced by net long-term capital loss,6.389228
     Net long-term capital gain reduced by net short-term capital loss,117.770296
 "    Net gain, noncapital assets",63.951654
-    Dividends received from domestic corporations,23.778323
+    Dividends received from domestic corporations,79.26107666666667
     Dividends received from foreign corporations,118.748425
     Other receipts,794.340006
 Total deductions,17377.094489
