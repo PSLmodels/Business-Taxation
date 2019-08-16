@@ -83,11 +83,9 @@ class Data():
         adj_factors = Data.read_csv('adjfactors.csv')
         self.param_amt = adj_factors['param_amt'].values[0]
         self.amt_frac = adj_factors['amt_frac'].values[0]
-        self.totaluserate_pymtc = adj_factors['totaluserate_pymtc'].values[0]
         self.userate_pymtc = adj_factors['userate_pymtc'].values[0]
+        self.trans_amt0 = adj_factors['trans_amt0'].values[0]
         self.trans_amt1 = adj_factors['trans_amt1'].values[0]
-        self.trans_amt2 = adj_factors['trans_amt2'].values[0]
-        self.stock2014 = adj_factors['stock2014'].values[0]
         self.adjfactor_ftc_corp = adj_factors['ftc'].values[0]
         self.adjfactor_int_corp = adj_factors['int_corp'].values[0]
         self.adjfactor_int_noncorp = adj_factors['int_noncorp'].values[0]

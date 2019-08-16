@@ -36,13 +36,14 @@ def calcAMTparams2():
     amt = np.array(hist_data['amt'])
     pymtc = np.array(hist_data['pymtc'])
     stock = np.zeros(len(amt))
-    stock[15] = 26.0
+    stock13 = 26.0
+    A13 = 4.196871
     tau_a = 0.2
     tau_c = 0.347
-    # Expand model backward based on defined value of stock in 2013 (26.0)
-    for i in range(15):
-        stock[14-i] = stock[15-i] + pymtc[14-i] - amt[14-i]
-    eta = sum([pymtc[i] / stock[i] for i in range(16)]) / 16.
+    pi0 = 0.865
+    pi1 = 0.494
+    gamma = (A13 * (2. - pi0 - pi1) /
+             (stock13 * (1. - pi1) + A13 * (1. - pi0 - pi1)))
     A_over_TI = sum([amt[i] / taxinc[i] for i in range(16)]) / 16.
     # Calculate solution to AMT parameter
 
@@ -55,12 +56,8 @@ def calcAMTparams2():
     lamf = scipy.optimize.minimize_scalar(amterr,
                                           bounds=(0.001, 100),
                                           method='bounded').x
-    alpha = 0.494
     theta = np.exp(-lamf * (tau_c / tau_a - 1))
-    beta = (1 - alpha) * theta / (1 - theta)
-    gamma = eta * (1 - alpha + beta) / (1 - alpha - eta * alpha + eta * beta)
-    stock2014 = stock[15] + amt[15] - pymtc[15]
-    return (lamf, theta, eta, gamma, alpha, beta, stock2014)
+    return (lamf, theta, gamma, pi1, pi0)
 
 
 def calcWAvgTaxRate(year):
@@ -192,11 +189,9 @@ intshare_partner_neginc = ((data1.partner_data['intpaid_total'][19]
 # Save the adjustment factors and pass-through shares
 adj_factors = {'param_amt': all_amt_params[0],
                'amt_frac': all_amt_params[1],
-               'totaluserate_pymtc': all_amt_params[2],
-               'userate_pymtc': all_amt_params[3],
-               'trans_amt1': all_amt_params[4],
-               'trans_amt2': all_amt_params[5],
-               'stock2014': all_amt_params[6],
+               'userate_pymtc': all_amt_params[2],
+               'trans_amt1': all_amt_params[3],
+               'trans_amt0': all_amt_params[4],
                'ftc': adjfactor_ftc_corp,
                'int_corp': adjfactor_int_corp,
                'int_noncorp': adjfactor_int_noncorp}
