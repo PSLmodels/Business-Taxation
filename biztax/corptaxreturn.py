@@ -167,6 +167,11 @@ class CorpTaxReturn():
         Calculates the AMT revenue and PYMTC for [START_YEAR, END_YEAR]
         pymtc_status: 0 for no change, 1 for repeal, 2 for refundable
         """
+        # Overall transition rates and parameters
+        trans_amt0 = self.data.trans_amt0
+        trans_amt1 = self.data.trans_amt1
+        userate =self.data.userate_pymtc
+        amt2013 = self.data.corp_tax2013.loc[69, 'ALL']
         # Get relevant tax information
         taxinc = np.array(self.combined_return['taxinc'])
         amt_rates = np.array(self.btax_params['tau_amt'])
@@ -178,56 +183,56 @@ class CorpTaxReturn():
         # Create empty arrays for AMT, PYMTC, and stocks (by status)
         A = np.zeros(NUM_YEARS)
         P = np.zeros(NUM_YEARS)
-        stockA = np.zeros(NUM_YEARS + 1)
-        stockN = np.zeros(NUM_YEARS + 1)
-        stockA[0] = ((self.data.trans_amt1 * self.data.userate_pymtc +
-                     self.data.trans_amt2 * (1 - self.data.userate_pymtc)) /
-                     (1 - self.data.trans_amt1) * self.data.stock2014)
-        stockN[0] = self.data.stock2014 - stockN[0]
-        stockN[0] = ((1 - self.data.trans_amt1) /
-                     (1 - self.data.trans_amt1 +
-                     self.data.trans_amt1 * self.data.userate_pymtc +
-                     self.data.trans_amt2 * (1 - self.data.userate_pymtc))
-                     * self.data.stock2014)
-        stockA[0] = self.data.stock2014 - stockN[0]
+        stock0 = np.zeros(NUM_YEARS + 1)
+        stock1 = np.zeros(NUM_YEARS + 1)
+        # Set initial stocks using steady-state equations
+        stock0[0] = amt2013 / userate
+        stock1[0] = amt2013 * (trans_amt1 / (1. - trans_amt1) +
+                               (1. - userate) / userate *
+                               (1. - trans_amt0) / (1. - trans_amt1))
         for iyr in range(NUM_YEARS):
             # Calculate AMT
             if amt_rates[iyr] == 0.:
                 # If no AMT
                 A[iyr] = 0.
                 frac_amt = 0.
+                # Update transition rate parameters
+                pi0 = 1.
+                pi1 = 0.
             elif ctax_rates[iyr] <= amt_rates[iyr]:
                 # If AMT rate exceeds regular rate (all subject to AMT)
                 A[iyr] = ((amt_rates[iyr] - ctax_rates[iyr]
                            + amt_rates[iyr] / self.data.param_amt)
                           * taxinc[iyr])
                 frac_amt = 0.999
+                # Update transition rate parameters
+                pi0 = 0.
+                pi1 = 1.
             else:
                 A[iyr] = (amt_rates[iyr] / self.data.param_amt *
                           np.exp(-self.data.param_amt
                                  * (ctax_rates[iyr] / amt_rates[iyr] - 1))
                           * taxinc[iyr])
+                # Compute new fraction subject to AMT
                 frac_amt = np.exp(-self.data.param_amt
                                   * (ctax_rates[iyr] / amt_rates[iyr] - 1))
-            # Adjust transition params for change in AMT frequency
-            alpha = max(0.0, min(1.0,
-                                 (self.data.trans_amt1
-                                  * (frac_amt / self.data.amt_frac) ** 0.5)))
-            beta = (1 - alpha) * frac_amt / (1 - frac_amt)
+                # Adjust transition params for change in AMT frequency
+                pi1 = max(min(self.data.trans_amt1 * (frac_amt / self.data.amt_frac) ** 0.5, 1.), 0.)
+                pi0 = max(min(1. - frac_amt * (1 - pi1) / (1 - frac_amt), 1.), 0.)
             if pymtc_status[iyr] == 0:
                 # No change from baseline
-                userate = self.data.userate_pymtc
+                P[iyr] = stock0[iyr] * userate
             elif pymtc_status[iyr] == 1:
                 # PYMTC repealed
-                userate = 0.0
+                P[iyr] = 0.
             else:
                 # PYMTC made fully refundable
-                userate = 1.0
-            P[iyr] = userate * stockN[iyr]
-            stockA[iyr+1] = (alpha * (stockA[iyr] + A[iyr]) +
-                             beta * (stockN[iyr] - P[iyr]))
-            stockN[iyr+1] = ((1 - alpha) * (stockA[iyr] + A[iyr]) +
-                             (1 - beta) * (stockN[iyr] - P[iyr]))
+                P[iyr] = stock0[iyr]
+            # Update credits carried forward
+            stock0[iyr+1] = ((stock1[iyr] + A[iyr]) * (1. - pi1)
+                             + (stock0[iyr] - P[iyr]) * pi0)
+            stock1[iyr+1] = ((stock1[iyr] + A[iyr]) * pi1
+                             + (stock0[iyr] - P[iyr]) * (1. - pi0))
         # Rescale for any cross-sector shifting
         amt_final = A * self.data.rescale_corp
         pymtc_final = P * self.data.rescale_corp
