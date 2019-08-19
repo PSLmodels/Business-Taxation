@@ -63,6 +63,9 @@ class Data():
         self.bonus_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'bonus_data.csv'))
         # Debt data
+        self.debt_data = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'debt_history.csv'))
+        self.debt_forecast = Data.read_csv('debt_forecast.csv')
         self.debt_data_corp = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'corp_debt_data.csv'))
         self.debt_data_noncorp = Data.read_csv(
@@ -87,8 +90,6 @@ class Data():
         self.trans_amt0 = adj_factors['trans_amt0'].values[0]
         self.trans_amt1 = adj_factors['trans_amt1'].values[0]
         self.adjfactor_ftc_corp = adj_factors['ftc'].values[0]
-        self.adjfactor_int_corp = adj_factors['int_corp'].values[0]
-        self.adjfactor_int_noncorp = adj_factors['int_noncorp'].values[0]
         # Read in pass-through shares
         passthru_factors = Data.read_csv('passthru_shares.csv')
         self.depshare_scorp_posinc = passthru_factors['dep_scorp_pos'].values[0]

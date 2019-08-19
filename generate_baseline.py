@@ -34,8 +34,6 @@ def calcAMTparams2():
     hist_data = copy.deepcopy(data1.historical_combined)
     taxinc = np.array(hist_data['taxinc'])
     amt = np.array(hist_data['amt'])
-    pymtc = np.array(hist_data['pymtc'])
-    stock = np.zeros(len(amt))
     stock13 = 26.0
     A13 = 4.196871
     tau_a = 0.2
@@ -125,9 +123,7 @@ def calcIDAdjustment(corp, eta=0.4):
 all_amt_params = calcAMTparams2()
 # Calculate the FTC adjustment parameters
 adjfactor_ftc_corp = calcFTCAdjustment()
-# Calculate the interest adjustment parameters
-adjfactor_int_corp = calcIDAdjustment(True)
-adjfactor_int_noncorp = calcIDAdjustment(False)
+
 
 
 """
@@ -192,9 +188,7 @@ adj_factors = {'param_amt': all_amt_params[0],
                'userate_pymtc': all_amt_params[2],
                'trans_amt1': all_amt_params[3],
                'trans_amt0': all_amt_params[4],
-               'ftc': adjfactor_ftc_corp,
-               'int_corp': adjfactor_int_corp,
-               'int_noncorp': adjfactor_int_noncorp}
+               'ftc': adjfactor_ftc_corp}
 passthru_factors = {'dep_scorp_pos': depshare_scorp_posinc,
                     'dep_scorp_neg': depshare_scorp_neginc,
                     'dep_sp_pos': depshare_sp_posinc,

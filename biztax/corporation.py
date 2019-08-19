@@ -52,30 +52,30 @@ class Corporation():
         gfacts = earnings_forecast[1:] / earnings_forecast[0]
         # 2013 values for non-modeled revenues
         taxitems = np.array(self.data.corp_tax2013['ALL'])
-        receipts = taxitems[33] * gfacts
-        rent_inc = taxitems[36] * gfacts
-        royalties = taxitems[37] * gfacts
-        capgains = taxitems[38] + taxitems[39] + taxitems[40] * gfacts
-        domestic_divs = taxitems[41] * gfacts
-        other_recs = taxitems[43] * gfacts
+        receipts = taxitems[4] * gfacts
+        rent_inc = taxitems[7] * gfacts
+        royalties = taxitems[8] * gfacts
+        capgains = (taxitems[9] + taxitems[10] + taxitems[11]) * gfacts
+        domestic_divs = taxitems[12] * gfacts
+        other_recs = taxitems[14] * gfacts
         # 2013 values for non-modeled deductions and credits
-        cogs = taxitems[45] * gfacts
-        execcomp = taxitems[46] * gfacts
-        wages = taxitems[47] * gfacts
-        repairs = taxitems[48] * gfacts
-        baddebt = taxitems[49] * gfacts
-        rent_paid = taxitems[50] * gfacts
-        statelocaltax = taxitems[51] * gfacts
-        charity = taxitems[53] * gfacts
-        amortization = taxitems[54] * gfacts
-        depletion = taxitems[56] * gfacts
-        advertising = taxitems[57] * gfacts
-        pensions = taxitems[58] * gfacts
-        benefits = taxitems[59] * gfacts
-        sec199_base = taxitems[60] * gfacts
-        nolded = taxitems[61] * gfacts
-        other_ded = taxitems[62] * gfacts
-        gbc = taxitems[71] * gfacts
+        cogs = taxitems[16] * gfacts
+        execcomp = taxitems[17] * gfacts
+        wages = taxitems[18] * gfacts
+        repairs = taxitems[19] * gfacts
+        baddebt = taxitems[20] * gfacts
+        rent_paid = taxitems[21] * gfacts
+        statelocaltax = taxitems[22] * gfacts
+        charity = taxitems[24] * gfacts
+        amortization = taxitems[25] * gfacts
+        depletion = taxitems[27] * gfacts
+        advertising = taxitems[28] * gfacts
+        pensions = taxitems[29] * gfacts
+        benefits = taxitems[30] * gfacts
+        sec199_base = taxitems[31] * gfacts
+        nolded = taxitems[32] * gfacts
+        other_ded = taxitems[33] * gfacts
+        gbc = taxitems[42] * gfacts
         # Save unodeled tax items
         self.revenues = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                       'receipts': receipts,
