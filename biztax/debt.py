@@ -11,7 +11,6 @@ class Debt():
     This class includes several objects related to debt:
         debt history:
             record from 1960 - END_YEAR of debt-related measures:
-                K_fa: assets (financial accounts)
                 A: debt assets
                 L: debt liabilities
                 i_t: T-bond interest rates
@@ -52,10 +51,10 @@ class Debt():
             else:
                 raise ValueError('Wrong response')
         if corp:
-            self.delta = (np.array(self.data.econ_defaults['f_c'])
+            self.delta = (np.array(self.data.debt_forecast['f_c_l'])
                           * (1 + self.response))
         else:
-            self.delta = (np.array(self.data.econ_defaults['f_nc'])
+            self.delta = (np.array(self.data.debt_forecast['f_nc_l'])
                           * (1 + self.response))
         if len(asset_forecast) == NUM_YEARS:
             self.asset_forecast = asset_forecast
@@ -91,35 +90,33 @@ class Debt():
         """
         Constructs the debt level history from 1960 to 2016.
         """
-        # Grab historical records for 1960-2016
+        # Grab historical records for 1960-2014
         if self.corp:
-            K_fa = self.data.debt_data_corp['Kfa'][:57].tolist()
-            A = self.data.debt_data_corp['A'][:57].tolist()
-            L = self.data.debt_data_corp['L'][:57].tolist()
-            D = [L[i] - A[i] for i in range(len(L))]
-            i_t = self.data.debt_data_corp['i_t'].tolist()
-            i_pr = self.data.debt_data_corp['i_pr'].tolist()
+            At = self.data.debt_data['At_c'].tolist()
+            An = self.data.debt_data['An_c'].tolist()
+            L = self.data.debt_data['L_c'].tolist()
         else:
-            K_fa = self.data.debt_data_noncorp['Kfa'][:57].tolist()
-            A = [0] * 57
-            L = self.data.debt_data_noncorp['L'][:57].tolist()
-            D = [L[i] - A[i] for i in range(len(L))]
-            i_t = self.data.debt_data_noncorp['i_t'].tolist()
-            i_pr = self.data.debt_data_noncorp['i_pr'].tolist()
-        # Extend for 2017-2027
-        for i in range(57, 68):
-            K_fa.append(K_fa[56] * self.asset_forecast[i-54] /
-                        self.asset_forecast[2])
-            A.append(A[56] * K_fa[i] / K_fa[56])
-            D.append(D[56] * K_fa[i] / K_fa[56] *
-                     self.delta[i-54] / self.delta[2])
-            L.append(D[i] + A[i])
+            At = [0] * 55
+            An = [0] * 55
+            L = self.data.debt_data['L_nc'].tolist()
+        D = [L[i] - At[i] - An[i] for i in range(len(L))]
+        i_t = self.data.debt_data['i_t'].tolist()
+        i_pr = self.data.debt_data['i_pr'].tolist()
+        # Extend for 2015-2027
+        At.extend(At[54] * self.asset_forecast[1:] / self.asset_forecast[0])
+        An.extend(An[54] * self.asset_forecast[1:] / self.asset_forecast[0])
+        D.extend(D[54] * self.asset_forecast[1:] / self.asset_forecast[0]
+                 * self.delta[1:] / self.delta[0])
+        L = [D[i] + At[i] + An[i] for i in range(len(D))]
+        i_t.extend(self.data.debt_forecast['i_t'][1:])
+        i_pr.extend([i_pr[54]] * 13)
         # Save level histories
         self.net_debt_history = D
-        self.debt_asset_history = A
+        self.debt_asset_history = At
+        self.muni_asset_history = An
         self.debt_liab_history = L
-        self.i_a = [x / 100. for x in i_t]
-        self.i_l = [(i_t[i] + i_pr[i]) / 100. for i in range(len(i_t))]
+        self.i_a = i_t
+        self.i_l = i_t + i_pr
 
     def build_flow_history(self):
         """
@@ -141,7 +138,8 @@ class Debt():
               values of eta.
         """
         if min(self.originations) < 0.:
-            A = copy.deepcopy(self.debt_asset_history)
+            At = copy.deepcopy(self.debt_asset_history)
+            An = copy.deepcopy(self.muni_asset_history)
             L_opt = copy.deepcopy(self.debt_liab_history)
             L = np.zeros(68)
             L[0] = L_opt[0]
@@ -151,14 +149,16 @@ class Debt():
                 L[i] = L[i-1] * (1 - self.eta) + O[i]
             self.debt_liab_history = L
             self.originations = O
-            self.net_debt_history = L + A
+            self.net_debt_history = L - At - An
 
     def calc_real_interest(self):
         """
-        Calculates interest income, interest paid and net interest paid.
+        Calculates interest income and interest paid.
         """
         self.int_income = (np.array(self.debt_asset_history)
                            * np.array(self.i_a))
+        self.muni_income = (np.array(self.muni_asset_history)
+                            * np.array(self.i_a))
         int_expense = np.zeros(68)
         for i in range(1, 68):
             for j in range(i+1):
@@ -207,15 +207,11 @@ class Debt():
 
         WARNING: May need to include rescale_corp and rescale_noncorp
         """
-        if self.corp:
-            adjfactor = self.data.adjfactor_int_corp
-        else:
-            adjfactor = self.data.adjfactor_int_noncorp
-        debt = np.array(self.net_debt_history[54:68]) * adjfactor
+        debt = np.array(self.net_debt_history[54:68])
         nip = np.array(self.int_expense[54:68]
-                       - self.int_income[54:68]) * adjfactor
+                       - self.int_income[54:68] - self.muni_income[54:68])
         nid = np.array(self.int_expded[54:68]
-                       - self.int_income[54:68]) * adjfactor
+                       - self.int_income[54:68])
         NID_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                     'nid': nid,
                                     'nip': nip,

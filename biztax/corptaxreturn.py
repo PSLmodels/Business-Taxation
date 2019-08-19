@@ -171,7 +171,7 @@ class CorpTaxReturn():
         trans_amt0 = self.data.trans_amt0
         trans_amt1 = self.data.trans_amt1
         userate =self.data.userate_pymtc
-        amt2013 = self.data.corp_tax2013.loc[69, 'ALL']
+        amt2013 = self.data.corp_tax2013.loc[40, 'ALL']
         # Get relevant tax information
         taxinc = np.array(self.combined_return['taxinc'])
         amt_rates = np.array(self.btax_params['tau_amt'])
