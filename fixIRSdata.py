@@ -90,12 +90,13 @@ industry_column3 = {'ALL': [1],
                     'ARTS': [82],
                     'ACCM': [86],
                     'OTHS': [88]}
-cols = ['Unnamed: 0']
+
+col1 = ['Unnamed: 0']
 col2 = ['Unnamed: 0']
 col3 = ['Unnamed: 0']
 
 for ind in industry_list:
-    cols.extend(industry_column1[ind])
+    col1.extend(industry_column1[ind])
     col2.extend(industry_column2[ind])
     col3.extend(industry_column3[ind])
 
@@ -137,7 +138,7 @@ dc13a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc13a.drop([0, 74], axis=0, inplace=True)
 # Remove unwanted columns
-dc13b = dc13a.filter(items=cols)
+dc13b = dc13a.filter(items=col1)
 # Remove unacceptable characters
 dc13b.replace('[1]', 0., inplace=True)
 dc13b.replace('*', '', inplace=True)
@@ -169,7 +170,7 @@ dc12a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc12a.drop([0, 74, 75], axis=0, inplace=True)
 # Remove unwanted columns
-dc12b = dc12a.filter(items=cols)
+dc12b = dc12a.filter(items=col1)
 # Remove unacceptable characters
 dc12b.replace('[1]', 0., inplace=True)
 dc12b.replace('*', '', inplace=True)
@@ -200,7 +201,7 @@ dc11a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc11a.drop([0, 74, 75], axis=0, inplace=True)
 # Remove unwanted columns
-dc11b = dc11a.filter(items=cols)
+dc11b = dc11a.filter(items=col1)
 # Remove unacceptable characters
 dc11b.replace('[1]', 0., inplace=True)
 dc11b.replace('*', '', inplace=True)
@@ -230,7 +231,7 @@ dc10a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc10a.drop([0, 74, 75], axis=0, inplace=True)
 # Remove unwanted columns
-dc10b = dc10a.filter(items=cols)
+dc10b = dc10a.filter(items=col1)
 # Remove unacceptable characters
 dc10b.replace('[1]', 0., inplace=True)
 dc10b.replace('*', '', inplace=True)
@@ -260,7 +261,7 @@ dc09a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc09a.drop([0, 74, 75], axis=0, inplace=True)
 # Remove unwanted columns
-dc09b = dc09a.filter(items=cols)
+dc09b = dc09a.filter(items=col1)
 # Remove unacceptable characters
 dc09b.replace('[1]', 0., inplace=True)
 dc09b.replace('*', '', inplace=True)
@@ -290,7 +291,7 @@ dc08a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=Tru
 # Drop other unwanted lines
 dc08a.drop([0, 74, 75], axis=0, inplace=True)
 # Remove unwanted columns
-dc08b = dc08a.filter(items=cols)
+dc08b = dc08a.filter(items=col1)
 # Remove unacceptable characters
 dc08b.replace('[1]', 0., inplace=True)
 dc08b.replace('*', '', inplace=True)
@@ -607,6 +608,451 @@ dc00d.to_csv(RAW_DATA_PATH + 'corp2000.csv', index=False)
 
 
 
+"""
+SECTION 2. S CORPORATION DATA
+"""
+RAW_DATA_PATH = 'data_prep/historical_scorp/'
+OUTPUT_PATH = 'biztax/brc_data/'
+taxitems = ['Cash', 'Inventories', 'Land',
+            'Total receipts','Business receipts', 
+            'Net gain, noncapital assets', 'Other receipts',
+            'Total deductions',  'Cost of goods sold',
+            'Compensation of officers', 'Salaries and wages',
+            'Repairs', 'Bad debts', 'Rent paid on business property',
+            'Taxes paid', 'Interest paid',
+            'Amortization', 'Depreciation', 'Depletion',
+            'Advertising',
+            'Pension, profit sharing, stock, annuity', 'Employee benefit programs',
+            'Net loss, noncapital assets', 'Other deductions',
+            'Total receipts less total deductions', 'Net income']
 
+# Read in the file for 2013
+ds13a = pd.read_excel(RAW_DATA_PATH + '13co07s.xls', header=6)
+# Drop unwanted asset lines
+ds13a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds13a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds13a.drop([0, 1, 32, 35, 57, 58, 59, 60], axis=0, inplace=True)
+# Remove unwanted columns
+ds13b = ds13a.filter(items=col1)
+# Remove unacceptable characters
+ds13b.replace('[1]', 0., inplace=True)
+ds13b.replace('*', '', inplace=True)
+ds13b.replace('d', 0., inplace=True)
+ds13b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds13b) == len(taxitems)
+ds13b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds13c = ds13b.astype(float)
+ds13c['items'] = taxitems
+# Select the desired industries
+ds13d = ds13c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds13c[col]
+    ds13d[ind] = ser1 / 10**6
+ds13d.to_csv(RAW_DATA_PATH + 'scorp2013.csv', index=False)
+
+# Read in the file for 2012
+ds12a = pd.read_excel(RAW_DATA_PATH + '12co07s.xls', header=12)
+# Drop unwanted asset lines
+ds12a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds12a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds12a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds12b = ds12a.filter(items=col1)
+# Remove unacceptable characters
+ds12b.replace('[1]', 0., inplace=True)
+ds12b.replace('*', '', inplace=True)
+ds12b.replace('d', 0., inplace=True)
+ds12b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds12b) == len(taxitems)
+ds12b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds12c = ds12b.astype(float)
+ds12c['items'] = taxitems
+# Select the desired industries
+ds12d = ds12c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds12c[col]
+    ds12d[ind] = ser1 / 10**6
+ds12d.to_csv(RAW_DATA_PATH + 'scorp2012.csv', index=False)
+
+# Read in the file for 2011
+ds11a = pd.read_excel(RAW_DATA_PATH + '11co07s.xls', header=12)
+# Drop unwanted asset lines
+ds11a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds11a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds11a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds11b = ds11a.filter(items=col1)
+# Remove unacceptable characters
+ds11b.replace('[1]', 0., inplace=True)
+ds11b.replace('*', '', inplace=True)
+ds11b.replace('d', 0., inplace=True)
+ds11b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds11b) == len(taxitems)
+ds11b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds11c = ds11b.astype(float)
+ds11c['items'] = taxitems
+# Select the desired industries
+ds11d = ds11c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds11c[col]
+    ds11d[ind] = ser1 / 10**6
+ds11d.to_csv(RAW_DATA_PATH + 'scorp2011.csv', index=False)
+
+# Read in the file for 2010
+ds10a = pd.read_excel(RAW_DATA_PATH + '10co07s.xls', header=11)
+# Drop unwanted asset lines
+ds10a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds10a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds10a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds10b = ds10a.filter(items=col1)
+# Remove unacceptable characters
+ds10b.replace('[1]', 0., inplace=True)
+ds10b.replace('*', '', inplace=True)
+ds10b.replace('d', 0., inplace=True)
+ds10b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds10b) == len(taxitems)
+ds10b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds10c = ds10b.astype(float)
+ds10c['items'] = taxitems
+# Select the desired industries
+ds10d = ds10c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds10c[col]
+    ds10d[ind] = ser1 / 10**6
+ds10d.to_csv(RAW_DATA_PATH + 'scorp2010.csv', index=False)
+
+# Read in the file for 2009
+ds09a = pd.read_excel(RAW_DATA_PATH + '09co07s.xls', header=12)
+# Drop unwanted asset lines
+ds09a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds09a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds09a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds09b = ds09a.filter(items=col1)
+# Remove unacceptable characters
+ds09b.replace('[1]', 0., inplace=True)
+ds09b.replace('*', '', inplace=True)
+ds09b.replace('d', 0., inplace=True)
+ds09b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds09b) == len(taxitems)
+ds09b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds09c = ds09b.astype(float)
+ds09c['items'] = taxitems
+# Select the desired industries
+ds09d = ds09c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds09c[col]
+    ds09d[ind] = ser1 / 10**6
+ds09d.to_csv(RAW_DATA_PATH + 'scorp2009.csv', index=False)
+
+# Read in the file for 2008
+ds08a = pd.read_excel(RAW_DATA_PATH + '08co07s.xls', header=12)
+# Drop unwanted asset lines
+ds08a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds08a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds08a.drop([0, 1, 34, 56, 57, 58], axis=0, inplace=True)
+# Remove unwanted columns
+ds08b = ds08a.filter(items=col1)
+# Remove unacceptable characters
+ds08b.replace('[1]', 0., inplace=True)
+ds08b.replace('*', '', inplace=True)
+ds08b.replace('d', 0., inplace=True)
+ds08b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds08b) == len(taxitems)
+ds08b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds08c = ds08b.astype(float)
+ds08c['items'] = taxitems
+# Select the desired industries
+ds08d = ds08c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds08c[col]
+    ds08d[ind] = ser1 / 10**6
+ds08d.to_csv(RAW_DATA_PATH + 'scorp2008.csv', index=False)
+
+# Read in the file for 2007
+ds07a = pd.read_excel(RAW_DATA_PATH + '07co07s.xls', header=13)
+# Drop unwanted asset lines
+ds07a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds07a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds07a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds07b = ds07a.filter(items=col1)
+# Remove unacceptable characters
+ds07b.replace('[1]', 0., inplace=True)
+ds07b.replace('*', '', inplace=True)
+ds07b.replace('d', 0., inplace=True)
+ds07b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds07b) == len(taxitems)
+ds07b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds07c = ds07b.astype(float)
+ds07c['items'] = taxitems
+# Select the desired industries
+ds07d = ds07c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column1[ind]:
+        ser1 += ds07c[col]
+    ds07d[ind] = ser1 / 10**6
+ds07d.to_csv(RAW_DATA_PATH + 'scorp2007.csv', index=False)
+
+# Read in the file for 2006
+ds06a = pd.read_excel(RAW_DATA_PATH + '06co07s.xls', header=12)
+# Drop unwanted asset lines
+ds06a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds06a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds06a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds06b = ds06a.filter(items=col2)
+# Remove unacceptable characters
+ds06b.replace('[1]', 0., inplace=True)
+ds06b.replace(r'\*', '', regex=True, inplace=True)
+ds06b.replace('d', 0., inplace=True)
+ds06b.replace('-', 0., inplace=True)
+ds06b.replace(r'\,', '', regex=True, inplace=True)
+ds06b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds06b) == len(taxitems)
+ds06b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds06c = ds06b.astype(float)
+ds06c['items'] = taxitems
+# Select the desired industries
+ds06d = ds06c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column2[ind]:
+        ser1 += ds06c[col]
+    ds06d[ind] = ser1 / 10**6
+ds06d.to_csv(RAW_DATA_PATH + 'scorp2006.csv', index=False)
+
+# Read in the file for 2005
+ds05a = pd.read_excel(RAW_DATA_PATH + '05co1120s07.xls', header=12)
+# Drop unwanted asset lines
+ds05a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds05a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds05a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds05b = ds05a.filter(items=col2)
+# Remove unacceptable characters
+ds05b.replace('[1]', 0., inplace=True)
+ds05b.replace(r'\*', '', regex=True, inplace=True)
+ds05b.replace('d', 0., inplace=True)
+ds05b.replace('-', 0., inplace=True)
+ds05b.replace(r'\,', '', regex=True, inplace=True)
+ds05b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds05b) == len(taxitems)
+ds05b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds05c = ds05b.astype(float)
+ds05c['items'] = taxitems
+# Select the desired industries
+ds05d = ds05c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column2[ind]:
+        ser1 += ds05c[col]
+    ds05d[ind] = ser1 / 10**6
+ds05d.to_csv(RAW_DATA_PATH + 'scorp2005.csv', index=False)
+
+# Read in the file for 2004
+ds04a = pd.read_excel(RAW_DATA_PATH + '04co14ccr.xls', header=12)
+# Drop unwanted asset lines
+ds04a.drop([2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds04a.drop([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], axis=0, inplace=True)
+# Drop other unwanted lines
+ds04a.drop([0, 1, 34, 56, 57, 58, 59], axis=0, inplace=True)
+# Remove unwanted columns
+ds04b = ds04a.filter(items=col2)
+# Remove unacceptable characters
+ds04b.replace('[1]', 0., inplace=True)
+ds04b.replace(r'\*', '', regex=True, inplace=True)
+ds04b.replace('d', 0., inplace=True)
+ds04b.replace('-', 0., inplace=True)
+ds04b.replace(r'\,', '', regex=True, inplace=True)
+ds04b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds04b) == len(taxitems)
+ds04b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds04c = ds04b.astype(float)
+ds04c['items'] = taxitems
+# Select the desired industries
+ds04d = ds04c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column2[ind]:
+        ser1 += ds04c[col]
+    ds04d[ind] = ser1 / 10**6
+ds04d.to_csv(RAW_DATA_PATH + 'scorp2004.csv', index=False)
+
+# Read in the file for 2003
+ds03a = pd.read_excel(RAW_DATA_PATH + '03co14bs.xls', header=12)
+# Drop unwanted asset lines
+ds03a.drop([1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds03a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], axis=0, inplace=True)
+# Drop other unwanted lines
+ds03a.drop([0, 35, 36, 52, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68], axis=0, inplace=True)
+# Remove unwanted columns
+ds03b = ds03a.filter(items=col2)
+# Remove unacceptable characters
+ds03b.replace('[1]', 0., inplace=True)
+ds03b.replace(r'\*', '', regex=True, inplace=True)
+ds03b.replace('d', 0., inplace=True)
+ds03b.replace('-', 0., inplace=True)
+ds03b.replace(r'\,', '', regex=True, inplace=True)
+ds03b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds03b) == len(taxitems)
+ds03b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds03c = ds03b.astype(float)
+ds03c['items'] = taxitems
+# Select the desired industries
+ds03d = ds03c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column2[ind]:
+        ser1 += ds03c[col]
+    ds03d[ind] = ser1 / 10**6
+ds03d.to_csv(RAW_DATA_PATH + 'scorp2003.csv', index=False)
+
+# Read in the file for 2002
+ds02a = pd.read_excel(RAW_DATA_PATH + '02co14bs.xls', header=12)
+# Drop unwanted asset lines
+ds02a.drop([1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds02a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], axis=0, inplace=True)
+# Drop other unwanted lines
+ds02a.drop([0, 35, 36, 52, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68], axis=0, inplace=True)
+# Remove unwanted columns
+ds02b = ds02a.filter(items=col2)
+# Remove unacceptable characters
+ds02b.replace('[1]', 0., inplace=True)
+ds02b.replace(r'\*\*\*', 0., regex=True, inplace=True)
+ds02b.replace(r'\*', '', regex=True, inplace=True)
+ds02b.replace('d', 0., inplace=True)
+ds02b.replace('-', 0., inplace=True)
+ds02b.replace(r'\,', '', regex=True, inplace=True)
+ds02b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds02b) == len(taxitems)
+ds02b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds02c = ds02b.astype(float)
+ds02c['items'] = taxitems
+# Select the desired industries
+ds02d = ds02c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column2[ind]:
+        ser1 += ds02c[col]
+    ds02d[ind] = ser1 / 10**6
+ds02d.to_csv(RAW_DATA_PATH + 'scorp2002.csv', index=False)
+
+# Read in the file for 2001
+ds01a = pd.read_excel(RAW_DATA_PATH + '01co14bs.xls', header=12, nrows=62)
+# Drop unwanted asset lines
+ds01a.drop([1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds01a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], axis=0, inplace=True)
+# Drop other unwanted lines
+ds01a.drop([0, 35, 36, 51, 58, 59, 60, 61], axis=0, inplace=True)
+# Remove unwanted columns
+ds01b = ds01a.filter(items=col3)
+# Remove unacceptable characters
+ds01b.replace('[1]', 0., inplace=True)
+ds01b.replace(r'\*\*\*', 0., regex=True, inplace=True)
+ds01b.replace(r'\*', '', regex=True, inplace=True)
+ds01b.replace('d', 0., inplace=True)
+ds01b.replace('-', 0., inplace=True)
+ds01b.replace(r'\,', '', regex=True, inplace=True)
+ds01b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+ds01b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds01c1 = ds01b.astype(float)
+# Insert missing salary data
+ds01c2 = copy.deepcopy(ds01c1.iloc[:10])
+newrow = pd.DataFrame(np.zeros((1,len(col3)-1)), columns=col3[1:])
+ds01c3 = ds01c2.append(newrow, ignore_index=True)
+ds01c4 = copy.deepcopy(ds01c1.iloc[10:])
+ds01c5 = ds01c3.append(ds01c4, ignore_index=True)
+assert len(ds01c5) == len(taxitems)
+ds01c5['items'] = taxitems
+# Select the desired industries
+ds01d = ds01c5.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column3[ind]:
+        ser1 += ds01c5[col]
+    ds01d[ind] = ser1 / 10**6
+ds01d.to_csv(RAW_DATA_PATH + 'scorp2001.csv', index=False)
+
+# Read in the file for 2000
+ds00a = pd.read_excel(RAW_DATA_PATH + '00co14bs.xls', header=12, nrows=62)
+ds00a.drop([1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19], axis=0, inplace=True)
+# Drop unwanted liability lines
+ds00a.drop([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33], axis=0, inplace=True)
+# Drop other unwanted lines
+ds00a.drop([0, 36, 37, 53, 60, 61], axis=0, inplace=True)
+# Remove unwanted columns
+ds00a.rename({-5: 5}, axis=1, inplace=True)
+ds00b = ds00a.filter(items=col3)
+# Remove unacceptable characters
+ds00b.replace('[1]', 0., inplace=True)
+ds00b.replace(r'\*\*\*', 0., regex=True, inplace=True)
+ds00b.replace(r'\*', '', regex=True, inplace=True)
+ds00b.replace('d', 0., inplace=True)
+ds00b.replace('-', 0., inplace=True)
+ds00b.replace(r'\,', '', regex=True, inplace=True)
+ds00b.reset_index(inplace=True, drop=True)
+# Ensure everything in float format
+assert len(ds00b) == len(taxitems)
+ds00b.drop(['Unnamed: 0'], axis=1, inplace=True)
+ds00c = ds00b.astype(float)
+ds00c['items'] = taxitems
+# Select the desired industries
+ds00d = ds00c.filter(items=['items'])
+for ind in industry_list:
+    ser1 = np.zeros(len(taxitems))
+    for col in industry_column3[ind]:
+        ser1 += ds00c[col]
+    ds00d[ind] = ser1 / 10**6
+ds00d.to_csv(RAW_DATA_PATH + 'scorp2000.csv', index=False)
 
 
