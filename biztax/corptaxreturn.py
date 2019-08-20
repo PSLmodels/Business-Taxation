@@ -96,7 +96,7 @@ class CorpTaxReturn():
                                     + self.deductions['advertising']
                                     + self.deductions['pensions']
                                     + self.deductions['benefits']
-                                    + self.deductions['nol']
+                                    + self.deductions['noncaploss']
                                     + self.deductions['other'])
         # self.deductions.to_csv('deductions.csv')
         combined = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
