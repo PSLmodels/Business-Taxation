@@ -76,7 +76,7 @@ def reforms():
         'depr_39yr_method': {2017: 'ADS'},
         'depr_39yr_bonus': {2017: 0.2},
         'tau_amt': {2017: 0.0},
-        'pymtc_status': {2017: 1},
+        'pymtc_hc': {2017: 1.0},
         # 2018 provisions:
         'netIntPaid_corp_hc': {2018: 0.5},
         'sec199_rt': {2018: 0.045},
