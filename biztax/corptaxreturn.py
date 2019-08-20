@@ -74,15 +74,21 @@ class CorpTaxReturn():
             self.debts = Debt(btax_params, assets_forecast)
             self.debts.calc_all()
         # Prepare unmodeled components of tax return
+        self.revenues['capgains'] = (self.revenues['capgains'] *
+                                     (1. - self.btax_params['capgains_corp_hc']))
+        self.revenues['domestic_divs'] = (self.revenues['domestic_divs'] *
+                                          self.btax_params['domestic_dividend_inclusion'])
         self.revenues['total'] = (self.revenues['receipts']
                                   + self.revenues['rent']
                                   + self.revenues['royalties']
                                   + self.revenues['capgains']
-                                  + (self.revenues['domestic_divs'] *
-                                     self.btax_params['domestic_dividend_inclusion'])
+                                  + self.revenues['domestic_divs']
                                   + self.revenues['other']
                                   + self.dmne.dmne_results['foreign_taxinc'])
-        # self.revenues.to_csv('revenues.csv')
+        self.deductions['charity'] = (self.deductions['charity'] *
+                                      (1. - self.btax_params['charity_hc']))
+        self.deductions['statelocaltax'] = (self.deductions['statelocaltax'] *
+                                            (1. - self.btax_params['statelocaltax_hc']))
         self.deductions['total'] = (self.deductions['cogs']
                                     + self.deductions['execcomp']
                                     + self.deductions['wages']
@@ -98,13 +104,11 @@ class CorpTaxReturn():
                                     + self.deductions['benefits']
                                     + self.deductions['noncaploss']
                                     + self.deductions['other'])
-        # self.deductions.to_csv('deductions.csv')
         combined = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                  'ebitda': (self.revenues['total'] -
                                             self.deductions['total'])})
-        # Add tax depreciation and net interest deductions
+        # Add tax depreciation
         combined['taxDep'] = self.assets.get_taxdep()
-        combined['nid'] = self.debts.get_nid()
         self.combined_return = combined
 
     def update_assets(self, assets):
@@ -132,6 +136,38 @@ class CorpTaxReturn():
         assert len(dearnings) == NUM_YEARS
         fearnings = np.asarray(self.dmne.dmne_results['foreign_taxinc'])
         self.combined_return['ebitda'] = dearnings + fearnings
+
+    def calcInterestDeduction(self):
+        """
+        Computes interest deduction.
+        """
+        # Compute adjusted taxable income
+        adjTaxInc = np.maximum(self.combined_return['ebitda'] -
+                               self.revenues['capgains'] -
+                               self.combined_return['taxDep'] +
+                               self.btax_params['adjustedTaxInc_def'] *
+                               (self.combined_return['taxDep'] +
+                                self.deductions['amortization'] +
+                                self.deductions['depletion']), 0.0001)
+        # Section 163(j) deduction limitation
+        deductible_int = (adjTaxInc *
+                          self.btax_params['adjustedTaxInc_limit'] +
+                          self.debts.get_intInc())
+        intded0 = self.debts.get_intDed()
+        intded1 = np.zeros(NUM_YEARS)
+        for i in range(NUM_YEARS):
+            if i > 0:
+                # Add disallowed interest as carryforward from prior year
+                intded0[i] = intded0[i] + intded0[i-1] - intded1[i-1]
+            intded1[i] = min(deductible_int[i], intded0[i])
+        # Apply interest haircuts
+        intTaxInc = (self.debts.get_intInc() *
+                     (1. - self.btax_params['intIncome_corp_hc']) +
+                     self.debts.get_muniInc() *
+                     (1. - self.btax_params['muniIntIncome_corp_hc']))
+        intTaxDed = intded1 * (1. - self.btax_params['intPaid_corp_hc'])
+        # Compute net interest deduction
+        self.combined_return['nid'] = intTaxDed - intTaxInc
 
     def calcInitialTax(self):
         """
@@ -240,6 +276,7 @@ class CorpTaxReturn():
         """
         Executes all tax calculations.
         """
+        self.calcInterestDeduction()
         self.calcInitialTax()
         self.calcFTC()
         self.calcAMT()

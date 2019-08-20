@@ -417,6 +417,78 @@
         "valid_values": {"min": 0, "max": 1}
     },
 
+    "adjustedTaxInc_def": {
+        "long_name": "Adjusted taxable income definition indicator",
+        "description": "Indicator for whether section 163(j) definition of adjusted taxable income is before (1) or after (0) deductions for depreciation, amortization and depletion.",
+        "value_type": "integer",
+        "value_yrs": [2014],
+        "value": [1],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "adjustedTaxInc_limit": {
+        "long_name": "Adjusted taxable income limitation rate on net interest deduction",
+        "description": "Fraction of adjusted taxable income to deduct net interest.",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [9e99],
+        "valid_values": {"min": 0, "max": 9e99}
+    },
+
+    "intPaid_corp_hc": {
+        "long_name": "Corporate interest-paid haircut",
+        "description": "Haircut on corporate interest deduction",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "intIncome_corp_hc": {
+        "long_name": "Corporate interest income haircut",
+        "description": "Haircut on corporate interest income included in taxable income",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "muniIntIncome_corp_hc": {
+        "long_name": "Corporate municipal interest income haircut",
+        "description": "Haircut on corporate interest income from municipal bonds included in taxable income",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [1.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "capgains_corp_hc": {
+        "long_name": "Corporate capital gains haircut",
+        "description": "Haircut on corporate capital gains included in taxable income",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "charity_hc": {
+        "long_name": "Corporate charitable contributions deduction haircut",
+        "description": "Haircut on corporate charitable contributions deductible from taxable income",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "statelocaltax_hc": {
+        "long_name": "Corporate state and local tax deduction haircut",
+        "description": "Haircut on corporate state and local taxes deductible from taxable income",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
     "oldIntPaid_corp_hc": {
         "long_name": "Corporate old-interest-paid haircut",
         "description": "Haircut on corporate interest paid deductions taken as of _oldIntPaid_corp_hcyear but originated before then",
@@ -453,9 +525,9 @@
         "valid_values": {"min": 0, "max": 9999}
     },
 
-    "netIntPaid_corp_hc": {
-        "long_name": "Corporate net-interest-paid haircut",
-        "description": "Haircut on corporate net interest deduction",
+    "intPaid_noncorp_hc": {
+        "long_name": "Non-corporate interest-paid haircut",
+        "description": "Haircut on corporate interest deduction",
         "value_type": "real",
         "value_yrs": [2014],
         "value": [0.0],
@@ -555,6 +627,24 @@
     "cfcinc_inclusion": {
         "long_name": "Inclusion rate of CFC income in taxable income.",
         "description": "Fraction of income net of subpart F and the tangible normal return included in taxable income.",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "fdii_rt": {
+        "long_name": "Deduction rate for the FDII deduction.",
+        "description": "Fraction of foreign-derived intangible income deductible.",
+        "value_type": "real",
+        "value_yrs": [2014],
+        "value": [0.0],
+        "valid_values": {"min": 0, "max": 1}
+    },
+
+    "fdii_thd": {
+        "long_name": "Tangible asset threshold rate for FDII",
+        "description": "Normal return on tangible assets disallowed from FDII.",
         "value_type": "real",
         "value_yrs": [2014],
         "value": [0.0],

@@ -85,13 +85,14 @@ class BtaxMini():
         """
         iyr = year - START_YEAR
         # Extract the corporate interest haircuts
-        hc_nid_c = np.array(self.btax_params['netIntPaid_corp_hc'])[iyr]
+        hc_nid_c = np.array(self.btax_params['intPaid_corp_hc'])[iyr]
         hc_id_new_year_c = np.array(self.btax_params['newIntPaid_corp_hcyear'])[iyr]
         hc_id_new_c = np.array(self.btax_params['newIntPaid_corp_hc'])[iyr]
         # Find haircut for corporations
         fracdedc = 1.0 - hc_nid_c
         if year >= hc_id_new_year_c:
             fracdedc = min(fracdedc, 1.0 - hc_id_new_c)
+        hc_id_nc = np.array(self.btax_params['intPaid_noncorp_hc'])[iyr]
         hc_id_new_year_nc = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])[iyr]
         hc_id_new_nc = np.array(self.btax_params['newIntPaid_noncorp_hc'])[iyr]
         # Find haircut for noncorporate businesses

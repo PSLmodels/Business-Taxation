@@ -95,6 +95,8 @@ class PassThrough():
         self.debt = Debt(self.btax_params, self.asset.get_forecast(),
                          data=self.data, corp=False)
         self.debt.calc_all()
+        self.intded = (self.debt.get_nid() *
+                       (1. - self.btax_params['intPaid_noncorp_hc']))
 
     def real_activity(self):
         """
@@ -118,7 +120,8 @@ class PassThrough():
         real_results['Inv'] = self.asset.get_investment()
         real_results['Depr'] = self.asset.get_truedep()
         real_results['Debt'] = self.debt.get_debt()
-        real_results['NIP'] = self.debt.get_nip()
+        real_results['NIP'] = (self.debt.get_nip() *
+                               (1. - self.btax_params['intPaid_noncorp_hc']))
         real_results['NetInc'] = (real_results['Earnings']
                                   - real_results['Depr']
                                   - real_results['NIP'])
@@ -140,9 +143,9 @@ class PassThrough():
         SchC_results['dep_neg'] = (self.asset.get_taxdep()
                                    * self.data.depshare_sp_neginc)
         # Update interest deduction
-        SchC_results['intded_pos'] = (self.debt.get_nid()
+        SchC_results['intded_pos'] = (self.intded
                                       * self.data.intshare_sp_posinc)
-        SchC_results['intded_neg'] = (self.debt.get_nid()
+        SchC_results['intded_neg'] = (self.intded
                                       * self.data.intshare_sp_neginc)
         # Update business net income
         SchC_results['netinc_pos'] = (SchC_results['ebitda_pos']
@@ -168,9 +171,9 @@ class PassThrough():
         partner_results['dep_neg'] = (self.asset.get_taxdep()
                                       * self.data.depshare_partner_neginc)
         # Update interest deduction
-        partner_results['intded_pos'] = (self.debt.get_nid()
+        partner_results['intded_pos'] = (self.intded
                                          * self.data.intshare_partner_posinc)
-        partner_results['intded_neg'] = (self.debt.get_nid()
+        partner_results['intded_neg'] = (self.intded
                                          * self.data.intshare_partner_neginc)
         # Update business net income
         partner_results['netinc_pos'] = (partner_results['ebitda_pos']
@@ -195,9 +198,9 @@ class PassThrough():
         Scorp_results['dep_neg'] = (self.asset.get_taxdep()
                                     * self.data.depshare_scorp_neginc)
         # Update interest deduction
-        Scorp_results['intded_pos'] = (self.debt.get_nid()
+        Scorp_results['intded_pos'] = (self.intded
                                        * self.data.intshare_scorp_posinc)
-        Scorp_results['intded_neg'] = (self.debt.get_nid()
+        Scorp_results['intded_neg'] = (self.intded
                                        * self.data.intshare_scorp_neginc)
         # Update business net income
         Scorp_results['netinc_pos'] = (Scorp_results['ebitda_pos']
