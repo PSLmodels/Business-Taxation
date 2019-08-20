@@ -67,19 +67,16 @@ class Debt():
 
     def get_haircuts(self):
         if self.corp:
-            hc_nids = np.array(self.btax_params['netIntPaid_corp_hc'])
             hc_id_old_years = np.array(self.btax_params['oldIntPaid_corp_hcyear'])
             hc_id_olds = np.array(self.btax_params['oldIntPaid_corp_hc'])
             hc_id_new_years = np.array(self.btax_params['newIntPaid_corp_hcyear'])
             hc_id_news = np.array(self.btax_params['newIntPaid_corp_hc'])
         else:
-            hc_nids = np.zeros(NUM_YEARS)
             hc_id_old_years = np.array(self.btax_params['oldIntPaid_noncorp_hcyear'])
             hc_id_olds = np.array(self.btax_params['oldIntPaid_noncorp_hc'])
             hc_id_new_years = np.array(self.btax_params['newIntPaid_noncorp_hcyear'])
             hc_id_news = np.array(self.btax_params['newIntPaid_noncorp_hc'])
         haircuts = {}
-        haircuts['nid_hc'] = hc_nids
         haircuts['id_hc_oldyear'] = hc_id_old_years
         haircuts['id_hc_old'] = hc_id_olds
         haircuts['id_hc_newyear'] = hc_id_new_years
@@ -190,13 +187,7 @@ class Debt():
                     hctouse = max(hctouse, self.haircuts['id_hc_new'][i-54])
                 int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j)
                                   * self.i_l[j] * (1 - hctouse))
-        NID_gross = int_expded - int_income
-        # Get (contemporary) NID haircut
-        nid_hc = np.zeros(68)
-        nid_hc[54:68] = self.haircuts['nid_hc']
-        NID = NID_gross * (1 - nid_hc)
         self.int_expded = int_expded
-        self.NID = NID
 
     def build_interest_path(self):
         """
@@ -237,6 +228,27 @@ class Debt():
         """
         nid = np.array(self.interest_path['nid'])
         return nid
+
+    def get_intDed(self):
+        """
+        Returns deductible interest expense.
+        """
+        int1 = self.int_expded[54:68]
+        return int1
+
+    def get_intInc(self):
+        """
+        Returns interest income (excluding on muni bonds).
+        """
+        int1 = self.int_income[54:68]
+        return int1
+
+    def get_muniInc(self):
+        """
+        Returns interest income from municipal bonds.
+        """
+        int1 = self.muni_income[54:68]
+        return int1
 
     def get_nip(self):
         """

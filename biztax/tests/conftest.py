@@ -78,7 +78,8 @@ def reforms():
         'tau_amt': {2017: 0.0},
         'pymtc_hc': {2017: 1.0},
         # 2018 provisions:
-        'netIntPaid_corp_hc': {2018: 0.5},
+        'intPaid_corp_hc': {2018: 0.5},
+        'intIncome_corp_hc': {2018: 0.5},
         'sec199_rt': {2018: 0.045},
         'ftc_hc': {2018: 0.5}
     }

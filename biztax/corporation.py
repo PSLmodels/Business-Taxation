@@ -73,7 +73,7 @@ class Corporation():
         pensions = taxitems[29] * gfacts
         benefits = taxitems[30] * gfacts
         sec199_base = taxitems[31] * gfacts
-        nolded = taxitems[32] * gfacts
+        noncaploss = taxitems[32] * gfacts
         other_ded = taxitems[33] * gfacts
         gbc = taxitems[42] * gfacts
         # Save unodeled tax items
@@ -99,7 +99,7 @@ class Corporation():
                                         'pensions': pensions,
                                         'benefits': benefits,
                                         'sec199share': sec199_base,
-                                        'nol': nolded,
+                                        'noncaploss': noncaploss,
                                         'other': other_ded})
         self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                      'gbc': gbc})
