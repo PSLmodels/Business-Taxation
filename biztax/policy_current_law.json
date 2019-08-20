@@ -399,12 +399,12 @@
         "valid_values": {"min": 0, "max": 1}
     },
 
-    "sec199_hc": {
-        "long_name": "Section 199 haircut",
-        "description": "Haircut applied to the Section 199 Domestic Production Deduction",
+    "sec199_rt": {
+        "long_name": "Section 199 rate",
+        "description": "Deduction rate for the section 199 Domestic Production Activities Deduction",
         "value_type": "real",
         "value_yrs": [2014],
-        "value": [0.0],
+        "value": [0.09],
         "valid_values": {"min": 0, "max": 1}
     },
 

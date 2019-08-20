@@ -98,7 +98,7 @@ class Corporation():
                                         'advertising': advertising,
                                         'pensions': pensions,
                                         'benefits': benefits,
-                                        'sec199': sec199_base,
+                                        'sec199share': sec199_base,
                                         'nol': nolded,
                                         'other': other_ded})
         self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),

@@ -79,7 +79,7 @@ def reforms():
         'pymtc_status': {2017: 1},
         # 2018 provisions:
         'netIntPaid_corp_hc': {2018: 0.5},
-        'sec199_hc': {2018: 0.5},
+        'sec199_rt': {2018: 0.045},
         'ftc_hc': {2018: 0.5}
     }
     policy1.implement_reform(reform1)

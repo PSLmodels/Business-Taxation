@@ -133,25 +133,17 @@ class CorpTaxReturn():
         fearnings = np.asarray(self.dmne.dmne_results['foreign_taxinc'])
         self.combined_return['ebitda'] = dearnings + fearnings
 
-    def calcSec199(self):
-        """
-        Calculates section 199 deduction.
-        """
-        # Extract relevant parmeters
-        s199_hclist = np.array(self.btax_params['sec199_hc'])
-        sec199_base = np.asarray(self.deductions['sec199'])
-        sec199_res = sec199_base * (1. - s199_hclist)
-        self.combined_return['sec199'] = sec199_res
-
     def calcInitialTax(self):
         """
         Calculates taxable income and tax before credits.
         """
         netinc1 = (self.combined_return['ebitda'] -
                    self.combined_return['taxDep'] -
-                   self.combined_return['nid'] -
-                   self.combined_return['sec199'])
-        self.combined_return['taxinc'] = np.maximum(netinc1, 0.)
+                   self.combined_return['nid'])
+        self.combined_return['sec199'] = (netinc1 * self.deductions['sec199share']
+                                          * self.btax_params['sec199_rt'])
+        netinc2 = netinc1 - self.combined_return['sec199']
+        self.combined_return['taxinc'] = np.maximum(netinc2, 0.)
         self.combined_return['tau'] = self.btax_params['tau_c']
         self.combined_return['taxbc'] = (self.combined_return['taxinc'] *
                                          self.combined_return['tau'])
@@ -256,7 +248,6 @@ class CorpTaxReturn():
         """
         Executes all tax calculations.
         """
-        self.calcSec199()
         self.calcInitialTax()
         self.calcFTC()
         self.calcAMT()

@@ -120,7 +120,7 @@ taxitems = ['Cash', 'Inventories', 'Land',
             'Amortization', 'Depreciation', 'Depletion',
             'Advertising',
             'Pension, profit sharing, stock, annuity', 'Employee benefit programs',
-            'Domestic production activities deduction',
+            'Domestic production income share',
             'Net loss, noncapital assets', 'Other deductions',
             'Total receipts less total deductions',
             'Constructive taxable income from related foreign corporations',
@@ -157,6 +157,9 @@ for ind in industry_list:
     dc13d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc13d.loc[12, industry_list] = dc13d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc13d.loc[31, industry_list] = (dc13d.loc[31, industry_list] / 0.09
+                                / dc13d.loc[37, industry_list])
 dc13d.to_csv(RAW_DATA_PATH + 'corp2013.csv', index=False)
 # Also export as the 2013 tax return
 dc13d.to_csv(OUTPUT_PATH + 'corp_taxreturn_2013.csv')
@@ -189,6 +192,9 @@ for ind in industry_list:
     dc12d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc12d.loc[12, industry_list] = dc12d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc12d.loc[31, industry_list] = (dc12d.loc[31, industry_list] / 0.09
+                                / dc12d.loc[37, industry_list])
 dc12d.to_csv(RAW_DATA_PATH + 'corp2012.csv', index=False)
 
 
@@ -220,6 +226,9 @@ for ind in industry_list:
     dc11d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc11d.loc[12, industry_list] = dc11d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc11d.loc[31, industry_list] = (dc11d.loc[31, industry_list] / 0.09
+                                / dc11d.loc[37, industry_list])
 dc11d.to_csv(RAW_DATA_PATH + 'corp2011.csv', index=False)
 
 # Read in the file for 2010
@@ -250,6 +259,9 @@ for ind in industry_list:
     dc10d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc10d.loc[12, industry_list] = dc10d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc10d.loc[31, industry_list] = (dc10d.loc[31, industry_list] / 0.09
+                                / dc10d.loc[37, industry_list])
 dc10d.to_csv(RAW_DATA_PATH + 'corp2010.csv', index=False)
 
 # Read in the file for 2009
@@ -280,6 +292,9 @@ for ind in industry_list:
     dc09d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc09d.loc[12, industry_list] = dc09d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc09d.loc[31, industry_list] = (dc09d.loc[31, industry_list] / 0.09
+                                / dc09d.loc[37, industry_list])
 dc09d.to_csv(RAW_DATA_PATH + 'corp2009.csv', index=False)
 
 # Read in the file for 2008
@@ -310,6 +325,9 @@ for ind in industry_list:
     dc08d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc08d.loc[12, industry_list] = dc08d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc08d.loc[31, industry_list] = (dc08d.loc[31, industry_list] / 0.09
+                                / dc08d.loc[37, industry_list])
 dc08d.to_csv(RAW_DATA_PATH + 'corp2008.csv', index=False)
 
 # Read in the file for 2007
@@ -340,6 +358,9 @@ for ind in industry_list:
     dc07d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc07d.loc[12, industry_list] = dc07d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc07d.loc[31, industry_list] = (dc07d.loc[31, industry_list] / 0.09
+                                / dc07d.loc[37, industry_list])
 dc07d.to_csv(RAW_DATA_PATH + 'corp2007.csv', index=False)
 
 # Read in the file for 2006
@@ -372,6 +393,9 @@ for ind in industry_list:
     dc06d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc06d.loc[12, industry_list] = dc06d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc06d.loc[31, industry_list] = (dc06d.loc[31, industry_list] / 0.09
+                                / dc06d.loc[37, industry_list])
 dc06d.to_csv(RAW_DATA_PATH + 'corp2006.csv', index=False)
 
 
@@ -405,6 +429,9 @@ for ind in industry_list:
     dc05d[ind] = ser1 / 10**6
 # Fix dividends from domestic corporations
 dc05d.loc[12, industry_list] = dc05d.loc[12, industry_list] / 0.3
+# Compute DPAD-eligible share of taxable income
+dc05d.loc[31, industry_list] = (dc05d.loc[31, industry_list] / 0.09
+                                / dc05d.loc[37, industry_list])
 dc05d.to_csv(RAW_DATA_PATH + 'corp2005.csv', index=False)
 
 # Read in the file for 2004
