@@ -93,6 +93,10 @@ cfc3.drop(['industry'], axis=0, inplace=True)
 cfc4 = cfc3.transpose()
 # Fix the scales
 cfc5 = cfc4 / 10**9
+# Compute foreign tax rate and repatriation rates
+cfc5['taxrt'] = cfc5['foreigntax'] / (cfc5['earnings'] + 0.000001)
+cfc5['reprate_e'] = cfc5['divpaid'] / (cfc5['earnings'] - cfc5['foreigntax'] - cfc5['subpartF'] + 0.000001)
+cfc5['reprate_a'] = 0.
 # Fix accumulated untaxed earnings to starting value
 cfc5['accum'] = (cfc5['accum'] - (cfc5['earnings'] -
 	             cfc5['divpaid'] * (1 + cfc5['taxrt']) -
@@ -161,11 +165,7 @@ mofa4 = mofa4 / 1000.
 
 # Use MOFA PPE data for CFCs
 cfc5['ppe'] = mofa4['ppe'] * cfc5['assets'] / mofa4['assets']
-cfc5.to_csv('test1.csv')
-# Compute foreign tax rate and repatriation rates
-cfc5['taxrt'] = cfc5['foreigntax'] / (cfc5['earnings'] + 0.000001)
-cfc5['reprate_a'] = cfc5['divpaid'] / (cfc5['earnings'] - cfc5['foreigntax'] - cfc5['subpartF'] + 0.000001)
-cfc5['reprate_e'] = 0.
+
 
 cfc5.to_csv(OUTPUT_PATH + 'cfc_data.csv')
 

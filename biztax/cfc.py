@@ -83,16 +83,16 @@ class CFC():
         repatriations = np.zeros(14)
         accum = np.zeros(15)
         accum[0] = self.cfc_data.loc['ALL', 'accum']
+        # Compute dividend repatriations to parent company from earnings
+        dividends = (self.earnings - self.foreigntax
+                     - self.subpartF) * self.reprate_earnings
         for i in range(14):
-            # Compute dividend repatriations to parent company from earnings
-            dividends[i] = (self.earnings[i] - self.foreigntax[i]
-                            - self.subpartF[i]) * self.reprate_earnings[i]
-            # Repatriations from accumulated untaxed profits
-            repatriations[i] = self.reprate_accum[i] * accum[i]
             # Compute new accumulated profits
             accum[i+1] = (accum[i] + self.earnings[i] - self.subpartF[i]
                           - repatriations[i]
                           - dividends[i] * (1 + self.ftaxrate))
+        # Repatriations from accumulated untaxed profits
+        repatriations = self.reprate_accum * accum[:NUM_YEARS]
         self.dividends = dividends
         self.repatriations = repatriations
         self.accumulated_profits = accum[1:]
@@ -101,7 +101,6 @@ class CFC():
         """
         Run all calculations
         """
-        self.create_earnings()
         self.pay_foreign_taxes()
         self.repatriate_accumulate()
 
@@ -116,10 +115,9 @@ class CFC():
         """
         assert isinstance(update_df, pd.DataFrame)
         assert len(update_df) == 14
-        reprate_e = np.asarray(self.cfc_data['reprate_e'])
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            reprate_e = np.minimum(np.maximum(reprate_e +
+            reprate_e = np.minimum(np.maximum(self.reprate_earnings +
                                               update_df['reprate_e'],
                                               0.), 1.)
             self.reprate_earnings = reprate_e
