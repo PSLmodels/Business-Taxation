@@ -26,6 +26,9 @@ class CFC():
             self.data = Data()
         # Extract baseline forecast for earnings and action
         self.cfc_data = copy.deepcopy(self.data.cfc_data)
+        self.cfc_data.set_index('Unnamed: 0', inplace=True)
+        # Generate earnings
+        self.create_earnings()
 
     def create_earnings(self):
         """
@@ -37,15 +40,21 @@ class CFC():
         earnings_forecast = np.asarray(self.data.gfactors['profit_f'])
         gfacts = earnings_forecast[1:] / earnings_forecast[1]
         # Get real activity information for 2014
-        earnings_2014 = np.asarray(self.cfc_data['earnings'])[0]
-        subpartF_2014 = np.asarray(self.cfc_data['subpartF'])[0]
-        assets_2014 = np.asarray(self.cfc_data['assets'])[0]
-        ppe_2014 = np.asarray(self.cfc_data['ppe'])[0]
+        earnings_2014 = self.cfc_data.loc['ALL', 'earnings']
+        subpartF_2014 = self.cfc_data.loc['ALL', 'subpartF']
+        assets_2014 = self.cfc_data.loc['ALL', 'assets']
+        ppe_2014 = self.cfc_data.loc['ALL', 'ppe']
         # Produce forecast measures
         self.earnings = earnings_2014 * gfacts
         self.subpartF = subpartF_2014 * gfacts
         self.assets = assets_2014 * gfacts
         self.ppe = ppe_2014 * gfacts
+        # Extract rates
+        self.ftaxrate = self.cfc_data.loc['ALL', 'taxrt']
+        # Fraction of current earnings to repatriate
+        self.reprate_earnings = np.ones(NUM_YEARS) * self.cfc_data.loc['ALL', 'reprate_e']
+        # Fraction of previously accumulated earnings to repatriate
+        self.reprate_accum = np.ones(NUM_YEARS) * self.cfc_data.loc['ALL', 'reprate_a']
 
     def pay_foreign_taxes(self):
         """
@@ -54,12 +63,12 @@ class CFC():
         Also compute taxable income to be included for GILTI
         """
         # Compute foreign tax liability
-        self.ftaxrate = np.asarray(self.cfc_data['taxrt'])
         self.foreigntax = self.ftaxrate * self.earnings
-        GILTI_inc = (self.earnings - self.subpartF
-                     - self.ppe * np.asarray(self.btax_params['GILTI_thd']))
+        GILTI_inc = np.maximum(self.earnings - self.subpartF
+                               - self.ppe
+                               * np.asarray(self.btax_params['GILTI_thd']), 0.)
         GILTI_tinc = (GILTI_inc *
-                      np.asarray(self.btax_params['cfcinc_inclusion']))
+                      np.asarray(self.btax_params['GILTI_inclusion']))
         self.GILTI_tinc = GILTI_tinc
 
     def repatriate_accumulate(self):
@@ -69,25 +78,21 @@ class CFC():
         Accumulations are only for untaxed profits (i.e. net of
         subpart F and grossed-up dividends).
         """
-        # Fraction of current earnings to repatriate
-        reprate_earnings = np.asarray(self.cfc_data['reprate_e'])
-        # Fraction of previously accumulated earnings to repatriate
-        reprate_accum = np.asarray(self.cfc_data['reprate_a'])
         # Create arrays for dividends to parent and accumulated profits
         dividends = np.zeros(14)
         repatriations = np.zeros(14)
         accum = np.zeros(15)
-        accum[0] = np.asarray(self.cfc_data['accum'])[0]
+        accum[0] = self.cfc_data.loc['ALL', 'accum']
+        # Compute dividend repatriations to parent company from earnings
+        dividends = (self.earnings - self.foreigntax
+                     - self.subpartF) * self.reprate_earnings
         for i in range(14):
-            # Compute dividend repatriations to parent company from earnings
-            dividends[i] = (self.earnings[i] - self.foreigntax[i]
-                            - self.subpartF[i]) * reprate_earnings[i]
-            # Repatriations from accumulated untaxed profits
-            repatriations[i] = reprate_accum[i] * accum[i]
             # Compute new accumulated profits
             accum[i+1] = (accum[i] + self.earnings[i] - self.subpartF[i]
                           - repatriations[i]
-                          - dividends[i] * (1 + self.ftaxrate[i]))
+                          - dividends[i] * (1 + self.ftaxrate))
+        # Repatriations from accumulated untaxed profits
+        repatriations = self.reprate_accum * accum[:NUM_YEARS]
         self.dividends = dividends
         self.repatriations = repatriations
         self.accumulated_profits = accum[1:]
@@ -96,7 +101,6 @@ class CFC():
         """
         Run all calculations
         """
-        self.create_earnings()
         self.pay_foreign_taxes()
         self.repatriate_accumulate()
 
@@ -111,13 +115,12 @@ class CFC():
         """
         assert isinstance(update_df, pd.DataFrame)
         assert len(update_df) == 14
-        reprate_e = np.asarray(self.cfc_data['reprate_e'])
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            reprate_e = np.minimum(np.maximum(reprate_e +
+            reprate_e = np.minimum(np.maximum(self.reprate_earnings +
                                               update_df['reprate_e'],
                                               0.), 1.)
-            self.cfc_data['reprate_e'] = reprate_e
+            self.reprate_earnings = reprate_e
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
-            self.cfc_data['reprate_e'] = self.cfc_data['reprate_e']
+            self.reprate_accum = self.update_df['reprate_a']
