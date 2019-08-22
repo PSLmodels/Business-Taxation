@@ -43,7 +43,8 @@ class Asset():
         response: DataFrame of investment responses
     """
 
-    def __init__(self, btax_params, corp=True, data=None, response=None):
+    def __init__(self, btax_params, corp=True,
+                 data=None, response=None, industry='ALL'):
         # Create an associated Data object
         if isinstance(data, Data):
             self.data = data
@@ -68,6 +69,7 @@ class Asset():
             self.btax_params = btax_params
         else:
             raise ValueError('btax_params must be DataFrame')
+        self.industry = industry
 
     def update_response(self, response):
         """
@@ -84,9 +86,12 @@ class Asset():
         """
         # Get historical investment for 1960-2014
         if self.corp:
-            investment_df = copy.deepcopy(self.data.investment_corp)
+            investment_dfg = copy.deepcopy(self.data.investment_corp)
         else:
-            investment_df = copy.deepcopy(self.data.investment_noncorp)
+            investment_dfg = copy.deepcopy(self.data.investment_noncorp)
+        investment_df = investment_dfg[investment_dfg.industry == self.industry]
+        investment_df.drop(['industry'], axis=1, inplace=True)
+        investment_df.reset_index(drop=True, inplace=True)
         # Extend investment using NGDP (growth factors from CBO forecast)
         for year in range(START_YEAR + 1, END_YEAR + 1):
             gfact = (self.data.investmentGfactors_data['ngdp'][year-HISTORY_START]
@@ -393,9 +398,12 @@ class Asset():
         """
         # Get historical capital stock
         if self.corp:
-            capital_df1 = copy.deepcopy(self.data.capital_corp)
+            capital_dfg = copy.deepcopy(self.data.capital_corp)
         else:
-            capital_df1 = copy.deepcopy(self.data.capital_noncorp)
+            capital_dfg = copy.deepcopy(self.data.capital_noncorp)
+        capital_df1 = capital_dfg[capital_dfg.industry == self.industry]
+        capital_df1.drop(['industry'], axis=1, inplace=True)
+        capital_df1.reset_index(drop=True, inplace=True)
         capital_df1.rename(columns={'asset_code': 'Code'}, inplace=True)
         capital_df2 = capital_df1.merge(right=self.data.econ_depr_df(),
                                         how='outer', on='Code')

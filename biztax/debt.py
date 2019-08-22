@@ -29,7 +29,8 @@ class Debt():
     """
 
     def __init__(self, btax_params, asset_forecast,
-                 data=None, response=None, eta=0.4, corp=True):
+                 data=None, response=None, eta=0.4,
+                 corp=True, industry='ALL'):
         # Create an associated Data object
         if isinstance(data, Data):
             self.data = data
