@@ -112,7 +112,7 @@ class Asset():
         """
         Builds the arrays for tax depreciation laws
         """
-        def taxdep_final(depr_methods, depr_bonuses):
+        def taxdep_final(depr_methods, depr_bonuses, year):
             """
             Constructs the DataFrame of information for tax depreciation.
             Only relevant for years beginning with START_YEAR.
@@ -122,7 +122,7 @@ class Asset():
                 true depreciation rate,
                 bonus depreciation rate.
             """
-            taxdep = copy.deepcopy(self.data.taxdep_info_gross())
+            taxdep = copy.deepcopy(self.data.taxdep_info_gross(year))
             system = np.asarray(taxdep['System'])
             life = np.asarray(taxdep['L_gds'])
             # Determine depreciation systems for each asset class (by GDS life)
@@ -169,7 +169,7 @@ class Asset():
                 true depreciation rate,
                 bonus depreciation rate.
             """
-            taxdep = copy.deepcopy(self.data.taxdep_info_gross())
+            taxdep = copy.deepcopy(self.data.taxdep_info_gross(year))
             taxdep['L'] = taxdep['L_gds']
             life = np.asarray(taxdep['L_gds'])
             bonus = np.zeros(len(life))
@@ -196,7 +196,7 @@ class Asset():
                     s = "depr_{}yr_".format(y if y != 27.5 else 275)
                     depr_methods[y] = btax_params[s + 'method'][iyr]
                     depr_bonuses[y] = btax_params[s + 'bonus'][iyr]
-                taxdep = taxdep_final(depr_methods, depr_bonuses)
+                taxdep = taxdep_final(depr_methods, depr_bonuses, year)
             else:
                 taxdep = taxdep_preset(year)
             return taxdep
@@ -324,7 +324,7 @@ class Asset():
         Calculate depreciation deductions for each year
         """
         unitDep_arr = np.zeros((95, 68))
-        delta = np.asarray(self.data.taxdep_info_gross()['delta'])
+        delta = np.asarray(self.data.taxdep_info_gross(year)['delta'])
         for i in range(95):
             # Iterate over asset types
             for j in range(68):

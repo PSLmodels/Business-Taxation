@@ -146,13 +146,17 @@ class Data():
         df_econdepr2.reset_index(drop=True, inplace=True)
         return df_econdepr2
 
-    def taxdep_info_gross(self):
+    def taxdep_info_gross(self, year):
         """
         Retrieves the basic DataFrame with tax depreciation information
         """
+        if year <= 2017:
+            filename = 'tax_depreciation_pretcja.csv'
+        else:
+            # Change this when implementing TCJA as baseline
+            filename = 'tax_depreciation_tcja.csv'
         taxdep1 = Data.read_csv(
-            os.path.join(Data.CURRENT_PATH,
-                         'tax_depreciation_rules.csv'))
+            os.path.join(Data.CURRENT_PATH, filename))
         taxdep1.rename(columns={'GDS life': 'L_gds', 'ADS life': 'L_ads',
                                 'Asset Type': 'Asset', 'GDS method': 'Method',
                                 'Asset code': 'Code'},

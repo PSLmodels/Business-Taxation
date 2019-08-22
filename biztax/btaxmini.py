@@ -503,7 +503,7 @@ class BtaxMini():
         tdict_c = self.make_tdict_c(year)
         tdict_nc = self.make_tdict_nc(year)
         # Create base DataFrame and get depreciation rates
-        asset_data = copy.deepcopy(Data().taxdep_info_gross())
+        asset_data = copy.deepcopy(Data().taxdep_info_gross(year))
         asset_data.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
         Delta = np.array(asset_data['delta'])
         # Get deductible fractions of interest paid
@@ -539,7 +539,7 @@ class BtaxMini():
         Runs the code to compute the user cost and EATR
         for each asset type for each year in yearlist.
         """
-        basedata = copy.deepcopy(Data().taxdep_info_gross())
+        basedata = copy.deepcopy(Data().taxdep_info_gross(2014))
         basedata.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
         for year in yearlist:
             # Get calculations for each year

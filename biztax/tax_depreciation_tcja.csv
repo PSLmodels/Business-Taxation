@@ -1,0 +1,96 @@
+Asset code,Major category,Minor category,Asset type,IRS class code,Class life,System,GDS life,GDS method,ADS life,ADS method
+EP1A,Equipment,Information processing equipment,Mainframes,0.12,6,GDS,5,DB 200%,5,SL
+EP1B,Equipment,Information processing equipment,PCs,0.12,6,GDS,5,DB 200%,5,SL
+EP1C,Equipment,Information processing equipment,DASDs,0.12,6,GDS,5,DB 200%,5,SL
+EP1D,Equipment,Information processing equipment,Printers,0.12,6,GDS,5,DB 200%,5,SL
+EP1E,Equipment,Information processing equipment,Terminals,0.12,6,GDS,5,DB 200%,5,SL
+EP1F,Equipment,Information processing equipment,Tape drives,0.12,6,GDS,5,DB 200%,5,SL
+EP1G,Equipment,Information processing equipment,Storage devices,0.12,6,GDS,5,DB 200%,5,SL
+EP1H,Equipment,Information processing equipment,System integrators,0.12,6,GDS,5,DB 200%,5,SL
+EP20,Equipment,Information processing equipment,Communications,0.11,10,GDS,7,DB 200%,10,SL
+EP34,Equipment,Information processing equipment,Nonelectro medical instruments,35,10,GDS,7,DB 200%,10,SL
+EP35,Equipment,Information processing equipment,Electro medical instruments,35,10,GDS,7,DB 200%,10,SL
+EP36,Equipment,Information processing equipment,Nonmedical instruments,34.01,3,GDS,3,DB 200%,3,SL
+EP31,Equipment,Information processing equipment,Photocopy and related equipment,0.13,6,GDS,5,DB 200%,6,SL
+EP12,Equipment,Information processing equipment,Office and accounting equipment,0.13,6,GDS,5,DB 200%,6,SL
+EI11,Equipment,Industrial equipment,Nuclear fuel,49.121,5,GDS,5,DB 200%,5,SL
+EI12,Equipment,Industrial equipment,Other fabricated metals,34,12,GDS,7,DB 200%,12,SL
+EI21,Equipment,Industrial equipment,Steam engines,49.13,28,GDS,20,DB 150%,28,SL
+EI22,Equipment,Industrial equipment,Internal combustion engines,49.15,20,GDS,15,DB 150%,20,SL
+EI30,Equipment,Industrial equipment,Metalworking machinery,33.21,6.5,GDS,5,DB 200%,6.5,SL
+EI40,Equipment,Industrial equipment,Special industrial machinery,35,10,GDS,7,DB 200%,10,SL
+EI50,Equipment,Industrial equipment,General industrial equipment,35,10,GDS,7,DB 200%,10,SL
+EI60,Equipment,Industrial equipment,Electric transmission and distribution,49.11,50,GDS,20,DB 150%,50,SL
+ET11,Equipment,Transportation equipment,Light trucks (including utility vehicles),0.241,4,GDS,5,DB 200%,5,SL
+ET12,Equipment,Transportation equipment,"Other trucks, buses and truck trailers",0.242,6,GDS,5,DB 200%,6,SL
+ET20,Equipment,Transportation equipment,Autos,0.22,3,GDS,5,DB 200%,5,SL
+ET30,Equipment,Transportation equipment,Aircraft,45,12,GDS,7,DB 200%,12,SL
+ET40,Equipment,Transportation equipment,Ships and boats,0.28,18,GDS,10,DB 200%,18,SL
+ET50,Equipment,Transportation equipment,Railroad equipment,40.1,14,GDS,7,DB 200%,14,SL
+EO12,Equipment,Other equipment,Other furniture,0.11,10,GDS,7,DB 200%,10,SL
+EO30,Equipment,Other equipment,Other agricultural machinery,1.1,10,GDS,7,DB 150%,10,SL
+EO21,Equipment,Other equipment,Farm tractors,1.1,10,GDS,7,DB 150%,10,SL
+EO40,Equipment,Other equipment,Other construction machinery,15,6,GDS,5,DB 200%,6,SL
+EO22,Equipment,Other equipment,Construction tractors,0.26,4,GDS,3,DB 200%,4,SL
+EO50,Equipment,Other equipment,Mining and oilfield machinery,10,10,GDS,7,DB 200%,10,SL
+EO60,Equipment,Other equipment,Service industry machinery,57,9,GDS,5,DB 200%,9,SL
+EO72,Equipment,Other equipment,Other electrical,0.4,22,GDS,15,DB 150%,22,SL
+EO80,Equipment,Other equipment,Other,0.11,10,GDS,7,DB 200%,10,SL
+SOO1,Structures,Commercial and health care structures,Office,Nonresidential real,39,GDS,39,SL,40,SL
+SB31,Structures,Commercial and health care structures,Hospitals,Nonresidential real,39,GDS,39,SL,40,SL
+SB32,Structures,Commercial and health care structures,Special care,Nonresidential real,39,GDS,39,SL,40,SL
+SOO2,Structures,Commercial and health care structures,Medical buildings,Nonresidential real,39,GDS,39,SL,40,SL
+SC03,Structures,Commercial and health care structures,Multimerchandise shopping,Nonresidential real,39,GDS,39,SL,40,SL
+SC04,Structures,Commercial and health care structures,Food and beverage establishments,Qualified restaurant property,15,GDS,15,SL,39,SL
+SC01,Structures,Commercial and health care structures,Warehouses,Nonresidential real,39,GDS,39,SL,40,SL
+SOMO ,Structures,Commercial and health care structures,Mobile structures,0.27,6,GDS,5,DB 200%,6,SL
+SC02,Structures,Commercial and health care structures,Other commercial,Nonresidential real,39,GDS,39,SL,40,SL
+SI00,Structures,Manufacturing structures,Manufacturing,Nonresidential real,39,GDS,39,SL,40,SL
+SU30,Structures,Power and communication structures,Electric,49.11,50,GDS,20,DB 150%,50,SL
+SU60,Structures,Power and communication structures,Wind and solar,Energy property,12,GDS,5,DB 200%,12,SL
+SU40,Structures,Power and communication structures,Gas,13.1,6,GDS,5,DB 200%,6,SL
+SU50,Structures,Power and communication structures,Petroleum pipelines,46,22,GDS,15,DB 150%,22,SL
+SU20,Structures,Power and communication structures,Communication,48.11,45,GDS,20,DB 150%,45,SL
+SM01,Structures,Power and communication structures,Petroleum and natural gas,13.1,6,GDS,5,DB 200%,6,SL
+SM02,Structures,Power and communication structures,Mining,10,10,GDS,7,DB 200%,10,SL
+SB20,Structures,Other structures,Educational and vocational,Nonresidential real,39,GDS,39,SL,40,SL
+SB41,Structures,Other structures,Lodging,Nonresidential real,39,GDS,39,SL,40,SL
+SB42,Structures,Other structures,Amusement and recreation,80,12.5,GDS,7,DB 200%,12.5,SL
+SB43,Structures,Other structures,Air transportation,45,12,GDS,7,DB 200%,12,SL
+SB45,Structures,Other structures,Other transportation,Nonresidential real,39,GDS,39,SL,40,SL
+SU11,Structures,Other structures,Other railroad,40.2,30,GDS,20,DB 150%,30,SL
+SU12,Structures,Other structures,Track replacement,40.4,10,GDS,7,DB 200%,10,SL
+SB44,Structures,Other structures,Local transit structures,41,8,GDS,5,DB 200%,8,SL
+SB46,Structures,Other structures,Other land transportation,42,8,GDS,5,DB 200%,8,SL
+SN00,Structures,Other structures,Farm,1.3,25,GDS,20,SL,25,SL
+SO01,Structures,Other structures,Water supply,49.3,50,GDS,25,SL,50,SL
+SO02,Structures,Other structures,Sewage and waste disposal,51,50,GDS,25,SL,50,SL
+SO03,Structures,Other structures,Public safety,Nonresidential real,39,GDS,39,SL,40,SL
+SO04,Structures,Other structures,Highway and conservation and development,Qualified infrastructure,15,GDS,15,DB 150%,20,SL
+ENS1,Intellectual property,Software,Prepackaged software,Public software,3,GDS,3,SL,3,SL
+ENS2,Intellectual property,Software,Custom software,Substantially modified software,15,GDS,3,SL,3,SL
+ENS3,Intellectual property,Software,Own account software,S.197,15,GDS,15,Expensing,15,Expensing
+RD11,Intellectual property,Research and development,Pharmaceutical and medicine manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD12,Intellectual property,Research and development,"Chemical manufacturing, ex. pharma and med",Research,5,GDS,5,Expensing,12,Expensing
+RD23,Intellectual property,Research and development,Semiconductor and other component manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD21,Intellectual property,Research and development,Computers and peripheral equipment manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD22,Intellectual property,Research and development,Communications equipment manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD24,Intellectual property,Research and development,Navigational and other instruments manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD25,Intellectual property,Research and development,"Other computer and electronic manufacturing, n.e.c.",Research,5,GDS,5,Expensing,12,Expensing
+RD31,Intellectual property,Research and development,Motor vehicles and parts manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD32,Intellectual property,Research and development,Aerospace products and parts manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RDOM,Intellectual property,Research and development,Other manufacturing,Research,5,GDS,5,Expensing,12,Expensing
+RD70,Intellectual property,Research and development,Scientific research and development services,Research,5,GDS,5,Expensing,12,Expensing
+RD40,Intellectual property,Research and development,Software publishers,Research,5,GDS,5,Expensing,12,Expensing
+RD50,Intellectual property,Research and development,Financial and real estate services,Research,5,GDS,5,Expensing,12,Expensing
+RD60,Intellectual property,Research and development,Computer systems design and related services,Research,5,GDS,5,Expensing,12,Expensing
+RD80,Intellectual property,Research and development,"All other nonmanufacturing, n.e.c.",Research,5,GDS,5,Expensing,12,Expensing
+AE10,Intellectual property,Artistic originals,Theatrical movies,Income forecast,15,GDS,15,Economic,15,SL
+AE20,Intellectual property,Artistic originals,Long-lived television programs,Income forecast,15,GDS,15,Economic,15,SL
+AE30,Intellectual property,Artistic originals,Books,Income forecast,15,GDS,15,Economic,15,SL
+AE40,Intellectual property,Artistic originals,Music,Income forecast,15,GDS,15,Economic,15,SL
+AE50,Intellectual property,Artistic originals,Other entertainment originals,Income forecast,15,GDS,15,Economic,15,SL
+RR10,Rental residential,Rental residential,Residential new,Residential rental,27.5,GDS,27.5,SL,40,SL
+RR20,Rental residential,Rental residential,Residential additions and alterations,Alterations and improvements,27.5,GDS,27.5,SL,40,SL
+RR30,Rental residential,Rental residential,Residential major improvements,Alterations and improvements,27.5,GDS,27.5,SL,40,SL
+RR40,Rental residential,Rental residential,Residential equipment,,5,GDS,5,DB 200%,5,SL
