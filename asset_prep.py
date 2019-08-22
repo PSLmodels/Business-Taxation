@@ -36,8 +36,8 @@ and then aggregated. The
         Oil and gas extraction (2110)
         Mining, except oil and gas (2120)
         Support activities for mining (2130)
-        Utilities (2200)
-        Construction (2300)
+    Utilities (2200)
+    Construction (2300)
     Durable goods manufacturing:
         Wood products (3210)
         Nonmetallic mineral products (3270)
@@ -59,8 +59,8 @@ and then aggregated. The
         Petroleum and coal products (3240)
         Chemical products (3250)
         Plastics and rubber products (3260)
-        Wholesaletrade (4200)
-        Retailtrade (44RT)
+    Wholesaletrade (4200)
+    Retailtrade (44RT)
     Transportation and warehousing:
         Air transportation (4810)
         Railroad transportation (4820)
@@ -83,16 +83,16 @@ and then aggregated. The
         Funds, trusts, and other financial vehicles (5250)
     Real estate and rental and leasing:
         Real estate (5310)
-        Rental and leasing services and lessors of intangibleassets (5320)
+        Rental and leasing services and lessors of intangible assets (5320)
     Professional, scientific, and technical services:
         Legal services (5411)
         Computer systems design and related services (5415)
-        Miscellaneous professional, scientific, and technicalservices (5412)
-        Management of companies and enterprises (5500)
+        Miscellaneous professional, scientific, and technical services (5412)
+    Management of companies and enterprises (5500)
     Administrative and waste management services:
         Administrative and support services (5610)
         Waste management and remediation services (5620)
-        Educational services (6100)
+    Educational services (6100)
     Health care and social assistance:
         Ambulatory health care services (6210)
         Hospitals (622H)
@@ -104,7 +104,7 @@ and then aggregated. The
     Accommodation and foodservices:
         Accommodation (7210)
         Food services and drinking places (7220)
-        Other services, except government (8100)
+    Other services, except government (8100)
 We exclude following industries:
     Federal Reserve banks (5210)
     Funds, trusts, and other financial vehicles (5250)
@@ -151,25 +151,46 @@ ind_codes = ['110C', '113F', '2110', '2120', '2130', '2200', '2300', '3210',
              '5220', '5230', '5240', '5310', '5320', '5411', '5415', '5412',
              '5500', '5610', '5620', '6100', '6210', '622H', '6230', '6240',
              '711A', '7130', '7210', '7220', '8100']
+industries = ['ALL', 'FARM', 'FFRA', 'MINE', 'UTIL', 'CNST',
+              'DMAN', 'NMAN', 'WHTR', 'RETR', 'TRAN', 'INFO',
+              'FINC', 'FINS', 'INSU', 'REAL', 'LEAS', 'PROF',
+              'MGMT', 'ADMN', 'EDUC', 'HLTH', 'ARTS', 'ACCM', 'OTHS']
+ind_dict = {'ALL': ind_codes,
+            'FARM': ['110C'],
+            'FFRA': ['113F'],
+            'MINE': ['2110', '2120', '2130'],
+            'UTIL': ['2200'],
+            'CNST': ['2300'],
+            'DMAN': ['3210', '3270', '3310', '3320', '3330', '3340', '3350',
+                     '336M', '336O', '3370', '338A'],
+            'NMAN': ['311A', '313T', '315A', '3220', '3230', '3240',
+                     '3250', '3260'],
+            'WHTR': ['4200'],
+            'RETR': ['44RT'],
+            'TRAN': ['4810', '4820', '4830', '4840', '4850', '4860', '487S', '4930'],
+            'INFO': ['5110', '5120', '5130', '5140'],
+            'FINC': ['5220'],
+            'FINS': ['5230'],
+            'INSU': ['5240'],
+            'REAL': ['5310'],
+            'LEAS': ['5320'],
+            'PROF': ['5411', '5415', '5412'],
+            'MGMT': ['5500'],
+            'ADMN': ['5610', '5620'],
+            'EDUC': ['6100'],
+            'HLTH': ['6210', '622H', '6230', '6240'],
+            'ARTS': ['711A', '7130'],
+            'ACCM': ['7210', '7220'],
+            'OTHS': ['8100']}
+cleaned_data = dict()
+for ind in ind_codes:
+    newdf1 = read_and_clean(ind, 'inv')
+    newdf1.drop(['asset_name'], axis=1, inplace=True)
+    newdf2 = read_and_clean(ind, 'stock')
+    newdf2.drop(['asset_name'], axis=1, inplace=True)
+    cleaned_data['nresinv_' + ind] = newdf1
+    cleaned_data['nresstk_' + ind] = newdf2
 
-# Prepare the investment data
-inv_df = read_and_clean('110C', 'inv')
-asset_names = np.array(inv_df['asset_name'])
-inv_df2 = inv_df.drop(['asset_name'], axis=1)
-for ind in ind_codes[1:]:
-    newdf = read_and_clean(ind, 'inv')
-    newdf.drop(['asset_name'], axis=1, inplace=True)
-    inv_df2 += newdf
-investment = copy.deepcopy(inv_df2)
-
-# Prepare the asset stock data
-stk_df = read_and_clean('110C', 'stock')
-stk_df2 = stk_df.drop(['asset_name'], axis=1)
-for ind in ind_codes[1:]:
-    newdf = read_and_clean(ind, 'stock')
-    newdf.drop(['asset_name'], axis=1, inplace=True)
-    stk_df2 += newdf
-capital = copy.deepcopy(stk_df2)
 
 """
 SECTION 2. RENTAL RESIDENTIAL CAPITAL
@@ -230,7 +251,7 @@ rr40_nc_stk = np.array(resstk.iloc[45] + resstk.iloc[46])
 
 
 """
-SECTION 3. SPLITTING BY FIRM TYPE
+SECTION 3. DATA FOR SPLITTING BY FIRM TYPE
 
 This section uses data from BEA Fixed Asset tables 4.1 and 4.7 to split
 historical investment and capital by legal form of organization, with different
@@ -283,101 +304,97 @@ the following DataFrames for use by the Asset object:
     capitalstock_corp.csv
     capitalstock.ncorp.csv
 """
-# Create investment DataFrame for corporations
-investment_c = copy.deepcopy(investment).transpose()
-for code in list(investment_c):
-    if code[:2] in ['EP', 'EI', 'ET', 'EO']:
-        # Use corporate share for equipment
-        investment_c[code] = investment_c[code] * inv_eq_c
-    elif code[0] == 'S':
-        # Use corporate share for structures
-        investment_c[code] = investment_c[code] * inv_st_c
-    elif code[:2] in ['EN', 'RD', 'AE']:
-        # Use corporate share for intellectual property
-        investment_c[code] = investment_c[code] * inv_ip_c
-    else:
-        # Check for anything unaccounted for
-        raise ValueError('unknown asset code: ' + code)
-# Add the rental residential categories
-investment_c['RR10'] = rr10_c_inv
-investment_c['RR20'] = rr20_c_inv
-investment_c['RR30'] = rr30_c_inv
-investment_c['RR40'] = rr40_c_inv
-# Save the final version
-investment_corp = investment_c.transpose()
-investment_corp.to_csv(OUTPUT_PATH + 'investment_corp.csv')
 
-# Create investment DataFrame for noncorporate businesses
-investment_nc = copy.deepcopy(investment).transpose()
-for code in list(investment_nc):
-    if code[:2] in ['EP', 'EI', 'ET', 'EO']:
-        # Use noncorporate share for equipment
-        investment_nc[code] = investment_nc[code] * inv_eq_nc
-    elif code[0] == 'S':
-        # Use noncorporate share for structures
-        investment_nc[code] = investment_nc[code] * inv_st_nc
-    elif code[:2] in ['EN', 'RD', 'AE']:
-        # Use noncorporate share for intellectual property
-        investment_nc[code] = investment_nc[code] * inv_ip_nc
+def buildData(ind, corp):
+    investment1 = cleaned_data['nresinv_' + ind_dict[ind][0]]
+    capital1 = cleaned_data['nresstk_' + ind_dict[ind][0]]
+    if len(ind_dict[ind]) > 1:
+        for ind2 in ind_dict[ind][1:]:
+            investment1 += cleaned_data['nresinv_' + ind2]
+            capital1 += cleaned_data['nresstk_' + ind2]
+    investment2 = investment1.transpose()
+    capital2 = capital1.transpose()
+    if corp:
+        inv_eq = inv_eq_c
+        inv_st = inv_st_c
+        inv_ip = inv_ip_c
+        stk_eq = stk_eq_c
+        stk_st = stk_st_c
+        stk_ip = stk_ip_c
     else:
-        # Check for anything unaccounted for
-        raise ValueError('unknown asset code: ' + code)
-# Add the rental residential categories
-investment_nc['RR10'] = rr10_nc_inv
-investment_nc['RR20'] = rr20_nc_inv
-investment_nc['RR30'] = rr30_nc_inv
-investment_nc['RR40'] = rr40_nc_inv
-# Save the final version
-investment_ncorp = investment_nc.transpose()
-investment_ncorp.to_csv(OUTPUT_PATH + 'investment_ncorp.csv')
+        inv_eq = inv_eq_nc
+        inv_st = inv_st_nc
+        inv_ip = inv_ip_nc
+        stk_eq = stk_eq_nc
+        stk_st = stk_st_nc
+        stk_ip = stk_ip_nc
+    for code in list(investment2):
+        if code[:2] in ['EP', 'EI', 'ET', 'EO']:
+            # Use corporate share for equipment
+            investment2[code] = investment2[code] * inv_eq
+            capital2[code] = capital2[code] * stk_eq
+        elif code[0] == 'S':
+            # Use corporate share for structures
+            investment2[code] = investment2[code] * inv_st
+            capital2[code] = capital2[code] * stk_st
+        elif code[:2] in ['EN', 'RD', 'AE']:
+            # Use corporate share for intellectual property
+            investment2[code] = investment2[code] * inv_ip
+            capital2[code] = capital2[code] * stk_ip
+        else:
+            # Check for anything unaccounted for
+            raise ValueError('unknown asset code: ' + code)
+    if ind in ['ALL', 'REAL']:
+        if corp:
+            investment2['RR10'] = rr10_c_inv
+            investment2['RR20'] = rr20_c_inv
+            investment2['RR30'] = rr30_c_inv
+            investment2['RR40'] = rr40_c_inv
+            capital2['RR10'] = rr10_c_stk
+            capital2['RR20'] = rr20_c_stk
+            capital2['RR30'] = rr30_c_stk
+            capital2['RR40'] = rr40_c_stk
+        else:
+            investment2['RR10'] = rr10_nc_inv
+            investment2['RR20'] = rr20_nc_inv
+            investment2['RR30'] = rr30_nc_inv
+            investment2['RR40'] = rr40_nc_inv
+            capital2['RR10'] = rr10_nc_stk
+            capital2['RR20'] = rr20_nc_stk
+            capital2['RR30'] = rr30_nc_stk
+            capital2['RR40'] = rr40_nc_stk
+    else:
+        investment2['RR10'] = 0.
+        investment2['RR20'] = 0.
+        investment2['RR30'] = 0.
+        investment2['RR40'] = 0.
+        capital2['RR10'] = 0.
+        capital2['RR20'] = 0.
+        capital2['RR30'] = 0.
+        capital2['RR40'] = 0.
+    investment3 = investment2.transpose()
+    capital3 = capital2.transpose()
+    investment3['industry'] = ind
+    capital3['industry'] = ind
+    investment3.reset_index(inplace=True)
+    capital3.reset_index(inplace=True)
+    return (investment3, capital3)
 
-# Create capital stock DataFrame for corporations
-capital_c = copy.deepcopy(capital).transpose()
-for code in list(capital_c):
-    if code[:2] in ['EP', 'EI', 'ET', 'EO']:
-        # Use corporate share for equipment
-        capital_c[code] = capital_c[code] * stk_eq_c
-    elif code[0] == 'S':
-        # Use corporate share for structures
-        capital_c[code] = capital_c[code] * stk_st_c
-    elif code[:2] in ['EN', 'RD', 'AE']:
-        # Use corporate share for intellectual property
-        capital_c[code] = capital_c[code] * stk_ip_c
-    else:
-        # Check for anything unaccounted for
-        raise ValueError('unknown asset code: ' + code)
-# Add the rental residential categories
-capital_c['RR10'] = rr10_c_stk
-capital_c['RR20'] = rr20_c_stk
-capital_c['RR30'] = rr30_c_stk
-capital_c['RR40'] = rr40_c_stk
-# Save the final version
-capital_corp = capital_c.transpose()
-capital_corp.to_csv(OUTPUT_PATH + 'capital_corp.csv')
+(investment_corp, capital_corp) = buildData('ALL', True)
+(investment_ncorp, capital_ncorp) = buildData('ALL', False)
 
-# Create capital DataFrame for noncorporate businesses
-capital_nc = copy.deepcopy(capital).transpose()
-for code in list(capital_nc):
-    if code[:2] in ['EP', 'EI', 'ET', 'EO']:
-        # Use noncorporate share for equipment
-        capital_nc[code] = capital_nc[code] * stk_eq_nc
-    elif code[0] == 'S':
-        # Use noncorporate share for structures
-        capital_nc[code] = capital_nc[code] * stk_st_nc
-    elif code[:2] in ['EN', 'RD', 'AE']:
-        # Use noncorporate share for intellectual property
-        capital_nc[code] = capital_nc[code] * stk_ip_nc
-    else:
-        # Check for anything unaccounted for
-        raise ValueError('unknown asset code: ' + code)
-# Add the rental residential categories
-capital_nc['RR10'] = rr10_nc_stk
-capital_nc['RR20'] = rr20_nc_stk
-capital_nc['RR30'] = rr30_nc_stk
-capital_nc['RR40'] = rr40_nc_stk
-# Save the final version
-capital_ncorp = capital_nc.transpose()
-capital_ncorp.to_csv(OUTPUT_PATH + 'capital_ncorp.csv')
+for ind in industries[1:]:
+    (invcorp, capcorp) = buildData(ind, True)
+    (invncorp, capncorp) = buildData(ind, False)
+    investment_corp = investment_corp.append(invcorp, ignore_index=True)
+    investment_ncorp = investment_ncorp.append(invncorp, ignore_index=True)
+    capital_corp = capital_corp.append(capcorp, ignore_index=True)
+    capital_ncorp = capital_ncorp.append(capncorp, ignore_index=True)
+
+investment_corp.to_csv(OUTPUT_PATH + 'investment_corp.csv', index=False)
+investment_ncorp.to_csv(OUTPUT_PATH + 'investment_ncorp.csv', index=False)
+capital_corp.to_csv(OUTPUT_PATH + 'capital_corp.csv', index=False)
+capital_ncorp.to_csv(OUTPUT_PATH + 'capital_ncorp.csv', index=False)
 
 
 """
@@ -392,6 +409,8 @@ future improvements would separate this.
 Once this is complete, we use these rescaling factors to adjust the investment
 and capital tables for each firm type and save them. This process replaces the
 use of adjustment factors for depreciation and capital in the current model.
+
+NOTE: Switch to calculating different factors for each industry.
 """
 
 def calcDepAdjustment(corp):
@@ -427,14 +446,31 @@ print('Corp adjustment factor: ' + str(adjfactor_dep_corp * 1000))
 print('Noncorp adjustment factor: ' + str(adjfactor_dep_noncorp * 1000))
 
 # Rescale the capital and investment datasets using adjustment factors
+industry1 = investment_corp['industry']
+assetcodes = investment_corp['asset_code']
+investment_corp.drop(['industry', 'asset_code'], axis=1, inplace=True)
+investment_ncorp.drop(['industry', 'asset_code'], axis=1, inplace=True)
+capital_corp.drop(['industry', 'asset_code'], axis=1, inplace=True)
+capital_ncorp.drop(['industry', 'asset_code'], axis=1, inplace=True)
+
 investment_corp2 = investment_corp * adjfactor_dep_corp
-investment_corp2.to_csv(OUTPUT_PATH + 'investment_corp.csv')
 capital_corp2 = capital_corp * adjfactor_dep_corp
-capital_corp2.to_csv(OUTPUT_PATH + 'capital_corp.csv')
 investment_ncorp2 = investment_ncorp * adjfactor_dep_noncorp
-investment_ncorp2.to_csv(OUTPUT_PATH + 'investment_ncorp.csv')
 capital_ncorp2 = capital_ncorp * adjfactor_dep_noncorp
-capital_ncorp2.to_csv(OUTPUT_PATH + 'capital_ncorp.csv')
+
+investment_corp2['industry'] = industry1
+investment_ncorp2['industry'] = industry1
+capital_corp2['industry'] = industry1
+capital_ncorp2['industry'] = industry1
+investment_corp2['asset_code'] = assetcodes
+investment_ncorp2['asset_code'] = assetcodes
+capital_corp2['asset_code'] = assetcodes
+capital_ncorp2['asset_code'] = assetcodes
+
+investment_corp2.to_csv(OUTPUT_PATH + 'investment_corp.csv', index=False)
+capital_corp2.to_csv(OUTPUT_PATH + 'capital_corp.csv', index=False)
+investment_ncorp2.to_csv(OUTPUT_PATH + 'investment_ncorp.csv', index=False)
+capital_ncorp2.to_csv(OUTPUT_PATH + 'capital_ncorp.csv', index=False)
 
 
 
