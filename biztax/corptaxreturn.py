@@ -37,15 +37,15 @@ class CorpTaxReturn():
         else:
             raise ValueError('btax_params must be DataFrame')
         if isinstance(revenues, pd.DataFrame):
-            self.revenues = revenues
+            self.revenues = copy.deepcopy(revenues)
         else:
             raise ValueError('revenues must be in DataFrame')
         if isinstance(deductions, pd.DataFrame):
-            self.deductions = deductions
+            self.deductions = copy.deepcopy(deductions)
         else:
             raise ValueError('deductions must be in DataFrame')
         if isinstance(credit, pd.DataFrame):
-            self.credits = credit
+            self.credits = copy.deepcopy(credit)
         else:
             raise ValueError('credits must be in DataFrame')
         if dmne is None:

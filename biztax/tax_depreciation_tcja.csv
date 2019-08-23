@@ -29,7 +29,7 @@ ET40,Equipment,Transportation equipment,Ships and boats,0.28,18,GDS,10,DB 200%,1
 ET50,Equipment,Transportation equipment,Railroad equipment,40.1,14,GDS,7,DB 200%,14,SL
 EO12,Equipment,Other equipment,Other furniture,0.11,10,GDS,7,DB 200%,10,SL
 EO30,Equipment,Other equipment,Other agricultural machinery,1.1,10,GDS,7,DB 150%,10,SL
-EO21,Equipment,Other equipment,Farm tractors,1.1,10,GDS,7,DB 150%,10,SL
+EO21,Equipment,Other equipment,Farm tractors,1.1,10,GDS,5,DB 200%,10,SL
 EO40,Equipment,Other equipment,Other construction machinery,15,6,GDS,5,DB 200%,6,SL
 EO22,Equipment,Other equipment,Construction tractors,0.26,4,GDS,3,DB 200%,4,SL
 EO50,Equipment,Other equipment,Mining and oilfield machinery,10,10,GDS,7,DB 200%,10,SL
