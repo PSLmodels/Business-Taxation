@@ -94,20 +94,20 @@ class Debt():
             An = self.data.debt_data['An_c'].tolist()
             L = self.data.debt_data['L_c'].tolist()
         else:
-            At = [0] * 55
-            An = [0] * 55
+            At = [0] * (START_YEAR - HISTORY_START + 1)
+            An = [0] * (START_YEAR - HISTORY_START + 1)
             L = self.data.debt_data['L_nc'].tolist()
         D = [L[i] - At[i] - An[i] for i in range(len(L))]
         i_t = self.data.debt_data['i_t'].tolist()
         i_pr = self.data.debt_data['i_pr'].tolist()
         # Extend for 2015-2027
-        At.extend(At[54] * self.asset_forecast[1:] / self.asset_forecast[0])
-        An.extend(An[54] * self.asset_forecast[1:] / self.asset_forecast[0])
+        At.extend(At[START_YEAR-HISTORY_START] * self.asset_forecast[1:] / self.asset_forecast[0])
+        An.extend(An[START_YEAR-HISTORY_START] * self.asset_forecast[1:] / self.asset_forecast[0])
         D.extend(D[54] * self.asset_forecast[1:] / self.asset_forecast[0]
                  * self.delta[1:] / self.delta[0])
         L = [D[i] + At[i] + An[i] for i in range(len(D))]
         i_t.extend(self.data.debt_forecast['i_t'][1:])
-        i_pr.extend([i_pr[54]] * 13)
+        i_pr.extend([i_pr[START_YEAR-HISTORY_START]] * (NUM_YEARS-1))
         # Save level histories
         self.net_debt_history = D
         self.debt_asset_history = At
@@ -120,8 +120,8 @@ class Debt():
         """
         Constructs originations.
         """
-        O = np.zeros(68)
-        for i in range(1, 68):
+        O = np.zeros(END_YEAR - HISTORY_START + 1)
+        for i in range(1, END_YEAR - HISTORY_START + 1):
             O[i] = (self.debt_liab_history[i] -
                     self.debt_liab_history[i-1] * (1 - self.eta))
         self.originations = O
@@ -139,10 +139,10 @@ class Debt():
             At = copy.deepcopy(self.debt_asset_history)
             An = copy.deepcopy(self.muni_asset_history)
             L_opt = copy.deepcopy(self.debt_liab_history)
-            L = np.zeros(68)
+            L = np.zeros(END_YEAR - HISTORY_START + 1)
             L[0] = L_opt[0]
-            O = np.zeros(68)
-            for i in range(1, 68):
+            O = np.zeros(END_YEAR - HISTORY_START + 1)
+            for i in range(1, END_YEAR - HISTORY_START + 1):
                 O[i] = max(L_opt[i] - L[i-1] * (1 - self.eta), 0.)
                 L[i] = L[i-1] * (1 - self.eta) + O[i]
             self.debt_liab_history = L
@@ -157,8 +157,8 @@ class Debt():
                            * np.array(self.i_a))
         self.muni_income = (np.array(self.muni_asset_history)
                             * np.array(self.i_a))
-        int_expense = np.zeros(68)
-        for i in range(1, 68):
+        int_expense = np.zeros(END_YEAR - HISTORY_START + 1)
+        for i in range(1, END_YEAR - HISTORY_START + 1):
             for j in range(i+1):
                 int_expense[i] += (self.originations[j] *
                                    (1 - self.eta)**(i - j) * self.i_l[j])
@@ -170,22 +170,22 @@ class Debt():
         net interest deduction based on tax law.
         """
         int_income = copy.deepcopy(self.int_income)
-        int_expded = np.zeros(68)
+        int_expded = np.zeros(END_YEAR - HISTORY_START + 1)
         # Calculations for years before the budget window
         for i in range(1, 54):
             for j in range(i+1):
                 int_expded[i] += (self.originations[j] *
                                   (1 - self.eta)**(i - j - 1) * self.i_l[j])
         # Calculations during the budget window
-        for i in range(54, 68):
+        for i in range(START_YEAR-HISTORY_START, END_YEAR - HISTORY_START + 1):
             for j in range(i+1):
                 hctouse = 0.0
-                if j + HISTORY_START < self.haircuts['id_hc_oldyear'][i-54]:
+                if j + HISTORY_START < self.haircuts['id_hc_oldyear'][i-(START_YEAR-HISTORY_START)]:
                     # If originated before "old" haircut, apply haircut
                     hctouse = self.haircuts['id_hc_old'][i-54]
-                if j + HISTORY_START >= self.haircuts['id_hc_newyear'][i-54]:
+                if j + HISTORY_START >= self.haircuts['id_hc_newyear'][i-(START_YEAR-HISTORY_START)]:
                     # If originated after "new" haircut, apply haircut
-                    hctouse = max(hctouse, self.haircuts['id_hc_new'][i-54])
+                    hctouse = max(hctouse, self.haircuts['id_hc_new'][i-(START_YEAR-HISTORY_START)])
                 int_expded[i] += (self.originations[j] * (1 - self.eta)**(i-j)
                                   * self.i_l[j] * (1 - hctouse))
         self.int_expded = int_expded
@@ -199,11 +199,11 @@ class Debt():
 
         WARNING: May need to include rescale_corp and rescale_noncorp
         """
-        debt = np.array(self.net_debt_history[54:68])
-        nip = np.array(self.int_expense[54:68]
-                       - self.int_income[54:68] - self.muni_income[54:68])
-        nid = np.array(self.int_expded[54:68]
-                       - self.int_income[54:68])
+        debt = np.array(self.net_debt_history[START_YEAR-HISTORY_START:])
+        nip = np.array(self.int_expense[START_YEAR-HISTORY_START:]
+                       - self.int_income[START_YEAR-HISTORY_START:] - self.muni_income[START_YEAR-HISTORY_START:])
+        nid = np.array(self.int_expded[START_YEAR-HISTORY_START:]
+                       - self.int_income[START_YEAR-HISTORY_START:])
         NID_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                     'nid': nid,
                                     'nip': nip,
@@ -234,28 +234,28 @@ class Debt():
         """
         Returns deductible interest expense.
         """
-        int1 = self.int_expded[54:68]
+        int1 = self.int_expded[START_YEAR-HISTORY_START:]
         return int1
 
     def get_intInc(self):
         """
         Returns interest income (excluding on muni bonds).
         """
-        int1 = self.int_income[54:68]
+        int1 = self.int_income[START_YEAR-HISTORY_START:]
         return int1
 
     def get_muniInc(self):
         """
         Returns interest income from municipal bonds.
         """
-        int1 = self.muni_income[54:68]
+        int1 = self.muni_income[START_YEAR-HISTORY_START:]
         return int1
 
     def get_intPaid(self):
         """
         Returns interest paid.
         """
-        int1 = self.int_expense[54:68]
+        int1 = self.int_expense[START_YEAR-HISTORY_START:]
         return int1
 
     def get_nip(self):
