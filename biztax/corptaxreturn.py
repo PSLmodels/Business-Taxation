@@ -168,6 +168,8 @@ class CorpTaxReturn():
         intTaxDed = intded1 * (1. - self.btax_params['intPaid_corp_hc'])
         # Compute net interest deduction
         self.combined_return['nid'] = intTaxDed - intTaxInc
+        # Assign fraction of interest deductible to Debt object
+        self.debts.fracded = intTaxDed / (self.debts.get_intpaid() + 0.000001)
 
     def calcInitialTax(self):
         """
