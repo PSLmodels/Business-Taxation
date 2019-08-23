@@ -160,18 +160,15 @@ class Response():
         Calculates corporate debt response.
         """
         # Extract the information on haircuts
-        nid_hcs = np.array(btax_params_ref['netIntPaid_corp_hc'])
-        id_hc_years = np.array(btax_params_ref['newIntPaid_corp_hcyear'])
-        id_hc_new = np.array(btax_params_ref['newIntPaid_corp_hc'])
         years = np.array(range(START_YEAR, END_YEAR + 1))
-        id_hcs = np.where(id_hc_years >= years, id_hc_new, 0.0)
-        hclist = np.maximum(nid_hcs, id_hcs)
+        fracded_base = np.array(btax_params_base['fracded_c'])
+        fracded_ref = np.array(btax_params_ref['fracded_c'])
         elast_debt_list = np.where(
             years >= self.elasticities['first_year_response'],
             self.elasticities['debt_taxshield_c'], 0.0
         )
-        taxshield_base = btax_params_base['tau_c']
-        taxshield_ref = np.asarray(btax_params_ref['tau_c']) * (1 - hclist)
+        taxshield_base = btax_params_base['tau_c']* fracded_base
+        taxshield_ref = np.asarray(btax_params_ref['tau_c']) * fracded_ref
         pctch_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1)
         return pctch_delta
 
@@ -223,7 +220,7 @@ class Response():
         repatriation rate as of 2014.
         """
         # Get foreign tax rate
-        ftax = np.asarray(Data().cfc_data['taxrt'])
+        ftax = Data().cfc_data.loc[0, 'taxrt']
         # Get domestic tax rate
         dtax_base = np.asarray(btax_params_base['tau_c'])
         dtax_ref = np.asarray(btax_params_ref['tau_c'])
