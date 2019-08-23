@@ -251,6 +251,13 @@ class Debt():
         int1 = self.muni_income[54:68]
         return int1
 
+    def get_intPaid(self):
+        """
+        Returns interest paid.
+        """
+        int1 = self.int_expense[54:68]
+        return int1
+
     def get_nip(self):
         """
         Returns the net interest paid for [START_YEAR, END_YEAR]
