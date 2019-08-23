@@ -87,7 +87,7 @@ class DomesticMNE():
             Calculates the weighted average statutory corporate tax rate
             in all OECD countries in a given year.
             """
-            assert year in range(1995, 2028)
+            assert year in range(1995, END_YEAR+1)
             year = min(year, 2016)
             gdp_list = np.asarray(self.data.ftc_gdp_data[str(year)])
             taxrate_list = np.asarray(self.data.ftc_taxrates_data[str(year)])
@@ -117,7 +117,7 @@ class DomesticMNE():
         self.taxable_earnings()
         self.calcFTC()
         # Store results in DataFrame
-        self.dmne_results = pd.DataFrame({'year': range(2014, 2028),
+        self.dmne_results = pd.DataFrame({'year': range(START_YEAR, END_YEAR+1),
                                           'foreign_directinc': self.otherinc,
                                           'foreign_indirectinc': (self.divinc +
                                                                   self.cfc.subpartF),

@@ -96,7 +96,7 @@ class Asset():
         for year in range(START_YEAR + 1, END_YEAR + 1):
             gfact = (self.data.investmentGfactors_data['ngdp'][year-HISTORY_START]
                      / self.data.investmentGfactors_data['ngdp'][54])
-            newinv = investment_df[str(START_YEAR)] * gfact
+            newinv = np.asarray(investment_df[str(START_YEAR)]) * gfact
             investment_df[str(year)] = newinv
         # Update investment matrix to include investment responses
         if self.response is not None:

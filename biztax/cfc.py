@@ -79,14 +79,14 @@ class CFC():
         subpart F and grossed-up dividends).
         """
         # Create arrays for dividends to parent and accumulated profits
-        dividends = np.zeros(14)
-        repatriations = np.zeros(14)
-        accum = np.zeros(15)
+        dividends = np.zeros(NUM_YEARS)
+        repatriations = np.zeros(NUM_YEARS)
+        accum = np.zeros(NUM_YEARS+1)
         accum[0] = self.cfc_data.loc['ALL', 'accum']
         # Compute dividend repatriations to parent company from earnings
         dividends = (self.earnings - self.foreigntax
                      - self.subpartF) * self.reprate_earnings
-        for i in range(14):
+        for i in range(NUM_YEARS):
             # Compute new accumulated profits
             accum[i+1] = (accum[i] + self.earnings[i] - self.subpartF[i]
                           - repatriations[i]
@@ -114,7 +114,7 @@ class CFC():
         and years 2014:2028
         """
         assert isinstance(update_df, pd.DataFrame)
-        assert len(update_df) == 14
+        assert len(update_df) == NUM_YEARS
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
             reprate_e = np.minimum(np.maximum(self.reprate_earnings +

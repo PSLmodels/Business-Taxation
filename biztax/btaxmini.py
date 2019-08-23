@@ -40,7 +40,7 @@ class BtaxMini():
         assert start_year >= 2017
         assert type(start_year) == int
         if start_year >= END_YEAR:
-            tdict = {'0': self.btax_params['tau_c'][10]}
+            tdict = {'0': self.btax_params['tau_c'][NUM_YEARS-1]}
         else:
             tdict = {'0': self.btax_params['tau_c'][start_year-START_YEAR]}
             for i in range(start_year - 2016, len(self.btax_params['year']) - 3):
@@ -57,7 +57,7 @@ class BtaxMini():
         assert start_year >= 2017
         assert type(start_year) == int
         if start_year >= END_YEAR:
-            tdict = {'0': self.btax_params['tau_nc'][13]}
+            tdict = {'0': self.btax_params['tau_nc'][NUM_YEARS-1]}
         else:
             tdict = {'0': self.btax_params['tau_nc'][start_year-START_YEAR]}
             for i in range(start_year - 2016, len(self.btax_params['year']) - 3):
@@ -491,7 +491,7 @@ class BtaxMini():
         asset type.
         """
         # Check that year has acceptable value
-        assert year in range(2017, 2028)
+        assert year in range(2017, END_YEAR)
         # Extract economic parameters
         [r_c, r_nc, r_d, pi, f_c, f_nc] = self.get_econ_params_oneyear(year)
         # Extract tax depreciation information
