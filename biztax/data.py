@@ -154,7 +154,7 @@ class Data():
             filename = 'tax_depreciation_pretcja.csv'
         else:
             # Change this when implementing TCJA as baseline
-            filename = 'tax_depreciation_tcja.csv'
+            filename = 'tax_depreciation_pretcja.csv'
         taxdep1 = Data.read_csv(
             os.path.join(Data.CURRENT_PATH, filename))
         taxdep1.rename(columns={'GDS life': 'L_gds', 'ADS life': 'L_ads',
