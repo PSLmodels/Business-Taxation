@@ -491,7 +491,7 @@ class BtaxMini():
         asset type.
         """
         # Check that year has acceptable value
-        assert year in range(2017, END_YEAR)
+        assert year in range(2017, END_YEAR+1)
         # Extract economic parameters
         [r_c, r_nc, r_d, pi, f_c, f_nc] = self.get_econ_params_oneyear(year)
         # Extract tax depreciation information

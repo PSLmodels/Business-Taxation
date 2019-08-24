@@ -93,11 +93,11 @@ class Asset():
         investment_df.drop(['industry'], axis=1, inplace=True)
         investment_df.reset_index(drop=True, inplace=True)
         # Extend investment using NGDP (growth factors from CBO forecast)
+        inv2014 = np.asarray(investment_df.loc[:, str(START_YEAR)])
         for year in range(START_YEAR + 1, END_YEAR + 1):
-            gfact = (self.data.investmentGfactors_data['ngdp'][year-HISTORY_START]
-                     / self.data.investmentGfactors_data['ngdp'][54])
-            newinv = np.asarray(investment_df[str(START_YEAR)]) * gfact
-            investment_df[str(year)] = newinv
+            gfact = (self.data.investmentGfactors_data.loc[year-HISTORY_START, 'ngdp']
+                     / self.data.investmentGfactors_data.loc[START_YEAR-HISTORY_START, 'ngdp'])
+            investment_df.loc[:, str(year)] = inv2014 * gfact
         # Update investment matrix to include investment responses
         if self.response is not None:
             if self.corp:

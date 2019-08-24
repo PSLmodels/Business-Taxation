@@ -80,11 +80,10 @@ class BusinessModel():
         # Run static calculations for baseline
         self.corp_base.calc_static()
         self.passthru_base.calc_static()
-        if response is None:
-            # Run calculations for reform with no response
-            self.corp_ref.calc_static()
-            self.passthru_ref.calc_static()
-        else:
+        # Run calculations for reform with no response
+        self.corp_ref.calc_static()
+        self.passthru_ref.calc_static()
+        if response is not None:
             # Run calculations for reform with response
             self.update_mtrlists()  # do this before doing response.calc_all
             response.calc_all(self.btax_params_base, self.btax_params_ref)

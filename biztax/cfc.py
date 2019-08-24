@@ -52,9 +52,9 @@ class CFC():
         # Extract rates
         self.ftaxrate = self.cfc_data.loc['ALL', 'taxrt']
         # Fraction of current earnings to repatriate
-        self.reprate_earnings = np.ones(NUM_YEARS) * self.cfc_data.loc['ALL', 'reprate_e']
+        self.reprate_earnings = self.data.reprate_forecast['repatch_e'] + self.cfc_data.loc['ALL', 'reprate_e']
         # Fraction of previously accumulated earnings to repatriate
-        self.reprate_accum = np.ones(NUM_YEARS) * self.cfc_data.loc['ALL', 'reprate_a']
+        self.reprate_accum = self.data.reprate_forecast['repatch_a'] + self.cfc_data.loc['ALL', 'reprate_a']
 
     def pay_foreign_taxes(self):
         """
@@ -117,10 +117,9 @@ class CFC():
         assert len(update_df) == NUM_YEARS
         if 'reprate_e' in update_df:
             # Update repatriation rate on current earnings
-            reprate_e = np.minimum(np.maximum(self.reprate_earnings +
-                                              update_df['reprate_e'],
+            reprate_e = np.minimum(np.maximum(self.reprate_earnings + update_df['reprate_e'],
                                               0.), 1.)
             self.reprate_earnings = reprate_e
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
-            self.reprate_accum = self.update_df['reprate_a']
+            self.reprate_accum = update_df['reprate_a']

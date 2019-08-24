@@ -12,9 +12,12 @@ Elasticities to use:
 We ignore investment elasticities, as these are update by BEA forecast.
 
 """
+import numpy as np
+import pandas as pd
+import copy
 import taxcalc # capabilities of individual Tax-Calculator
 from taxcalc.utils import json_to_dict
-from biztax import Policy, BusinessModel, Response
+from biztax import Policy, BusinessModel, Response, Data
 import json
 
 # 2017 law business tax rules
@@ -112,15 +115,6 @@ bdict2 = {
     "fdii_thd": {2018: 0.1}}
 
 
-
-JSON_PATH = 'biztax/reforms/'
-with open(JSON_PATH + 'old_law_iitax.json') as file3:
-	text3 = file3.read()
-	idict1 = json_to_dict(text3)
-with open(JSON_PATH + 'new_law_iitax.json') as file4:
-	text4 = file4.read()
-	idict2 = json_to_dict(text4)
-
 # Policies for business tax rules
 pol_pre = Policy()
 pol_pre.implement_reform(bdict1)
@@ -133,8 +127,8 @@ ipol_post = taxcalc.Policy()
 #ipol_post.implement_reform(taxcalc.Policy.read_json_reform('TCJA.json'))
 
 # Create and run model
-bm = BusinessModel(btax_policy_ref=pol_pre, itax_policy_ref=ipol_pre,
-                   btax_policy_base=pol_post, itax_policy_base=ipol_post)
+bm = BusinessModel(btax_policy_ref=pol_post, itax_policy_ref=ipol_post,
+                   btax_policy_base=pol_pre, itax_policy_base=ipol_pre)
 bm.calc_all(response=None)
 
 # Update the MTRs from taxcalc
@@ -171,3 +165,22 @@ repateffect['repatch'] = resp.repatriation_response['reprate_e']
 # Export results to check manually
 debteffect.to_csv('debttest.csv')
 repateffect.to_csv('repattest.csv')
+
+# If debt results fine, save into the debt forecast
+#debt_forecast = pd.read_csv('biztax/debt_forecast.csv')
+#fc = debt_forecast.loc[0, 'f_c_l']
+#debt_forecast['f_c_l'] = fc * (1. + debteffect['debtch'])
+#debt_forecast.to_csv('biztax/debt_forecast.csv')
+
+# If repatriation results fine, save into the repatriation change forecast
+repatdf = copy.deepcopy(repateffect)
+repatdf['repatch_e'] = repateffect['repatch']
+repatdf['repatch_a'] = [0.0, 0.0, 0.0, 0.0,
+                        0.2, 0.2, 0.2, 0.2,
+                        0.2, 0.2, 0.2, 1.0,
+                        0.0, 0.0]
+repatdf.drop(['frachit_base', 'frachit_ref', 'taxdiff_base',
+              'txdiff_ref', 'penalty_base', 'penalty_ref',
+              'repatch'], axis=1, inplace=True)
+repatdf.to_csv('repatriation_adjustment.csv')
+
