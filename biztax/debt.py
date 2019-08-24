@@ -169,7 +169,6 @@ class Debt():
         Calculates taxable interest income, deductible interest and the
         net interest deduction based on tax law.
         """
-        int_income = copy.deepcopy(self.int_income)
         int_expded = np.zeros(END_YEAR - HISTORY_START + 1)
         # Calculations for years before the budget window
         for i in range(1, 54):

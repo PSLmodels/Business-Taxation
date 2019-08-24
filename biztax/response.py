@@ -109,7 +109,7 @@ class Response():
         firstyear: when the firm behavioral response takes effect
         """
         # Read in the underlying functions for the investment response
-        maindata = copy.deepcopy(Data().taxdep_info_gross())
+        maindata = copy.deepcopy(Data().taxdep_info_gross(2014))
         maindata.drop(['L_gds', 'L_ads', 'Method'], axis=1, inplace=True)
         # Extract relevant response parameters
         firstyear = self.elasticities['first_year_response']
@@ -169,7 +169,7 @@ class Response():
         )
         taxshield_base = btax_params_base['tau_c']* fracded_base
         taxshield_ref = np.asarray(btax_params_ref['tau_c']) * fracded_ref
-        pctch_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1)
+        pctch_delta = elast_debt_list * (taxshield_ref / taxshield_base - 1.)
         return pctch_delta
 
     def _calc_debt_response_noncorp(self, btax_params_base, btax_params_ref):

@@ -43,6 +43,8 @@ class Data():
             os.path.join(Data.CTAX_DATA_DIR, 'cfc_data.csv'))
         self.dmne_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'dmne_data.csv'))
+        self.reprate_forecast = Data.read_csv(
+            os.path.join(Data.CTAX_DATA_DIR, 'repatriation_adjustment.csv'))
         # Data for Sec. 199
         self.sec199_data = Data.read_csv(
             os.path.join(Data.CTAX_DATA_DIR, 'sec199.csv'))
