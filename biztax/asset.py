@@ -105,8 +105,9 @@ class Asset():
             else:
                 deltaIkey = 'deltaInc'
             for year in range(START_YEAR, END_YEAR + 1):
+                deltaI = np.array(self.response[deltaIkey + str(year)])
                 investment_df[str(year)] = (investment_df[str(year)] *
-                                            (1. + self.response[deltaIkey + str(year)]))
+                                            (1. + deltaI))
         self.investment_history = investment_df
 
     def build_deprLaw_matrices(self):
