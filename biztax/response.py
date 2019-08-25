@@ -233,13 +233,13 @@ class Response():
         reprate_base = np.exp(-penalty_base * self.elasticities['reprate_inc'])
         reprate_ref = np.exp(-penalty_ref * self.elasticities['reprate_inc'])
         # Compute change in repatriation rate
-        reprate_ch = np.zeros(14)
-        for i in range(14):
+        reprate_ch = np.zeros(NUM_YEARS)
+        for i in range(NUM_YEARS):
             if i + 2014 >= self.elasticities['first_year_response']:
                 reprate_ch[i] = reprate_ref[i] - reprate_base[i]
         repat_response = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                        'reprate_e': reprate_ch,
-                                       'reprate_a': np.zeros(14)})
+                                       'reprate_a': np.zeros(NUM_YEARS)})
         self.repatriation_response = repat_response
 
     def _calc_legal_response(self, btax_params_base, btax_params_ref):

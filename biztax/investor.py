@@ -241,7 +241,7 @@ class Investor():
             # Calculate total individual income and payroll tax revenue
             indiv_revenue[iyr] = icalc2.weighted_total('combined') * 1e-9
             # Advance icalc to the next year and recalculate
-            if iyr < NUM_YEARS:
+            if iyr < NUM_YEARS-1:
                 icalc.increment_year()
                 icalc.calc_all()
         self.revenue_postdistribution = indiv_revenue
@@ -255,7 +255,7 @@ class Investor():
         indiv_revenue = np.zeros(NUM_YEARS)
         for iyr in range(0, NUM_YEARS):
             indiv_revenue[iyr] = icalc.weighted_total('combined') * 1e-9
-            if iyr < NUM_YEARS:
+            if iyr < NUM_YEARS-1:
                 icalc.increment_year()
                 icalc.calc_all()
         self.revenue_predistribution = indiv_revenue

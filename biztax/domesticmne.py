@@ -98,12 +98,11 @@ class DomesticMNE():
             return avgrate
 
         # Get foreign profits forecast
-        profits = np.asarray(self.data.ftc_other_data['C_total'][19:])
-        profits_d = np.asarray(self.data.ftc_other_data['C_domestic'][19:])
+        profits = np.asarray(self.data.gfactors['profit_f'])[1:]
         tax_f = np.zeros(NUM_YEARS)
         for iyr in range(NUM_YEARS):
             tax_f[iyr] = calcWAvgTaxRate(iyr + START_YEAR)
-        ftc_final = ((profits - profits_d) * tax_f / 100. *
+        ftc_final = (profits * tax_f / 100. *
                      self.data.adjfactor_ftc_corp *
                      (1 - hclist)) * self.data.rescale_corp
         self.ftc = ftc_final
