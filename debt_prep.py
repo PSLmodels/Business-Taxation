@@ -61,21 +61,24 @@ ntaxint = np.zeros(14)
 intpaid = np.zeros(14)
 for year in range(2000, 2014):
     data1 = pd.read_csv(RAW_DATA_PATH1 + 'corp' + str(year) + '.csv', index_col=0)
-    taxint[year-2000] = (data1.loc['Interest income', 'ALL'] -
-                         data1.loc['Interest income', 'FINC'] -
-                         data1.loc['Interest income', 'FINS'] -
-                         data1.loc['Interest income', 'INSU'] -
-                         data1.loc['Interest income', 'MGMT'])
-    ntaxint[year-2000] = (data1.loc['Nontaxable interest income', 'ALL'] -
-                          data1.loc['Nontaxable interest income', 'FINC'] -
-                          data1.loc['Nontaxable interest income', 'FINS'] -
-                          data1.loc['Nontaxable interest income', 'INSU'] -
-                          data1.loc['Nontaxable interest income', 'MGMT'])
-    intpaid[year-2000] = (data1.loc['Interest paid', 'ALL'] -
-                          data1.loc['Interest paid', 'FINC'] -
-                          data1.loc['Interest paid', 'FINS'] -
-                          data1.loc['Interest paid', 'INSU'] -
-                          data1.loc['Interest paid', 'MGMT'])
+    #taxint[year-2000] = (data1.loc['Interest income', 'ALL'] -
+    #                     data1.loc['Interest income', 'FINC'] -
+    #                     data1.loc['Interest income', 'FINS'] -
+    #                     data1.loc['Interest income', 'INSU'] -
+    #                     data1.loc['Interest income', 'MGMT'])
+    #ntaxint[year-2000] = (data1.loc['Nontaxable interest income', 'ALL'] -
+    #                      data1.loc['Nontaxable interest income', 'FINC'] -
+    #                      data1.loc['Nontaxable interest income', 'FINS'] -
+    #                      data1.loc['Nontaxable interest income', 'INSU'] -
+    #                      data1.loc['Nontaxable interest income', 'MGMT'])
+    #intpaid[year-2000] = (data1.loc['Interest paid', 'ALL'] -
+    #                      data1.loc['Interest paid', 'FINC'] -
+    #                      data1.loc['Interest paid', 'FINS'] -
+    #                      data1.loc['Interest paid', 'INSU'] -
+    #                      data1.loc['Interest paid', 'MGMT'])
+    taxint[year-2000] = data1.loc['Interest income', 'ALL']
+    ntaxint[year-2000] = data1.loc['Nontaxable interest income', 'ALL']
+    intpaid[year-2000] = data1.loc['Interest paid', 'ALL']
 
 
 
