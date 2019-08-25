@@ -111,6 +111,15 @@
         "valid_values": {"min": 0, "max": 1}
     },
 
+    "depr_file": {
+        "long_name": "File extension for depreciation rules",
+        "description": "Extension notes which depreciation file from which to pull tax depreciation rules",
+        "value_type": "string",
+        "value_yrs": [2014],
+        "value": ["pre2017"],
+        "valid_values": {"options": ["pre2017", "tcja"]}
+    },
+
     "depr_3yr_method": {
         "long_name": "3-year asset class depreciation method",
         "description": "Depreciation method used for assets with 3-year class life",

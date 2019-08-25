@@ -113,7 +113,7 @@ class Asset():
         """
         Builds the arrays for tax depreciation laws
         """
-        def taxdep_final(depr_methods, depr_bonuses, year):
+        def taxdep_final(depr_methods, depr_bonuses, depr_file):
             """
             Constructs the DataFrame of information for tax depreciation.
             Only relevant for years beginning with START_YEAR.
@@ -123,7 +123,7 @@ class Asset():
                 true depreciation rate,
                 bonus depreciation rate.
             """
-            taxdep = copy.deepcopy(self.data.taxdep_info_gross(year))
+            taxdep = copy.deepcopy(self.data.taxdep_info_gross(depr_file))
             system = np.asarray(taxdep['System'])
             life = np.asarray(taxdep['L_gds'])
             # Determine depreciation systems for each asset class (by GDS life)
@@ -160,7 +160,7 @@ class Asset():
                         axis=1, inplace=True)
             return taxdep
 
-        def taxdep_preset(year):
+        def taxdep_preset():
             """
             Constructs the DataFrame of information for tax depreciation.
             Only relevant for years before START_YEAR.
@@ -170,7 +170,7 @@ class Asset():
                 true depreciation rate,
                 bonus depreciation rate.
             """
-            taxdep = copy.deepcopy(self.data.taxdep_info_gross(year))
+            taxdep = copy.deepcopy(self.data.taxdep_info_gross('pre2017'))
             taxdep['L'] = taxdep['L_gds']
             life = np.asarray(taxdep['L_gds'])
             bonus = np.zeros(len(life))
@@ -197,9 +197,10 @@ class Asset():
                     s = "depr_{}yr_".format(y if y != 27.5 else 275)
                     depr_methods[y] = btax_params[s + 'method'][iyr]
                     depr_bonuses[y] = btax_params[s + 'bonus'][iyr]
-                taxdep = taxdep_final(depr_methods, depr_bonuses, year)
+                depr_file = btax_params.loc[year-START_YEAR, 'depr_file']
+                taxdep = taxdep_final(depr_methods, depr_bonuses, depr_file)
             else:
-                taxdep = taxdep_preset(year)
+                taxdep = taxdep_preset()
             return taxdep
         """
         Create arrays and store depreciation rules in them
@@ -325,7 +326,8 @@ class Asset():
         Calculate depreciation deductions for each year
         """
         unitDep_arr = np.zeros((95, 68))
-        delta = np.asarray(self.data.taxdep_info_gross(year)['delta'])
+        depr_file = self.btax_params.loc[year-START_YEAR, 'depr_file']
+        delta = np.asarray(self.data.taxdep_info_gross(depr_file)['delta'])
         for i in range(95):
             # Iterate over asset types
             for j in range(68):
