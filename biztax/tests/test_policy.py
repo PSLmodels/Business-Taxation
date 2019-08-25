@@ -79,14 +79,11 @@ def test_parameters_dataframe():
     assert ppdf['year'][0] == START_YEAR
     assert ppdf['year'][NUM_YEARS - 1] == END_YEAR
     assert ppdf['tau_c'][START_YEAR - START_YEAR] == 0.347
-    assert ppdf['tau_c'][END_YEAR - START_YEAR] == 0.347
     with pytest.raises(KeyError):
         ppdf['tau_c'][-1]
     with pytest.raises(KeyError):
         ppdf['tau_c'][END_YEAR - START_YEAR + 1]
     with pytest.raises(KeyError):
         ppdf['tau_c'][START_YEAR]
-    with pytest.raises(KeyError):
-        ppdf['tau_c'][END_YEAR]
     with pytest.raises(KeyError):
         ppdf['unknown_parameter'][0]
