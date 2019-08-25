@@ -12,14 +12,14 @@ def test_instantiation_and_update_methods(clp_params_df):
     """
     good_btax_params = clp_params_df
     bad_btax_params = list()
-    good_earnings = np.ones(14)
+    good_earnings = np.ones(16)
     bad1_earnings = np.ones(13)
     bad2_earnings = dict()
     good_data = Data()
     good_assets = Asset(clp_params_df)
     good_assets.calc_all()
     bad_assets = dict()
-    good_debts = Debt(clp_params_df, np.ones(14))
+    good_debts = Debt(clp_params_df, np.ones(16))
     good_debts.calc_all()
     bad_debts = dict()
     Corp = Corporation(good_btax_params)

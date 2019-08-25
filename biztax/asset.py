@@ -95,9 +95,13 @@ class Asset():
         # Extend investment using NGDP (growth factors from CBO forecast)
         inv2014 = np.asarray(investment_df.loc[:, str(START_YEAR)])
         for year in range(START_YEAR + 1, END_YEAR + 1):
-            gfact = (self.data.investmentGfactors_data.loc[year-HISTORY_START, 'ngdp']
-                     / self.data.investmentGfactors_data.loc[START_YEAR-HISTORY_START, 'ngdp'])
-            investment_df.loc[:, str(year)] = inv2014 * gfact
+            gfact1 = (self.data.gfactors.loc[year-START_YEAR+1, 'fi_nonres']
+                      / self.data.gfactors.loc[1, 'fi_nonres'])
+            gfact2 = (self.data.gfactors.loc[year-START_YEAR+1, 'fi_res']
+                      / self.data.gfactors.loc[1, 'fi_res'])
+            investment_df.loc[:, str(year)] = inv2014 * gfact1
+            # Use residential investment gfactor for residential inv
+            investment_df.loc[91:, str(year)] = inv2014[91:] * gfact2
         # Update investment matrix to include investment responses
         if self.response is not None:
             if self.corp:
@@ -106,8 +110,8 @@ class Asset():
                 deltaIkey = 'deltaInc'
             for year in range(START_YEAR, END_YEAR + 1):
                 deltaI = np.array(self.response[deltaIkey + str(year)])
-                investment_df[str(year)] = (investment_df[str(year)] *
-                                            (1. + deltaI))
+                investment_df.loc[:,str(year)] = (investment_df.loc[:,str(year)]
+                                                  * (1. + deltaI))
         self.investment_history = investment_df
 
     def build_deprLaw_matrices(self):
@@ -206,9 +210,10 @@ class Asset():
         """
         Create arrays and store depreciation rules in them
         """
-        method_history = [[]] * 68
-        life_history = np.zeros((95, 68))
-        bonus_history = np.zeros((95, 68))
+        length1 = END_YEAR - HISTORY_START + 1
+        method_history = [[]] * length1
+        life_history = np.zeros((95, length1))
+        bonus_history = np.zeros((95, length1))
         for year in range(HISTORY_START, END_YEAR + 1):
             iyr = year - HISTORY_START
             params_oneyear = get_btax_params_oneyear(self.btax_params, year)
@@ -326,12 +331,12 @@ class Asset():
         """
         Calculate depreciation deductions for each year
         """
-        unitDep_arr = np.zeros((95, 68))
+        unitDep_arr = np.zeros((95, END_YEAR - HISTORY_START + 1))
         depr_file = self.btax_params.loc[year-START_YEAR, 'depr_file']
         delta = np.asarray(self.data.taxdep_info_gross(depr_file)['delta'])
         for i in range(95):
             # Iterate over asset types
-            for j in range(68):
+            for j in range(END_YEAR - HISTORY_START + 1):
                 # Iterate over investment years
                 bonus1 = min((self.bonus_history[i, j]
                               * self.adjustments['bonus']
@@ -358,7 +363,7 @@ class Asset():
                 hc_undep_year = np.array(self.btax_params['undepBasis_noncorp_hcyear'])[iyr]
                 hc_undep = np.array(self.btax_params['undepBasis_noncorp_hc'])[iyr]
         if year >= hc_undep_year:
-            for j in range(68):
+            for j in range(END_YEAR - HISTORY_START + 1):
                 if j < hc_undep_year:
                     Dep_arr[:, j] = Dep_arr[:, j] * (1 - hc_undep)
         # Asset types included in tax depreciation or not

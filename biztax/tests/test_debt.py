@@ -35,11 +35,11 @@ def test_instantiation(clp_params_df):
     """
     good_btax_params = clp_params_df
     bad_btax_params = list()
-    good_asset_forecast = np.ones(14)
+    good_asset_forecast = np.ones(16)
     bad_asset_forecast = np.ones(13)
     good_data = Data()
     bad_data = list()
-    good_response = np.zeros(14)
+    good_response = np.zeros(16)
     bad_response = np.zeros(13)
     with pytest.raises(ValueError):
         Debt(bad_btax_params, good_asset_forecast)
@@ -61,7 +61,7 @@ def test_constrain_history(clp_params_df):
     """
     Test constrain_history method
     """
-    good_asset_forecast = np.ones(14)
+    good_asset_forecast = np.ones(16)
     debt = Debt(clp_params_df, good_asset_forecast)
     debt.get_haircuts()
     debt.build_level_history()
