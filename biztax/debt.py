@@ -114,7 +114,9 @@ class Debt():
         self.muni_asset_history = An
         self.debt_liab_history = L
         self.i_a = i_t
-        self.i_l = i_t + i_pr
+        self.i_l = [i_t[i] + i_pr[i] for i in range(len(i_t))]
+        assert len(self.i_l) == len(self.net_debt_history)
+        assert len(self.i_l) == len(self.i_a)
 
     def build_flow_history(self):
         """

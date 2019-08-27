@@ -20,6 +20,18 @@ from taxcalc.utils import json_to_dict
 from biztax import Policy, BusinessModel, Response, Data
 import json
 
+# First, set the response dataframes to have no changes
+debt_forecast = pd.read_csv('biztax/debt_forecast.csv')
+fc = debt_forecast.loc[0, 'f_c_l']
+debt_forecast['f_c_l'] = fc
+debt_forecast.to_csv('biztax/debt_forecast.csv', index=False)
+
+repatdf = pd.read_csv('biztax/brc_data/repatriation_adjustment.csv')
+repatdf['repatch_e'] = 0.
+repatdf['repatch_a'] = 0.
+repatdf.to_csv('biztax/brc_data/repatriation_adjustment.csv', index=False)
+
+
 # 2017 law business tax rules
 bdict1 = {
     "tau_c": {2018: 0.347},
@@ -142,7 +154,7 @@ resp.update_elasticities({'debt_taxshield_c': 0.17,
 resp.calc_all(bm.btax_params_base, bm.btax_params_ref)
 
 # Extract debt items of interest
-debteffect = pd.DataFrame({'year': range(2014, 2028)})
+debteffect = pd.DataFrame({'year': range(2014, 2030)})
 debteffect['fracded_base'] = bm.btax_params_base['fracded_c']
 debteffect['txrt_base'] = bm.btax_params_base['tau_c']
 debteffect['shield_base'] = debteffect['fracded_base'] * debteffect['txrt_base']
@@ -152,7 +164,7 @@ debteffect['shield_ref'] = debteffect['fracded_ref'] * debteffect['txrt_ref']
 debteffect['debtch'] = resp.debt_response['pchDelta_corp']
 
 # Extract repatriation items of interest
-repateffect = pd.DataFrame({'year': range(2014, 2028)})
+repateffect = pd.DataFrame({'year': range(2014, 2030)})
 ftax = Data().cfc_data.loc[0, 'taxrt']
 repateffect['frachit_base'] = bm.btax_params_base['foreign_dividend_inclusion']
 repateffect['txdiff_base'] = np.maximum(bm.btax_params_base['tau_c'] - ftax, 0.)
@@ -163,14 +175,14 @@ repateffect['penalty_ref'] = repateffect['frachit_ref'] * repateffect['txdiff_re
 repateffect['repatch'] = resp.repatriation_response['reprate_e']
 
 # Export results to check manually
-debteffect.to_csv('debttest.csv')
-repateffect.to_csv('repattest.csv')
+#debteffect.to_csv('debttest.csv')
+#repateffect.to_csv('repattest.csv')
 
 # If debt results fine, save into the debt forecast
-#debt_forecast = pd.read_csv('biztax/debt_forecast.csv')
-#fc = debt_forecast.loc[0, 'f_c_l']
-#debt_forecast['f_c_l'] = fc * (1. + debteffect['debtch'])
-#debt_forecast.to_csv('biztax/debt_forecast.csv')
+debt_forecast = pd.read_csv('biztax/debt_forecast.csv')
+fc = debt_forecast.loc[0, 'f_c_l']
+debt_forecast['f_c_l'] = fc * (1. + debteffect['debtch'])
+debt_forecast.to_csv('biztax/debt_forecast.csv', index=False)
 
 # If repatriation results fine, save into the repatriation change forecast
 repatdf = copy.deepcopy(repateffect)
@@ -178,9 +190,9 @@ repatdf['repatch_e'] = repateffect['repatch']
 repatdf['repatch_a'] = [0.0, 0.0, 0.0, 0.0,
                         0.2, 0.2, 0.2, 0.2,
                         0.2, 0.2, 0.2, 1.0,
-                        0.0, 0.0]
-repatdf.drop(['frachit_base', 'frachit_ref', 'taxdiff_base',
+                        0.0, 0.0, 0.0, 0.0]
+repatdf.drop(['frachit_base', 'frachit_ref', 'txdiff_base',
               'txdiff_ref', 'penalty_base', 'penalty_ref',
               'repatch'], axis=1, inplace=True)
-repatdf.to_csv('repatriation_adjustment.csv')
+repatdf.to_csv('biztax/brc_data/repatriation_adjustment.csv', index=False)
 

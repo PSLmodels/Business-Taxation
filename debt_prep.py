@@ -192,10 +192,9 @@ asset.calc_all()
 debt = Debt(pol1.parameters_dataframe(), asset.get_forecast(), corp=True)
 debt.calc_all()
 
-
-"""
-SECTION 5. To do once the TCJA has been implemented.
-Use the response model to change the forecast ratio of debt
-liabilities to assets.
-"""
+df1 = pd.DataFrame({'inc_mod': intinc_model * scales_corp[1],
+                    'paid_mod': intpaid_model * scales_corp[0],
+                    'muni_mod': muniinc_model * scales_corp[2],
+                    'inc_irs': taxint, 'paid_irs': intpaid, 'muni_irs': ntaxint})
+df1.to_csv('debt_fit.csv')
 

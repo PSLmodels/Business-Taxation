@@ -17,6 +17,7 @@ The example here includes 3 changes to policy beginning in 2018:
 """
 import taxcalc as itax  # capabilities of individual Tax-Calculator
 from biztax import Policy, BusinessModel, Response
+import pandas as pd
 
 # Create a business-tax Policy object with the following reform
 btax_reform_dict = {
@@ -47,7 +48,7 @@ btax_policy_reform.implement_reform(btax_reform_dict)
 itax_policy_noreform = itax.Policy()
 
 # Execute BusinessModel calculations with no response
-BM = BusinessModel(btax_policy_reform, itax_policy_noreform)
+BM = BusinessModel(btax_policy_reform, itax_policy_noreform, investor_data='rpuf.csv')
 BM.calc_all(response=None)
 
 # Look at the changes in total corporate and individual income tax liability
@@ -70,7 +71,7 @@ del BM
 
 # Execute BusinessModel calculations assuming responses just
 # investment and debt responses to business tax reform
-BM = BusinessModel(btax_policy_reform, itax_policy_noreform)
+BM = BusinessModel(btax_policy_reform, itax_policy_noreform, investor_data='rpuf.csv')
 partial_response = Response()
 partial_response.update_elasticities({'inv_usercost_c': -1.0,
                                       'inv_usercost_nc': -0.5,

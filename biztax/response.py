@@ -230,13 +230,13 @@ class Response():
         penalty_base = np.maximum(dtax_base - ftax, 0.) * divrt_base
         penalty_ref = np.maximum(dtax_ref - ftax, 0.) * divrt_ref
         # Compute repatriation rates
-        reprate_base = np.exp(-penalty_base * self.elasticities['reprate_inc'])
-        reprate_ref = np.exp(-penalty_ref * self.elasticities['reprate_inc'])
+        
         # Compute change in repatriation rate
+        reprate_ch1 = (penalty_ref - penalty_base) * self.elasticities['reprate_inc']
         reprate_ch = np.zeros(NUM_YEARS)
         for i in range(NUM_YEARS):
             if i + 2014 >= self.elasticities['first_year_response']:
-                reprate_ch[i] = reprate_ref[i] - reprate_base[i]
+                reprate_ch[i] = reprate_ch1[i]
         repat_response = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                        'reprate_e': reprate_ch,
                                        'reprate_a': np.zeros(NUM_YEARS)})

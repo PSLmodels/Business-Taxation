@@ -89,7 +89,7 @@ class Asset():
             investment_dfg = copy.deepcopy(self.data.investment_corp)
         else:
             investment_dfg = copy.deepcopy(self.data.investment_noncorp)
-        investment_df = investment_dfg[investment_dfg.industry == self.industry]
+        investment_df = investment_dfg.loc[investment_dfg.industry == self.industry,:]
         investment_df.drop(['industry'], axis=1, inplace=True)
         investment_df.reset_index(drop=True, inplace=True)
         # Extend investment using NGDP (growth factors from CBO forecast)
@@ -109,7 +109,7 @@ class Asset():
             else:
                 deltaIkey = 'deltaInc'
             for year in range(START_YEAR, END_YEAR + 1):
-                deltaI = np.array(self.response[deltaIkey + str(year)])
+                deltaI = np.asarray(self.response[deltaIkey + str(year)])
                 investment_df.loc[:,str(year)] = (investment_df.loc[:,str(year)]
                                                   * (1. + deltaI))
         self.investment_history = investment_df
