@@ -20,7 +20,8 @@ def test_debt_interest_path(reform_number, corporate,
     """
     asset = Asset(reforms[reform_number]['params_df'], corp=corporate)
     asset.calc_all()
-    debt = Debt(reforms[reform_number]['params_df'], asset.get_forecast())
+    debt = Debt(reforms[reform_number]['params_df'], asset.get_forecast(),
+                corp=corporate)
     debt.calc_all()
     decimals = 2
     interest_path = debt.interest_path.round(decimals)
