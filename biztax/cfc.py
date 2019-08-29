@@ -122,4 +122,4 @@ class CFC():
             self.reprate_earnings = reprate_e
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
-            self.reprate_accum = update_df['reprate_a']
+            self.reprate_accum = self.reprate_accum + update_df['reprate_a']

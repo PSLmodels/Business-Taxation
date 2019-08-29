@@ -102,7 +102,6 @@ class CorpTaxReturn():
                                     + self.deductions['advertising']
                                     + self.deductions['pensions']
                                     + self.deductions['benefits']
-                                    + self.deductions['noncaploss']
                                     + self.deductions['other'])
         combined = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                  'ebitda': (self.revenues['total'] -

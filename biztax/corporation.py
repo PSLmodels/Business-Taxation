@@ -55,7 +55,7 @@ class Corporation():
         receipts = taxitems[4] * gfacts
         rent_inc = taxitems[7] * gfacts
         royalties = taxitems[8] * gfacts
-        capgains = (taxitems[9] + taxitems[10] + taxitems[11]) * gfacts
+        capgains = (taxitems[9] + taxitems[10] + taxitems[11] - taxitems[32]) * gfacts
         domestic_divs = taxitems[12] * gfacts
         other_recs = taxitems[14] * gfacts
         # 2013 values for non-modeled deductions and credits
@@ -73,7 +73,6 @@ class Corporation():
         pensions = taxitems[29] * gfacts
         benefits = taxitems[30] * gfacts
         sec199_base = taxitems[31] * gfacts
-        noncaploss = taxitems[32] * gfacts
         other_ded = taxitems[33] * gfacts
         gbc = taxitems[42] * gfacts
         # Save unodeled tax items
@@ -99,7 +98,6 @@ class Corporation():
                                         'pensions': pensions,
                                         'benefits': benefits,
                                         'sec199share': sec199_base,
-                                        'noncaploss': noncaploss,
                                         'other': other_ded})
         self.credits = pd.DataFrame({'year': range(START_YEAR, END_YEAR + 1),
                                      'gbc': gbc})
