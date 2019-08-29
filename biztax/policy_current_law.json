@@ -647,7 +647,7 @@
 
     "capgains_corp_hc": {
         "long_name": "Corporate capital gains haircut",
-        "description": "Haircut on corporate capital gains included in taxable income",
+        "description": "Haircut on corporate capital gain or loss included in taxable income",
         "value_type": "real",
         "value_yrs": [2014],
         "value": [0.0],
@@ -880,7 +880,7 @@
 
     "cfcinc_inclusion": {
         "long_name": "Inclusion rate of CFC income in taxable income.",
-        "description": "Fraction of income net of subpart F and the tangible normal return included in taxable income.",
+        "description": "Fraction of income gross of subpart F and included in taxable income.",
         "value_type": "real",
         "value_yrs": [2014],
         "value": [0.0],

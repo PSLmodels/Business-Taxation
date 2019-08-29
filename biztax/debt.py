@@ -97,15 +97,14 @@ class Debt():
             At = [0] * (START_YEAR - HISTORY_START + 1)
             An = [0] * (START_YEAR - HISTORY_START + 1)
             L = self.data.debt_data['L_nc'].tolist()
-        D = [L[i] - At[i] - An[i] for i in range(len(L))]
         i_t = self.data.debt_data['i_t'].tolist()
         i_pr = self.data.debt_data['i_pr'].tolist()
         # Extend for 2015-2027
         At.extend(At[START_YEAR-HISTORY_START] * self.asset_forecast[1:] / self.asset_forecast[0])
         An.extend(An[START_YEAR-HISTORY_START] * self.asset_forecast[1:] / self.asset_forecast[0])
-        D.extend(D[54] * self.asset_forecast[1:] / self.asset_forecast[0]
+        L.extend(L[54] * self.asset_forecast[1:] / self.asset_forecast[0]
                  * self.delta[1:] / self.delta[0])
-        L = [D[i] + At[i] + An[i] for i in range(len(D))]
+        D = [L[i] - At[i] - An[i] for i in range(len(L))]
         i_t.extend(self.data.debt_forecast['i_t'][1:])
         i_pr.extend([i_pr[START_YEAR-HISTORY_START]] * (NUM_YEARS-1))
         # Save level histories

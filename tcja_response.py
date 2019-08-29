@@ -189,7 +189,7 @@ repatdf = copy.deepcopy(repateffect)
 repatdf['repatch_e'] = repateffect['repatch']
 repatdf['repatch_a'] = [0.0, 0.0, 0.0, 0.0,
                         0.2, 0.2, 0.2, 0.2,
-                        0.2, 0.2, 0.2, 1.0,
+                        0.2, 0.2, 0.2, 0.2,
                         0.0, 0.0, 0.0, 0.0]
 repatdf.drop(['frachit_base', 'frachit_ref', 'txdiff_base',
               'txdiff_ref', 'penalty_base', 'penalty_ref',
