@@ -15,7 +15,8 @@ btax_policy_reform0.implement_reform(btax_reform_dict0)
 itax_policy_noreform0 = itax.Policy()
 
 # Execute BusinessModel calculations with no response
-BM0 = BusinessModel(btax_policy_reform0, itax_policy_noreform0, investor_data='rpuf.csv')
+BM0 = BusinessModel(btax_policy_reform0, itax_policy_noreform0,
+                    investor_data='rpuf.csv')
 BM0.calc_all(response=None)
 
 print(BM0.model_results)
@@ -54,7 +55,8 @@ btax_policy_reform1.implement_reform(btax_reform_dict1)
 itax_policy_noreform1 = itax.Policy()
 
 # Execute BusinessModel calculations with no response
-BM1 = BusinessModel(btax_policy_reform1, itax_policy_noreform1, investor_data='rpuf.csv')
+BM1 = BusinessModel(btax_policy_reform1, itax_policy_noreform1,
+                    investor_data='rpuf.csv')
 BM1.calc_all(response=None)
 
 print(BM1.model_results)
@@ -84,7 +86,7 @@ btax_reform_dict2 = {
     'muniIntIncome_corp_hc': {2020: 0.0},
     'adjustedTaxInc_limit': {2020: 9e99},
     'statelocaltax_hc': {2020: 1.0},
-    'pymtc_hc': {2018: 1.0},
+    'pymtc_hc': {2020: 1.0},
     'GILTI_thd': {2020: 0.0},
     'GILTI_inclusion': {2020: 1.0},
     'fdii_rt': {2020: 0.0}
@@ -98,7 +100,8 @@ btax_policy_reform2.implement_reform(btax_reform_dict2)
 itax_policy_noreform2 = itax.Policy()
 
 # Execute BusinessModel calculations with no response
-BM2 = BusinessModel(btax_policy_reform2, itax_policy_noreform2, investor_data='rpuf.csv')
+BM2 = BusinessModel(btax_policy_reform2, itax_policy_noreform2,
+                    investor_data='rpuf.csv')
 BM2.calc_all(response=None)
 
 print(BM2.model_results)

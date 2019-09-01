@@ -30,6 +30,8 @@ class DomesticMNE():
         self.dmne_data = copy.deepcopy(self.data.dmne_data)
         # Create affiliated CFC
         self.cfc = CFC(self.btax_params)
+        # For initial creation, set includes_response to False
+        self.includes_response = False
 
     def create_earnings(self):
         """
@@ -60,8 +62,11 @@ class DomesticMNE():
         adjustments = adjustments14 * earnings_forecast / earnings_forecast[0]
         # Combine in relevant tax categories
         self.divinc = div_noncfc + self.cfc.dividends
-        self.otherinc = (interest + rent + serviceinc + branchinc + otherinc -
-                         deductions - adjustments)
+        if not self.includes_response:
+            # Compute other foreign income
+            # If includes_response, automatically uses otherinc with shifting
+            self.otherinc = (interest + rent + serviceinc + branchinc + otherinc -
+                            deductions - adjustments)
         self.foreigntax = foreigntax
         self.repatinc = self.cfc.repatriations
 
@@ -112,7 +117,8 @@ class DomesticMNE():
         Run all calculations for the DomesticMNE.
         """
         self.cfc.calc_all()
-        self.create_earnings()
+        if not self.includes_response:
+            self.create_earnings()
         self.taxable_earnings()
         self.calcFTC()
         # Store results in DataFrame
@@ -131,10 +137,18 @@ class DomesticMNE():
         """
         return None
 
-    def update_profits(self, repat_response):
+    def update_profits(self, repat_response, shifting_response):
         """
         Updates location of profits based on profit-shifting response and
         repatriation rate from profits in CFC.
-        Currently, only handles the repatriation response.
+        Currently, takes the repatriation response as given.
         """
-        self.cfc.update_cfc(repat_response)
+        # Compute new CFC earnings & profits
+        newcfcinc1 = self.cfc.earnings * shifting_response
+        # Ensure these do not exceed non-CFC foreign income
+        newcfcinc2 = np.minimum(newcfcinc1, self.otherinc)
+        # Update foreign branch income
+        self.otherinc = self.otherinc - newcfcinc2
+        self.includes_response = True
+        # Update CFC
+        self.cfc.update_cfc(repat_response, newcfcinc2)

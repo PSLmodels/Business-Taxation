@@ -103,15 +103,19 @@ class CFC():
         """
         self.pay_foreign_taxes()
         self.repatriate_accumulate()
+        # Add certain results to policy DataFrame
+        self.btax_params['ftaxrate'] = self.ftaxrate
+        self.btax_params['reprate_e'] = self.reprate_earnings
 
-    def update_cfc(self, update_df):
+    def update_cfc(self, update_df, shift_response=None):
         """
         Updates the forecast for the repatriation rates.
         Then calls calc_all() using the new repatriation decisions.
 
         update_df should be a DataFrame object with columns
         [year, reprate_e, reprate_a]
-        and years 2014:2028
+        shift_response is array of income shifted between
+        nondeferred foreign source and CFC
         """
         assert isinstance(update_df, pd.DataFrame)
         assert len(update_df) == NUM_YEARS
@@ -123,3 +127,6 @@ class CFC():
         if 'reprate_a' in update_df:
             # Update repatriation rate on accumulated profits (if built)
             self.reprate_accum = self.reprate_accum + update_df['reprate_a']
+        if shift_response is not None:
+            # Update earnings
+            self.earnings = self.earnings + shift_response
