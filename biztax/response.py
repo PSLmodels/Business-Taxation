@@ -41,6 +41,7 @@ class Response():
         'debt_taxshield_c': 0.0,
         'debt_taxshield_nc': 0.0,
         'reprate_inc': 0.0,
+        'shifting': 0.0,
         'legalform_ratediff': 0.0,
         'first_year_response': 2017
     }
@@ -87,6 +88,7 @@ class Response():
         assert self.elasticities['debt_taxshield_c'] >= 0.0
         assert self.elasticities['debt_taxshield_nc'] >= 0.0
         assert self.elasticities['reprate_inc'] <= 0.0
+        assert self.elasticities['shifting'] >= 0.0
         assert self.elasticities['legalform_ratediff'] <= 0.0
         assert (self.elasticities['first_year_response']
                 in range(START_YEAR, END_YEAR + 1))
@@ -98,6 +100,7 @@ class Response():
         self._calc_investment_response(btax_params_base, btax_params_ref)
         self._calc_debt_responses(btax_params_base, btax_params_ref)
         self._calc_repatriation_response(btax_params_base, btax_params_ref)
+        self._calc_shifting_response(btax_params_base, btax_params_ref)
         self._calc_legal_response(btax_params_base, btax_params_ref)
 
     # ----- begin private methods of Release class -----
@@ -206,10 +209,9 @@ class Response():
 
     def _calc_repatriation_response(self, btax_params_base, btax_params_ref):
         """
-        Calculates the new repatriation rate of current CFC after-tax profits.
-        The parameter used is the semi-elasticity of repatriations
-        with respect to the tax penalty from repatriating, although it is
-        implemented in exponential form instead of as a change. The response is
+        Calculates the change in the repatriation rate of current CFC
+        after-tax profits. The parameter used is the semi-elasticity of repatriations
+        with respect to the tax penalty from repatriating. The response is
         only used for repatriations from current profits, as repatriations
         from accumulated profits are too complicated to model explicity
         and not relevant following the 2017 tax act.
@@ -229,8 +231,6 @@ class Response():
         divrt_ref = np.asarray(btax_params_ref['foreign_dividend_inclusion'])
         penalty_base = np.maximum(dtax_base - ftax, 0.) * divrt_base
         penalty_ref = np.maximum(dtax_ref - ftax, 0.) * divrt_ref
-        # Compute repatriation rates
-        
         # Compute change in repatriation rate
         reprate_ch1 = (penalty_ref - penalty_base) * self.elasticities['reprate_inc']
         reprate_ch = np.zeros(NUM_YEARS)
@@ -241,6 +241,55 @@ class Response():
                                        'reprate_e': reprate_ch,
                                        'reprate_a': np.zeros(NUM_YEARS)})
         self.repatriation_response = repat_response
+    
+    def _calc_shifting_response(self, btax_params_base, btax_params_ref):
+        """
+        Calculates the profit-shifting response, the percent change
+        in earnings booked in CFCs. When implemented in the DomesticMNE
+        class and the CFC class, the reallocation of booked profits
+        is between CFCs and foreign branches. Any increase in profits
+        booked in CFCs is constrained to not exceed foreign branch income.
+        This is implemented as a semi-elasticity w.r.t. the tax shield
+        from booking abroad. Under pre-TCJA law, the shield from booking
+        in the CFC is the difference between the domestic and foreign tax
+        rates, adjusted for the repatriation rate. Under the TCJA, this
+        must also account for GILTI. The formula should account for the
+        share of income (at the margin) included in US taxable income
+        (max(cfc_inclusion, GILTI_inclusion)). This should also account
+        for the fraction of foreign taxes paid eligible for the foreign
+        tax credit (80% under GILTI).
+        Items needed:
+            Repatriation rate: repate_e
+        """
+        # Fraction of marginal CFC income shielded from US tax
+        shieldshr_base = ((1. -
+                           btax_params_base['foreign_dividend_inclusion'] *
+                           btax_params_base['reprate_e']) *
+                          (1. - 
+                          np.maximum(btax_params_base['GILTI_inclusion'],
+                                     btax_params_base['cfcinc_inclusion'])))
+        shieldshr_ref = ((1. -
+                          btax_params_ref['foreign_dividend_inclusion'] *
+                          btax_params_ref['reprate_e']) *
+                         (1. - 
+                         np.maximum(btax_params_ref['GILTI_inclusion'],
+                                    btax_params_ref['cfcinc_inclusion'])))
+        # Tax rate differential to locating profits abroad
+        shieldrt_base = btax_params_base['tau_c'] - btax_params_base['ftaxrate']
+        shieldrt_ref = btax_params_ref['tau_c'] - btax_params_ref['ftaxrate']
+        # Compute tax shields from shifting profits at margin
+        shield_base = shieldshr_base * shieldrt_base
+        shield_ref = shieldshr_ref * shieldrt_ref
+        # Compute change in profit shifting
+        shift_ch1 = (shield_ref - shield_base) * self.elasticities['shifting']
+        # Adjust for first year to apply it
+        shift_ch2 = np.zeros(NUM_YEARS)
+        for i in range(NUM_YEARS):
+            if i + START_YEAR >= self.elasticities['first_year_response']:
+                shift_ch2[i] = shift_ch1[i]
+        # Limit changes to 100%
+        shift_ch3 = np.maximum(np.minimum(shift_ch2, 1.0), -1.0)
+        self.shifting_response = shift_ch3
 
     def _calc_legal_response(self, btax_params_base, btax_params_ref):
         """

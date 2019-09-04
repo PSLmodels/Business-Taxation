@@ -200,7 +200,8 @@ class Corporation():
         Also updates profits to reflect this response.
         """
         # First, save current foreign earnings
-        self.dmne.update_profits(responses.repatriation_response)
+        self.dmne.update_profits(responses.repatriation_response,
+                                 responses.shifting_response)
         self.dmne.calc_all()
 
     def update_earnings(self, responses):
