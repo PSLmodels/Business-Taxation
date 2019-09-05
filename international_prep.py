@@ -188,6 +188,15 @@ industry of the parent company.
 We use this to produce the domestic and foreign components
 of the activities of US MNEs for use by the DomesticMNE
 class and for computing FDII.
+
+This section produces a DataFrame with the following items:
+	Foreign share of sales for US parent companies
+	Domestic assets, US parent companies
+	Foreign assets, MOFAs
+	Domestic PPE, US parent companies
+	Foreign PPE, MOFAs
+	Net income (real), US parent companies
+	Net income (real), MOFAs
 """
 # Prepare balance sheet data of MOFAs
 mofab1 = pd.read_excel(bal_mofa, sheet_name='Table II.B 11', header=7)
@@ -427,7 +436,7 @@ mne1['netinc_d'] = prnti5['netinc']
 mne1.to_csv('test.csv')
 
 """
-SECTION 4. DATA ON US CORPORATIONS WITH FOREIGN INCOME
+SECTION 4. DATA ON US CORPORATIONS WITH FOREIGN TAX CREDITS
 
 The data come from IRS data on corporations claiming a
 foreign tax credit.
@@ -435,3 +444,17 @@ foreign tax credit.
 Note that the MOFA data used in section 2 is by industry
 of affiliate, whereas all data in this section are by
 industry of the parent company.
+
+Using the data in this section, we can impute/estimate
+real and tax items for the IRS data. These will then be
+scaled to match observed items in the tax return data
+for 2013, rescaled/adjusted to 2014.
+"""
+
+
+
+
+
+
+
+
